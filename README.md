@@ -93,3 +93,8 @@ _[URL zur API-Doku, falls vorhanden — z.B. Swagger unter `http://localhost:POR
 - _[z.B. .NET 8 SDK]_
 - _[z.B. PostgreSQL 15+]_
 - _[weitere Abhaengigkeiten]_
+
+---
+
+## Lizenz
+MIT
