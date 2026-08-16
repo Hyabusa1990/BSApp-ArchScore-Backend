@@ -1,0 +1,2002 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "Fawkes API",
+    "description": "API for Fawkes application",
+    "contact": {
+      "name": "Dominik Schindler",
+      "email": "dominik.schindler@gmx.de"
+    },
+    "version": "v1"
+  },
+  "paths": {
+    "/Auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.LoginRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.LoginRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.TokenResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.TokenResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.TokenResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.RegisterRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.RegisterRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.RegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.MessageResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.MessageResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Auth/register/{token}": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.MessageResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.MessageResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Auth/refresh": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.RefreshRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.RefreshRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.RefreshRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.TokenResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.TokenResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.TokenResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.UserResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.UserResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.UserResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fixtures/{fixtureId}/devices": {
+      "get": {
+        "tags": [
+          "DeviceManagement"
+        ],
+        "summary": "Returns all display devices used for a fixture.",
+        "parameters": [
+          {
+            "name": "fixtureId",
+            "in": "path",
+            "description": "The id of the fixture for which to retrieve devices.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Fawkes.Api.Controllers.DeviceManagementController.DeviceBase"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Fawkes.Api.Controllers.DeviceManagementController.DeviceBase"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Fawkes.Api.Controllers.DeviceManagementController.DeviceBase"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fixtures/{fixtureId}/devices/{deviceId}": {
+      "get": {
+        "tags": [
+          "DeviceManagement"
+        ],
+        "summary": "Returns details of a specific device used for a fixture.",
+        "parameters": [
+          {
+            "name": "fixtureId",
+            "in": "path",
+            "description": "The id of the fixture for which to retrieve the device.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "deviceId",
+            "in": "path",
+            "description": "The id of the device to retrieve.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.DeviceManagementController.GetDeviceResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.DeviceManagementController.GetDeviceResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.DeviceManagementController.GetDeviceResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "DeviceManagement"
+        ],
+        "summary": "Updates the details of a specific device used for a fixture.",
+        "parameters": [
+          {
+            "name": "fixtureId",
+            "in": "path",
+            "description": "The id of the fixture for which to update the device.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "deviceId",
+            "in": "path",
+            "description": "The id of the device to update.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The request object containing the updated device details.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.DeviceManagementController.UpdateDeviceRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.DeviceManagementController.UpdateDeviceRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.DeviceManagementController.UpdateDeviceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.DeviceManagementController.GetDeviceResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.DeviceManagementController.GetDeviceResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.DeviceManagementController.GetDeviceResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fixtures/{fixtureId}/devices/assign": {
+      "put": {
+        "tags": [
+          "DeviceManagement"
+        ],
+        "summary": "Assigns a device to a fixture.",
+        "parameters": [
+          {
+            "name": "fixtureId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The request object containing the details of the device to assign.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.DeviceManagementController.AssignDeviceToFixtureRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.DeviceManagementController.AssignDeviceToFixtureRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.DeviceManagementController.AssignDeviceToFixtureRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.DeviceManagementController.GetDeviceResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.DeviceManagementController.GetDeviceResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.DeviceManagementController.GetDeviceResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fixtures/{fixtureId}/devices/{deviceId}/unassign": {
+      "put": {
+        "tags": [
+          "DeviceManagement"
+        ],
+        "summary": "Removes a device from a fixture.",
+        "parameters": [
+          {
+            "name": "fixtureId",
+            "in": "path",
+            "description": "The id of the fixture from which to remove the device.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "deviceId",
+            "in": "path",
+            "description": "The id of the device to remove.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Display/register": {
+      "get": {
+        "tags": [
+          "Display"
+        ],
+        "summary": "Registers a device and returns the access token, refresh token, and expiration time. Payload of the access token contains the device code issued during registration.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.DisplayController.DeviceTokenResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.DisplayController.DeviceTokenResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.DisplayController.DeviceTokenResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Display/data": {
+      "get": {
+        "tags": [
+          "Display"
+        ],
+        "summary": "Returns the display data for the registered device. The display data includes the display type (Unassigned, None, Match) and any other relevant information.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.DisplayController.DisplayDataResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.DisplayController.DisplayDataResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.DisplayController.DisplayDataResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fixtures/{fixtureId}/phase": {
+      "get": {
+        "tags": [
+          "Dos"
+        ],
+        "summary": "Gets the current phase of the fixture.",
+        "parameters": [
+          {
+            "name": "fixtureId",
+            "in": "path",
+            "description": "The id of the fixture.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.DosController.GetPhaseResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.DosController.GetPhaseResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.DosController.GetPhaseResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Dos"
+        ],
+        "summary": "Sets the current phase of the fixture. The current phase controls which information is displayed and also where shots captured by the spotters are recorded.",
+        "parameters": [
+          {
+            "name": "fixtureId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.DosController.SetPhaseRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.DosController.SetPhaseRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.DosController.SetPhaseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/fixtures/{fixtureId}/rounds/{roundNo}": {
+      "get": {
+        "tags": [
+          "Dos"
+        ],
+        "summary": "Gets the details of a specific round in a fixture. This action retrieves information about the specified round.",
+        "parameters": [
+          {
+            "name": "fixtureId",
+            "in": "path",
+            "description": "The id of the fixture.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "roundNo",
+            "in": "path",
+            "description": "The number of the round to retrieve.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.DosController.GetRoundResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.DosController.GetRoundResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.DosController.GetRoundResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fixtures/{fixtureId}/rounds/{roundNo}/targets/{targetNo}/sets/{setNo}/score": {
+      "put": {
+        "tags": [
+          "Dos"
+        ],
+        "parameters": [
+          {
+            "name": "fixtureId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "roundNo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "targetNo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "setNo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.DosController.UpdateSetScoreRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.DosController.UpdateSetScoreRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.DosController.UpdateSetScoreRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/status": {
+      "get": {
+        "tags": [
+          "Fawkes.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/version": {
+      "get": {
+        "tags": [
+          "Fawkes.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/testemail": {
+      "get": {
+        "tags": [
+          "Fawkes.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Fixture/{id}": {
+      "get": {
+        "tags": [
+          "Fixture"
+        ],
+        "summary": "Retrieves a fixture by its id. Returns a GetFixtureResponse object containing the fixture details.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the fixture to retrieve.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.GetFixtureResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.GetFixtureResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.GetFixtureResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Fixture"
+        ],
+        "summary": "Updates an existing fixture identified by its id based on the provided UpdateFixtureRequest object. Returns a GetFixtureResponse object containing the updated fixture details.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the fixture to update.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The UpdateFixtureRequest object containing the updated fixture details.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.UpdateFixtureRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.UpdateFixtureRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.UpdateFixtureRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.GetFixtureResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.GetFixtureResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.GetFixtureResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Fixture"
+        ],
+        "summary": "Deletes an existing fixture identified by its id.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the fixture to delete.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Fixture": {
+      "get": {
+        "tags": [
+          "Fixture"
+        ],
+        "summary": "Retrieves a list of all fixtures available to the current user.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.GetFixtureResponse"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.GetFixtureResponse"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.GetFixtureResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Fixture"
+        ],
+        "summary": "Creates a new fixture based on the provided CreateFixtureRequest object. Returns a GetFixtureResponse object containing the details of the newly created fixture.",
+        "requestBody": {
+          "description": "The CreateFixtureRequest object containing the details of the fixture to create.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.CreateFixtureRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.CreateFixtureRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.CreateFixtureRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.GetFixtureResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.GetFixtureResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.GetFixtureResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/MatchPlayChart/{fixtureId}": {
+      "get": {
+        "tags": [
+          "MatchPlayChart"
+        ],
+        "summary": "Gets the match play chart for a given fixture.",
+        "parameters": [
+          {
+            "name": "fixtureId",
+            "in": "path",
+            "description": "The unique identifier of the fixture.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.MatchPlayChartController.GetMatchPlayChartResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.MatchPlayChartController.GetMatchPlayChartResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.MatchPlayChartController.GetMatchPlayChartResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "MatchPlayChart"
+        ],
+        "summary": "Creates targets assignments for a given fixture. Overrides any existing match play chart for the fixture (see hard override attribute in request parameters).",
+        "parameters": [
+          {
+            "name": "fixtureId",
+            "in": "path",
+            "description": "The unique identifier of the fixture.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The request containing the match play chart details.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.MatchPlayChartController.CreateMatchPlayChartRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.MatchPlayChartController.CreateMatchPlayChartRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.MatchPlayChartController.CreateMatchPlayChartRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.MatchPlayChartController.GetMatchPlayChartResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.MatchPlayChartController.GetMatchPlayChartResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.MatchPlayChartController.GetMatchPlayChartResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fixtures/{fixtureUniqueId}/target/{targetNo}": {
+      "get": {
+        "tags": [
+          "Spotter"
+        ],
+        "summary": "Retrieves the details of a specific target in a fixture. This action is used to get the current state of a target, including its shots and associated team information.",
+        "parameters": [
+          {
+            "name": "fixtureUniqueId",
+            "in": "path",
+            "description": "The unique identifier of the fixture.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "targetNo",
+            "in": "path",
+            "description": "The number of the target.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.SpotterController.GetTargetResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.SpotterController.GetTargetResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.SpotterController.GetTargetResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Spotter"
+        ],
+        "summary": "Updates the shots for a specific target in a fixture. This action allows the spotter to modify the recorded shots for a target (also used for first capture).",
+        "parameters": [
+          {
+            "name": "fixtureUniqueId",
+            "in": "path",
+            "description": "The unique identifier of the fixture.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "targetNo",
+            "in": "path",
+            "description": "The number of the target.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The request containing the updated shot information.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.SpotterController.UpdateTargetRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.SpotterController.UpdateTargetRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.SpotterController.UpdateTargetRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.SpotterController.GetTargetResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.SpotterController.GetTargetResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.SpotterController.GetTargetResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fixtures/{fixtureUniqueId}/target/{targetNo}/confirm": {
+      "put": {
+        "tags": [
+          "Spotter"
+        ],
+        "summary": "Confirms the current set score for a target in a fixture. This action is typically used to finalize the score after all shots have been recorded and verified. Set points will be awarded after scores have been confirmed. Spotters cannot change a confirmed score.",
+        "parameters": [
+          {
+            "name": "fixtureUniqueId",
+            "in": "path",
+            "description": "The unique identifier of the fixture.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "targetNo",
+            "in": "path",
+            "description": "The number of the target.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.SpotterController.GetTargetResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.SpotterController.GetTargetResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.SpotterController.GetTargetResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Fawkes.Api.Controllers.AuthController.LoginRequest": {
+        "required": [
+          "email",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Fawkes.Api.Controllers.AuthController.MessageResponse": {
+        "required": [
+          "code",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Fawkes.Api.Controllers.AuthController.RefreshRequest": {
+        "required": [
+          "refreshToken"
+        ],
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Fawkes.Api.Controllers.AuthController.RegisterRequest": {
+        "required": [
+          "email",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Fawkes.Api.Controllers.AuthController.TokenResponse": {
+        "required": [
+          "accessToken",
+          "refreshToken"
+        ],
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "refreshToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "expiresIn": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Fawkes.Api.Controllers.AuthController.UserResponse": {
+        "required": [
+          "email",
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Fawkes.Api.Controllers.DeviceManagementController.AssignDeviceToFixtureRequest": {
+        "required": [
+          "deviceCode"
+        ],
+        "type": "object",
+        "properties": {
+          "deviceCode": {
+            "type": "integer",
+            "description": "Code assigned to the device.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Fawkes.Api.Controllers.DeviceManagementController.DeviceBase": {
+        "required": [
+          "displayType"
+        ],
+        "type": "object",
+        "properties": {
+          "displayType": {
+            "$ref": "#/components/schemas/Fawkes.Api.Controllers.DeviceManagementController.DisplayType"
+          },
+          "matchNo": {
+            "type": "integer",
+            "description": "Specifies the match number to display on the device. This property is only relevant when DisplayType is set to Match. If DisplayType is set to Match, this property must be provided and must be a positive integer.",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Fawkes.Api.Controllers.DeviceManagementController.DisplayType": {
+        "enum": [
+          0,
+          1
+        ],
+        "type": "integer",
+        "description": "Specifies the type of information to display on the device.",
+        "format": "int32"
+      },
+      "Fawkes.Api.Controllers.DeviceManagementController.GetDeviceResponse": {
+        "required": [
+          "displayType",
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "displayType": {
+            "$ref": "#/components/schemas/Fawkes.Api.Controllers.DeviceManagementController.DisplayType"
+          },
+          "matchNo": {
+            "type": "integer",
+            "description": "Specifies the match number to display on the device. This property is only relevant when DisplayType is set to Match. If DisplayType is set to Match, this property must be provided and must be a positive integer.",
+            "format": "int32",
+            "nullable": true
+          },
+          "id": {
+            "type": "integer",
+            "description": "The internal id assigned to the device. Used in all crud operations.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Fawkes.Api.Controllers.DeviceManagementController.UpdateDeviceRequest": {
+        "required": [
+          "displayType"
+        ],
+        "type": "object",
+        "properties": {
+          "displayType": {
+            "$ref": "#/components/schemas/Fawkes.Api.Controllers.DeviceManagementController.DisplayType"
+          },
+          "matchNo": {
+            "type": "integer",
+            "description": "Specifies the match number to display on the device. This property is only relevant when DisplayType is set to Match. If DisplayType is set to Match, this property must be provided and must be a positive integer.",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Fawkes.Api.Controllers.DisplayController.DeviceTokenResponse": {
+        "required": [
+          "accessToken",
+          "refreshToken"
+        ],
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "The access token issued to the device upon registration. This token is used for authenticating subsequent requests made by the device to the API.",
+            "nullable": true
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "The refresh token issued to the device upon registration. This token can be used to obtain a new access token when the current one expires.",
+            "nullable": true
+          },
+          "expiresIn": {
+            "type": "integer",
+            "description": "The expiration time of the access token in seconds. This indicates how long the access token is valid before it needs to be refreshed using the refresh token.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Contains device registration inforamtion including access token, refresh token, and expiration time."
+      },
+      "Fawkes.Api.Controllers.DisplayController.DisplayDataResponse": {
+        "required": [
+          "displayType"
+        ],
+        "type": "object",
+        "properties": {
+          "displayType": {
+            "$ref": "#/components/schemas/Fawkes.Api.Controllers.DisplayController.DisplayType"
+          },
+          "targets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Fawkes.Api.Controllers.DisplayController.TargetDisplayData"
+            },
+            "description": "",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Contains display data for the registered device, including the display type and any relevant information about the targets being displayed."
+      },
+      "Fawkes.Api.Controllers.DisplayController.DisplayType": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "Fawkes.Api.Controllers.DisplayController.TargetDisplayData": {
+        "type": "object",
+        "properties": {
+          "targetNo": {
+            "type": "integer",
+            "description": "Target number",
+            "format": "int32",
+            "nullable": true
+          },
+          "teamName": {
+            "type": "string",
+            "description": "Name of the team.",
+            "nullable": true
+          },
+          "setScores": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "List of set scores obtained by the team in the match so far.",
+            "nullable": true
+          },
+          "shots": {
+            "type": "string",
+            "description": "Shot values obtained by the team in the current set. 10 is encoded as \"+\" and \"M\" is encoded as \"0\". All other shot values are encoded as their respective integer values. For example, a shot value of 9 is encoded as \"9\". The shot values are concatenated into a single string. For example, if the team has shot 10, M, and 8 in the current set, the Shots property would be set to \"+08\".",
+            "nullable": true
+          },
+          "currentSetScore": {
+            "type": "integer",
+            "description": "The current set score of the team in the match. This is the total score obtained by the team in the current set.",
+            "format": "int32",
+            "nullable": true
+          },
+          "setPoints": {
+            "type": "integer",
+            "description": "The total set points obtained by the team in the match. This is the total number of set points obtained by the team in the match so far.",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Contains data relating to a target being displayed on the device, including the target number, team name, set scores, shots, current set score, and total set points."
+      },
+      "Fawkes.Api.Controllers.DosController.GetPhaseResponse": {
+        "required": [
+          "fixtureId",
+          "roundNo",
+          "setNo"
+        ],
+        "type": "object",
+        "properties": {
+          "roundNo": {
+            "type": "integer",
+            "description": "The number of the round.",
+            "format": "int32"
+          },
+          "setNo": {
+            "type": "integer",
+            "description": "The number of the set within the round.",
+            "format": "int32"
+          },
+          "fixtureId": {
+            "type": "integer",
+            "description": "The id of the fixture.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Fawkes.Api.Controllers.DosController.GetRoundResponse": {
+        "required": [
+          "fixtureId",
+          "roundNo",
+          "targets"
+        ],
+        "type": "object",
+        "properties": {
+          "fixtureId": {
+            "type": "integer",
+            "description": "The id of the fixture.",
+            "format": "int32"
+          },
+          "roundNo": {
+            "type": "integer",
+            "description": "The number of the round. This identifies which round's details are being retrieved.",
+            "format": "int32"
+          },
+          "targets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Fawkes.Api.Controllers.DosController.TargetInformation"
+            },
+            "description": "The targets in the round. Each target contains information about the team, total set points, and set scores.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Fawkes.Api.Controllers.DosController.SetPhaseRequest": {
+        "required": [
+          "roundNo",
+          "setNo"
+        ],
+        "type": "object",
+        "properties": {
+          "roundNo": {
+            "type": "integer",
+            "description": "The number of the round.",
+            "format": "int32"
+          },
+          "setNo": {
+            "type": "integer",
+            "description": "The number of the set within the round.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Fawkes.Api.Controllers.DosController.TargetInformation": {
+        "required": [
+          "setScores",
+          "targetNo",
+          "teamName",
+          "totalSetPoints"
+        ],
+        "type": "object",
+        "properties": {
+          "targetNo": {
+            "type": "integer",
+            "description": "The target number. This identifies the specific target within the round.",
+            "format": "int32"
+          },
+          "teamName": {
+            "type": "string",
+            "description": "The name of the team associated with the target. This provides context about which team is competing on this target.",
+            "nullable": true
+          },
+          "totalSetPoints": {
+            "type": "integer",
+            "description": "The total set points obtained by the team on this target.",
+            "format": "int32"
+          },
+          "setScores": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "The set scores for the team on this target.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Fawkes.Api.Controllers.DosController.UpdateSetScoreRequest": {
+        "required": [
+          "confirmed",
+          "score"
+        ],
+        "type": "object",
+        "properties": {
+          "score": {
+            "type": "integer",
+            "description": "The score to set for the specified set. This is the new score that will be recorded for the set.",
+            "format": "int32"
+          },
+          "confirmed": {
+            "type": "boolean",
+            "description": "Indicates whether the score has been confirmed. If true, set points will be awarded to the team based on the score. If false, the score is still provisional and may be subject to change."
+          }
+        },
+        "additionalProperties": false
+      },
+      "Fawkes.Api.Controllers.FixtureController.CreateFixtureRequest": {
+        "required": [
+          "date",
+          "fixtureName",
+          "leagueName",
+          "location"
+        ],
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Date of the fixture in UTC. This property is required and must be provided when creating or updating a fixture.",
+            "format": "date-time"
+          },
+          "location": {
+            "type": "string",
+            "description": "Location of the fixture. This property is required and must be provided when creating or updating a fixture.",
+            "nullable": true
+          },
+          "leagueName": {
+            "type": "string",
+            "description": "Name of the league for the fixture. This property is required and must be provided when creating or updating a fixture. Typical values might be \"1. Bundesliga Nord\" or \"Regionalliga Südwest\"",
+            "nullable": true
+          },
+          "fixtureName": {
+            "type": "string",
+            "description": "Name of the fixture. This property is required and must be provided when creating or updating a fixture. Typical values might be \"3. Wettkampftag\", \"Relegation\" or \"Finale\".",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Fawkes.Api.Controllers.FixtureController.GetFixtureResponse": {
+        "required": [
+          "date",
+          "fixtureName",
+          "id",
+          "leagueName",
+          "location",
+          "uniqueId"
+        ],
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Date of the fixture in UTC. This property is required and must be provided when creating or updating a fixture.",
+            "format": "date-time"
+          },
+          "location": {
+            "type": "string",
+            "description": "Location of the fixture. This property is required and must be provided when creating or updating a fixture.",
+            "nullable": true
+          },
+          "leagueName": {
+            "type": "string",
+            "description": "Name of the league for the fixture. This property is required and must be provided when creating or updating a fixture. Typical values might be \"1. Bundesliga Nord\" or \"Regionalliga Südwest\"",
+            "nullable": true
+          },
+          "fixtureName": {
+            "type": "string",
+            "description": "Name of the fixture. This property is required and must be provided when creating or updating a fixture. Typical values might be \"3. Wettkampftag\", \"Relegation\" or \"Finale\".",
+            "nullable": true
+          },
+          "id": {
+            "type": "integer",
+            "description": "Id under which the fixture resource is stored. This is used for all CRUD operations on the fixture resource.",
+            "format": "int32"
+          },
+          "uniqueId": {
+            "type": "string",
+            "description": "Globally unique identifier of fixture resource. This is considered \"hard to guess\" and used for operations on the fixture that don't require authentication (e.g. for the spotter to submit scores).",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Contains all details of a fixture including its id and unique identifier."
+      },
+      "Fawkes.Api.Controllers.FixtureController.UpdateFixtureRequest": {
+        "required": [
+          "date",
+          "fixtureName",
+          "leagueName",
+          "location"
+        ],
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Date of the fixture in UTC. This property is required and must be provided when creating or updating a fixture.",
+            "format": "date-time"
+          },
+          "location": {
+            "type": "string",
+            "description": "Location of the fixture. This property is required and must be provided when creating or updating a fixture.",
+            "nullable": true
+          },
+          "leagueName": {
+            "type": "string",
+            "description": "Name of the league for the fixture. This property is required and must be provided when creating or updating a fixture. Typical values might be \"1. Bundesliga Nord\" or \"Regionalliga Südwest\"",
+            "nullable": true
+          },
+          "fixtureName": {
+            "type": "string",
+            "description": "Name of the fixture. This property is required and must be provided when creating or updating a fixture. Typical values might be \"3. Wettkampftag\", \"Relegation\" or \"Finale\".",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Fawkes.Api.Controllers.MatchPlayChartController.CreateMatchPlayChartRequest": {
+        "required": [
+          "teams"
+        ],
+        "type": "object",
+        "properties": {
+          "teams": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Fawkes.Api.Controllers.MatchPlayChartController.Team"
+            },
+            "description": "List of teams participating in the fixture. Each team should have a unique name. The order of the teams in the array determines their position in the match play chart.",
+            "nullable": true
+          },
+          "targetAssignments": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "description": "List of target assignments for the fixture. Each inner array represents a round, and the integers within each inner array represent the indices of the teams assigned to that target (starting from 1, 0 indicates an empty target). The order of the teams in each inner array determines their position on the target.",
+            "nullable": true
+          },
+          "hardOverride": {
+            "type": "boolean",
+            "description": "If true, the match play chart will be created even if some of the matches already contain data. If false or null, the request will fail if any of the matches already contain data.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Fawkes.Api.Controllers.MatchPlayChartController.GetMatchPlayChartResponse": {
+        "required": [
+          "teams"
+        ],
+        "type": "object",
+        "properties": {
+          "teams": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Fawkes.Api.Controllers.MatchPlayChartController.Team"
+            },
+            "description": "List of teams participating in the fixture. Each team should have a unique name. The order of the teams in the array determines their position in the match play chart.",
+            "nullable": true
+          },
+          "targetAssignments": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "description": "List of target assignments for the fixture. Each inner array represents a round, and the integers within each inner array represent the indices of the teams assigned to that target (starting from 1, 0 indicates an empty target). The order of the teams in each inner array determines their position on the target.",
+            "nullable": true
+          },
+          "fixtureId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Fawkes.Api.Controllers.MatchPlayChartController.Team": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Fawkes.Api.Controllers.SpotterController.GetTargetResponse": {
+        "required": [
+          "isConfirmed",
+          "shots",
+          "targetNo",
+          "teamName"
+        ],
+        "type": "object",
+        "properties": {
+          "shots": {
+            "type": "string",
+            "description": "Shot values obtained by the team in the current set. 10 is encoded as \"+\" and \"M\" is encoded as \"0\". All other shot values are encoded as their respective integer values. For example, a shot value of 9 is encoded as \"9\". The shot values are concatenated into a single string. For example, if the team has shot 10, M, and 8 in the current set, the Shots property would be set to \"+08\".",
+            "nullable": true
+          },
+          "targetNo": {
+            "type": "integer",
+            "description": "Target number",
+            "format": "int32"
+          },
+          "teamName": {
+            "type": "string",
+            "description": "Team name",
+            "nullable": true
+          },
+          "currentSetScore": {
+            "type": "integer",
+            "description": "The current set score of the team in the match. This is the total score obtained by the team in the current set.",
+            "format": "int32",
+            "nullable": true
+          },
+          "isConfirmed": {
+            "type": "boolean",
+            "description": "Indicates whether the current set score has been confirmed. Once confirmed, the score is finalized and cannot be changed by spotters."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the response for retrieving a target's details, including its number, team name, and shots. This class is used to encapsulate the information returned by the GetTargetAsync action."
+      },
+      "Fawkes.Api.Controllers.SpotterController.UpdateTargetRequest": {
+        "required": [
+          "shots"
+        ],
+        "type": "object",
+        "properties": {
+          "shots": {
+            "type": "string",
+            "description": "Shot values obtained by the team in the current set. 10 is encoded as \"+\" and \"M\" is encoded as \"0\". All other shot values are encoded as their respective integer values. For example, a shot value of 9 is encoded as \"9\". The shot values are concatenated into a single string. For example, if the team has shot 10, M, and 8 in the current set, the Shots property would be set to \"+08\".",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the request for updating a target's shots. This class is used to encapsulate the information sent to the UpdateTargetAsync action when modifying the recorded shots for a target."
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "DeviceManagement"
+    },
+    {
+      "name": "Display"
+    },
+    {
+      "name": "Dos"
+    },
+    {
+      "name": "Fawkes.Api"
+    },
+    {
+      "name": "Fixture"
+    },
+    {
+      "name": "MatchPlayChart"
+    },
+    {
+      "name": "Spotter"
+    }
+  ]
+}
