@@ -13,9 +13,7 @@ namespace Fawkes.Api.Store
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
             modelBuilder.HasDefaultSchema("Core");
-
         }
 
     }
