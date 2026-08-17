@@ -202,7 +202,12 @@
           "200": {
             "description": "OK"
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
       }
     },
     "/Auth/me": {
@@ -231,7 +236,65 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/Auth/change-password": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.ChangePasswordRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.ChangePasswordRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.ChangePasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.MessageResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.MessageResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fawkes.Api.Controllers.AuthController.MessageResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
       }
     },
     "/fixtures/{fixtureId}/devices": {
@@ -282,7 +345,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
       }
     },
     "/fixtures/{fixtureId}/devices/{deviceId}": {
@@ -334,7 +402,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
       },
       "put": {
         "tags": [
@@ -404,7 +477,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
       }
     },
     "/fixtures/{fixtureId}/devices/assign": {
@@ -464,7 +542,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
       }
     },
     "/fixtures/{fixtureId}/devices/{deviceId}/unassign": {
@@ -499,7 +582,12 @@
           "200": {
             "description": "OK"
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
       }
     },
     "/Display/register": {
@@ -559,7 +647,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
       }
     },
     "/fixtures/{fixtureId}/phase": {
@@ -601,7 +694,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
       },
       "put": {
         "tags": [
@@ -644,7 +742,12 @@
           "200": {
             "description": "OK"
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
       }
     },
     "/fixtures/{fixtureId}/rounds/{roundNo}": {
@@ -696,7 +799,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
       }
     },
     "/fixtures/{fixtureId}/rounds/{roundNo}/targets/{targetNo}/sets/{setNo}/score": {
@@ -765,7 +873,12 @@
           "200": {
             "description": "OK"
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
       }
     },
     "/status": {
@@ -857,7 +970,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
       },
       "put": {
         "tags": [
@@ -917,7 +1035,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
       },
       "delete": {
         "tags": [
@@ -940,7 +1063,12 @@
           "200": {
             "description": "OK"
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
       }
     },
     "/Fixture": {
@@ -979,7 +1107,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -1027,7 +1160,149 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/Fixture/{id}/users": {
+      "get": {
+        "tags": [
+          "Fixture"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.GetUserResponse"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.GetUserResponse"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.GetUserResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/Fixture/{id}/users/add": {
+      "post": {
+        "tags": [
+          "Fixture"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.AddUserRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.AddUserRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.FixtureController.AddUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/Fixture/{id}/users/{userName}": {
+      "delete": {
+        "tags": [
+          "Fixture"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "userName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
       }
     },
     "/MatchPlayChart/{fixtureId}": {
@@ -1069,7 +1344,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -1129,10 +1409,15 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
       }
     },
-    "/fixtures/{fixtureUniqueId}/target/{targetNo}": {
+    "/fixtures/{fixtureUniqueId}/targets/{targetNo}/spotter/info": {
       "get": {
         "tags": [
           "Spotter"
@@ -1182,7 +1467,9 @@
             }
           }
         }
-      },
+      }
+    },
+    "/fixtures/{fixtureUniqueId}/targets/{targetNo}/spotter/shots": {
       "put": {
         "tags": [
           "Spotter"
@@ -1215,17 +1502,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Fawkes.Api.Controllers.SpotterController.UpdateTargetRequest"
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.SpotterController.SubmitShotsRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/Fawkes.Api.Controllers.SpotterController.UpdateTargetRequest"
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.SpotterController.SubmitShotsRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/Fawkes.Api.Controllers.SpotterController.UpdateTargetRequest"
+                "$ref": "#/components/schemas/Fawkes.Api.Controllers.SpotterController.SubmitShotsRequest"
               }
             }
           }
@@ -1254,7 +1541,7 @@
         }
       }
     },
-    "/fixtures/{fixtureUniqueId}/target/{targetNo}/confirm": {
+    "/fixtures/{fixtureUniqueId}/targets/{targetNo}/spotter/shots/confirm": {
       "put": {
         "tags": [
           "Spotter"
@@ -1309,6 +1596,24 @@
   },
   "components": {
     "schemas": {
+      "Fawkes.Api.Controllers.AuthController.ChangePasswordRequest": {
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ],
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string",
+            "nullable": true
+          },
+          "newPassword": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "Fawkes.Api.Controllers.AuthController.LoginRequest": {
         "required": [
           "email",
@@ -1423,9 +1728,9 @@
         "type": "object",
         "properties": {
           "deviceCode": {
-            "type": "integer",
+            "type": "string",
             "description": "Code assigned to the device.",
-            "format": "int32"
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -1450,12 +1755,11 @@
       },
       "Fawkes.Api.Controllers.DeviceManagementController.DisplayType": {
         "enum": [
-          0,
-          1
+          "None",
+          "Match"
         ],
-        "type": "integer",
-        "description": "Specifies the type of information to display on the device.",
-        "format": "int32"
+        "type": "string",
+        "description": "Specifies the type of information to display on the device."
       },
       "Fawkes.Api.Controllers.DeviceManagementController.GetDeviceResponse": {
         "required": [
@@ -1502,10 +1806,16 @@
       "Fawkes.Api.Controllers.DisplayController.DeviceTokenResponse": {
         "required": [
           "accessToken",
+          "deviceCode",
           "refreshToken"
         ],
         "type": "object",
         "properties": {
+          "deviceCode": {
+            "type": "string",
+            "description": "The unique code assigned to the device for identification purposes.",
+            "nullable": true
+          },
           "accessToken": {
             "type": "string",
             "description": "The access token issued to the device upon registration. This token is used for authenticating subsequent requests made by the device to the API.",
@@ -1548,12 +1858,12 @@
       },
       "Fawkes.Api.Controllers.DisplayController.DisplayType": {
         "enum": [
-          0,
-          1,
-          2
+          "Unassigned",
+          "None",
+          "Match",
+          "Table"
         ],
-        "type": "integer",
-        "format": "int32"
+        "type": "string"
       },
       "Fawkes.Api.Controllers.DisplayController.TargetDisplayData": {
         "type": "object",
@@ -1602,19 +1912,13 @@
       "Fawkes.Api.Controllers.DosController.GetPhaseResponse": {
         "required": [
           "fixtureId",
-          "roundNo",
-          "setNo"
+          "roundNo"
         ],
         "type": "object",
         "properties": {
           "roundNo": {
             "type": "integer",
             "description": "The number of the round.",
-            "format": "int32"
-          },
-          "setNo": {
-            "type": "integer",
-            "description": "The number of the set within the round.",
             "format": "int32"
           },
           "fixtureId": {
@@ -1656,19 +1960,13 @@
       },
       "Fawkes.Api.Controllers.DosController.SetPhaseRequest": {
         "required": [
-          "roundNo",
-          "setNo"
+          "roundNo"
         ],
         "type": "object",
         "properties": {
           "roundNo": {
             "type": "integer",
             "description": "The number of the round.",
-            "format": "int32"
-          },
-          "setNo": {
-            "type": "integer",
-            "description": "The number of the set within the round.",
             "format": "int32"
           }
         },
@@ -1725,6 +2023,20 @@
           "confirmed": {
             "type": "boolean",
             "description": "Indicates whether the score has been confirmed. If true, set points will be awarded to the team based on the score. If false, the score is still provisional and may be subject to change."
+          }
+        },
+        "additionalProperties": false
+      },
+      "Fawkes.Api.Controllers.FixtureController.AddUserRequest": {
+        "required": [
+          "userName"
+        ],
+        "type": "object",
+        "properties": {
+          "userName": {
+            "type": "string",
+            "description": "User name of the user to add to the fixture. This property is required and must be provided when adding a user to a fixture.",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -1805,6 +2117,24 @@
         },
         "additionalProperties": false,
         "description": "Contains all details of a fixture including its id and unique identifier."
+      },
+      "Fawkes.Api.Controllers.FixtureController.GetUserResponse": {
+        "required": [
+          "userName"
+        ],
+        "type": "object",
+        "properties": {
+          "userName": {
+            "type": "string",
+            "description": "User name of the user to add to the fixture. This property is required and must be provided when adding a user to a fixture.",
+            "nullable": true
+          },
+          "isOwner": {
+            "type": "boolean",
+            "description": "Indicates whether the user being added should have owner-level permissions for the fixture. If set to true, the user will have full control over the fixture, including the ability to manage other users and modify fixture details. If set to false or null, the user will have standard access permissions."
+          }
+        },
+        "additionalProperties": false
       },
       "Fawkes.Api.Controllers.FixtureController.UpdateFixtureRequest": {
         "required": [
@@ -1914,6 +2244,16 @@
           "name": {
             "type": "string",
             "nullable": true
+          },
+          "setPoints": {
+            "type": "integer",
+            "description": "Points scored by the team before the current fixture.",
+            "format": "int32"
+          },
+          "matchPoints": {
+            "type": "integer",
+            "description": "Total match points/wins accumulated by the team before the current fixture.",
+            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -1956,7 +2296,7 @@
         "additionalProperties": false,
         "description": "Represents the response for retrieving a target's details, including its number, team name, and shots. This class is used to encapsulate the information returned by the GetTargetAsync action."
       },
-      "Fawkes.Api.Controllers.SpotterController.UpdateTargetRequest": {
+      "Fawkes.Api.Controllers.SpotterController.SubmitShotsRequest": {
         "required": [
           "shots"
         ],
@@ -1970,6 +2310,14 @@
         },
         "additionalProperties": false,
         "description": "Represents the request for updating a target's shots. This class is used to encapsulate the information sent to the UpdateTargetAsync action when modifying the recorded shots for a target."
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "description": "JWT Authorization header using the Bearer scheme. Enter your token in the text input below.",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
   },

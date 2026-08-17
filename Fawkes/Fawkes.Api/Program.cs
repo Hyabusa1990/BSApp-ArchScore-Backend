@@ -1,3 +1,4 @@
+using Fawkes.Api.Filters;
 using Fawkes.Api.Services;
 using Fawkes.Api.Store;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -28,7 +29,7 @@ builder.Services.AddSwaggerGen(config =>
 {
     config.CustomSchemaIds(type => type.FullName?.Replace("+", ".") ?? type.Name);
 
-    config.SwaggerDoc("v1", new OpenApiInfo
+    config.SwaggerDoc("v1", new Microsoft.OpenApi.OpenApiInfo
     {
         Title = "Fawkes API",
         Version = "v1",
@@ -39,6 +40,20 @@ builder.Services.AddSwaggerGen(config =>
             Email = "dominik.schindler@gmx.de"
         }
     });
+
+    // Add JWT Bearer authorization
+    config.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "JWT Authorization header using the Bearer scheme. Enter your token in the text input below."
+    });
+
+    // Apply security only to endpoints with [Authorize] attribute
+    config.OperationFilter<AuthorizeOperationFilter>();
 
     // Set the comments path for the Swagger JSON and UI.
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
