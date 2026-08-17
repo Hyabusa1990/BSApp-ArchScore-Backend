@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Fawkes.Api.Controllers
 {
@@ -26,6 +27,7 @@ namespace Fawkes.Api.Controllers
         /// </summary>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
+        [Authorize]
         [HttpGet("data")]
         public async Task<ActionResult<DisplayDataResponse>> GetDisplayDataAsync()
         {

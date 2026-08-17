@@ -13,7 +13,7 @@ namespace Fawkes.Api.Controllers
         /// <param name="targetNo">The number of the target.</param>
         /// <returns>The target response containing the current state of the target.</returns>
         /// <exception cref="NotImplementedException"></exception>
-        [HttpGet("fixtures/{fixtureUniqueId}/target/{targetNo}")]
+        [HttpGet("fixtures/{fixtureUniqueId}/targets/{targetNo}/spotter/info")]
         public async Task<ActionResult<GetTargetResponse>> GetTargetAsync(Guid fixtureUniqueId, int targetNo)
         {
             throw new NotImplementedException();
@@ -28,8 +28,8 @@ namespace Fawkes.Api.Controllers
         /// <param name="request">The request containing the updated shot information.</param>
         /// <returns>The updated target response.</returns>
         /// <exception cref="NotImplementedException"></exception>
-        [HttpPut("fixtures/{fixtureUniqueId}/target/{targetNo}")]
-        public async Task<ActionResult<GetTargetResponse>> UpdateTargetAsync(Guid fixtureUniqueId, int targetNo, UpdateTargetRequest request)
+        [HttpPut("fixtures/{fixtureUniqueId}/targets/{targetNo}/spotter/shots")]
+        public async Task<ActionResult<GetTargetResponse>> UpdateTargetAsync(Guid fixtureUniqueId, int targetNo, SubmitShotsRequest request)
         {
             throw new NotImplementedException();
         }
@@ -42,7 +42,7 @@ namespace Fawkes.Api.Controllers
         /// <param name="targetNo">The number of the target.</param>
         /// <returns>The updated target response.</returns>
         /// <exception cref="NotImplementedException"></exception>
-        [HttpPut("fixtures/{fixtureUniqueId}/target/{targetNo}/confirm")]
+        [HttpPut("fixtures/{fixtureUniqueId}/targets/{targetNo}/spotter/shots/confirm")]
         public async Task<ActionResult<GetTargetResponse>> ConfirmCurrentSetScoreAsync(Guid fixtureUniqueId, int targetNo)
         {
             throw new NotImplementedException();
@@ -78,7 +78,7 @@ namespace Fawkes.Api.Controllers
         /// <summary>
         /// Represents the request for updating a target's shots. This class is used to encapsulate the information sent to the UpdateTargetAsync action when modifying the recorded shots for a target.
         /// </summary>
-        public class UpdateTargetRequest : TargetBase
+        public class SubmitShotsRequest : TargetBase
         {
         }
 

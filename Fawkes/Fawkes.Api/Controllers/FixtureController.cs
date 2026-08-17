@@ -13,6 +13,7 @@ namespace Fawkes.Api.Controllers
 
     [Route("[controller]")]
     [ApiController]
+    [Authorize]
     public class FixtureController : ControllerBase
     {
 

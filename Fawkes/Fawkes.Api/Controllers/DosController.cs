@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Fawkes.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     public class DosController
     {

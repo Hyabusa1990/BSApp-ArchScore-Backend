@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Fawkes.Api.Controllers
 {
 
-
+    [Authorize]
     [Route("[controller]")]
     [ApiController]
     public class MatchPlayChartController : ControllerBase
