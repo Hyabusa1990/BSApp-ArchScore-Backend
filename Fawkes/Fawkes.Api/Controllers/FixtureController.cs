@@ -3,6 +3,10 @@
 namespace Fawkes.Api.Controllers
 {
 
+
+
+
+
     /// <summary>
     /// Controller for managing fixtures in the Fawkes API. Provides endpoints for creating, retrieving, updating, and deleting fixtures.
     /// </summary>
@@ -73,10 +77,30 @@ namespace Fawkes.Api.Controllers
             throw new NotImplementedException();
         }
 
+
+        [HttpGet("{id}/users")]
+        public async Task<ActionResult<IEnumerable<GetUserResponse>>> GetUsersAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost("{id}/users/add")]
+        public async Task<ActionResult> AddUserAsync(int id, AddUserRequest request)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpDelete("{id}/users/{userName}")]
+        public async Task<ActionResult> RemoveUserAsync(int id, string userName)
+        {
+            throw new NotImplementedException();
+        }
+
+        
+
         /// <summary>
         /// Contains all details of a fixture including its id and unique identifier.
         /// </summary>
-
         public class GetFixtureResponse : FixtureBase
         {
             /// <summary>
@@ -119,6 +143,29 @@ namespace Fawkes.Api.Controllers
             /// Name of the fixture. This property is required and must be provided when creating or updating a fixture. Typical values might be "3. Wettkampftag", "Relegation" or "Finale".
             /// </summary>
             public required string FixtureName { get; set; }
+        }
+
+        public class AddUserRequest : UserBase
+        {
+
+        }
+
+        public class GetUserResponse : UserBase
+        {
+            /// <summary>
+            /// Indicates whether the user being added should have owner-level permissions for the fixture. If set to true, the user will have full control over the fixture, including the ability to manage other users and modify fixture details. If set to false or null, the user will have standard access permissions.
+            /// </summary>
+            public bool IsOwner { get; set; }
+
+        }
+
+        public abstract class UserBase
+        {
+            /// <summary>
+            /// User name of the user to add to the fixture. This property is required and must be provided when adding a user to a fixture.
+            /// </summary>
+            public required string UserName { get; set; }
+
         }
     }
 }

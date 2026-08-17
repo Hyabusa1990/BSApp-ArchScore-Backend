@@ -16,6 +16,8 @@ namespace Fawkes.Api.Controllers
         public async Task<ActionResult<DeviceTokenResponse>> RegisterDeviceAsync()
         {
             throw new NotImplementedException();
+
+            // keinen neuen erzeugen wenn bearer token mitschickst.
         }
 
 
@@ -36,6 +38,11 @@ namespace Fawkes.Api.Controllers
         /// </summary>
         public class DeviceTokenResponse
         {
+            /// <summary>
+            /// The unique code assigned to the device for identification purposes.
+            /// </summary>
+            public required string DeviceCode { get; set; }
+
             /// <summary>
             /// The access token issued to the device upon registration. This token is used for authenticating subsequent requests made by the device to the API.
             /// </summary>
@@ -120,7 +127,12 @@ namespace Fawkes.Api.Controllers
             /// <summary>
             /// Display device assigned to a fixture and currently displaying information related to a match (e.g., scores, shots, etc.).
             /// </summary>
-            Match
+            Match,
+
+            /// <summary>
+            /// Display device showing table/standings information.
+            /// </summary>
+            Table
         }
 
 

@@ -68,6 +68,16 @@ namespace Fawkes.Api.Controllers
         public class Team
         {
             public required string Name { get; set; }
+
+            /// <summary>
+            /// Points scored by the team before the current fixture.
+            /// </summary>
+            public int SetPoints { get; set; }
+
+            /// <summary>
+            /// Total match points/wins accumulated by the team before the current fixture.
+            /// </summary>
+            public int MatchPoints { get; set; }
         }
     }
 }

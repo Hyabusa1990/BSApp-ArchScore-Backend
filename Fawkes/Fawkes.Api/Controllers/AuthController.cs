@@ -214,7 +214,48 @@ namespace Fawkes.Api.Controllers
             });
         }
 
+        [Authorize]
+        [HttpPost("change-password")]
+        public async Task<ActionResult<MessageResponse>> PostChangePasswordAsync(ChangePasswordRequest request)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                         ?? User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value;
 
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new MessageResponse
+                {
+                    Code = "UNAUTHORIZED",
+                    Message = "User not authenticated"
+                });
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound(new MessageResponse
+                {
+                    Code = "USER_NOT_FOUND",
+                    Message = "User not found"
+                });
+            }
+
+            var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+            if (!result.Succeeded)
+            {
+                return BadRequest(new MessageResponse
+                {
+                    Code = "PASSWORD_CHANGE_FAILED",
+                    Message = string.Join(", ", result.Errors.Select(e => e.Description))
+                });
+            }
+
+            return Ok(new MessageResponse
+            {
+                Code = "PASSWORD_CHANGED",
+                Message = "Password changed successfully"
+            });
+        }
 
 
 
@@ -253,6 +294,12 @@ namespace Fawkes.Api.Controllers
         {
             public required Guid Id { get; set; }
             public required string Email { get; set; }
+        }
+
+        public class ChangePasswordRequest
+        {
+            public required string CurrentPassword { get; set; }
+            public required string NewPassword { get; set; }
         }
 
 

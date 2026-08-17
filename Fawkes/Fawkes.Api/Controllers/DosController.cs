@@ -80,10 +80,6 @@ namespace Fawkes.Api.Controllers
             /// The number of the round. 
             /// </summary>
             public required int RoundNo { get; set; } = 0;
-            /// <summary>
-            /// The number of the set within the round.
-            /// </summary>
-            public required int SetNo { get; set; } = 0;
         }
 
 

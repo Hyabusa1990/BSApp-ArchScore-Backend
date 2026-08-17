@@ -136,7 +136,7 @@ namespace Fawkes.Api.Controllers
             /// <summary>
             /// Code assigned to the device.
             /// </summary>
-            public required int DeviceCode { get; set; }
+            public required string DeviceCode { get; set; }
         }
 
 
