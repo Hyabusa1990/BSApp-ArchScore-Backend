@@ -1,4 +1,4 @@
-using Fawkes.Api.Services;
+using Fawkes.Api.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

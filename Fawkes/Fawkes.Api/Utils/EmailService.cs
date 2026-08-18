@@ -2,8 +2,10 @@
 using Azure.Communication.Email;
 using System.Net.Mail;
 
-namespace Fawkes.Api.Services
+namespace Fawkes.Api.Utils
 {
+
+
     public class EmailService
     {
 
