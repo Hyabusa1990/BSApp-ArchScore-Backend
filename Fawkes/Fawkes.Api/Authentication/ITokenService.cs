@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace Fawkes.Api.Services
+namespace Fawkes.Api.Authentication
 {
     public interface ITokenService
     {

@@ -5,8 +5,9 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Fawkes.Api.Services
+namespace Fawkes.Api.Authentication
 {
+
     public class TokenService : ITokenService
     {
         private readonly IConfiguration _configuration;

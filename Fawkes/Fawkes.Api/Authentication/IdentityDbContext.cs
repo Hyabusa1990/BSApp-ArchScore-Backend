@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace Fawkes.Api.Store
+namespace Fawkes.Api.Authentication
 {
     public class IdentityDbContext : IdentityUserContext<IdentityUser>
     {

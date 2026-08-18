@@ -1,3 +1,5 @@
+using Fawkes.Api.Authentication;
+using Fawkes.Api.Core;
 using Fawkes.Api.Filters;
 using Fawkes.Api.Services;
 using Fawkes.Api.Store;
@@ -14,16 +16,20 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddFawkesAuthentication(builder.Configuration);
+builder.Services.AddFawkesDataLayer(builder.Configuration);
+builder.Services.AddApplicationLogic();
 
+
+// Add services to the container.
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(config =>
 {
@@ -62,51 +68,11 @@ builder.Services.AddSwaggerGen(config =>
 
 });
 
-builder.Services.AddDbContextPool<FawkesDbContext>(options =>
-{
-    options.UseNpgsql(builder.Configuration.GetConnectionString("FawkesConnection"));
-});
 
-builder.Services.AddDbContextPool<IdentityDbContext>(options =>
-{
-    options.UseNpgsql(builder.Configuration.GetConnectionString("FawkesConnection"));
-});
 
-builder.Services.AddIdentityCore<IdentityUser>(options =>
-{
-    options.SignIn.RequireConfirmedAccount = true;
-    options.User.RequireUniqueEmail = true;
-    options.Password.RequireDigit = true;
-    options.Password.RequiredLength = 8;
-    options.Password.RequireNonAlphanumeric = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireLowercase = true;
-}).AddEntityFrameworkStores<IdentityDbContext>()
-  .AddDefaultTokenProviders();
 
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<SignInManager<IdentityUser>>();
-builder.Services.AddScoped<EmailService>();
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not configured")))
-    };
-});
+
 
 var app = builder.Build();
 
