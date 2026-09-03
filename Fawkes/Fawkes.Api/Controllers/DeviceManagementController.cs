@@ -108,6 +108,8 @@ namespace Fawkes.Api.Controllers
             /// </summary>
             public required DisplayType DisplayType { get; set; }
 
+            public required DisplayTheme DisplayTheme { get; set; } = DisplayTheme.Light;
+
             /// <summary>
             /// Specifies the match number to display on the device. This property is only relevant when DisplayType is set to Match. If DisplayType is set to Match, this property must be provided and must be a positive integer.
             /// </summary>
@@ -130,6 +132,21 @@ namespace Fawkes.Api.Controllers
             /// The device should display information related to a match (i.e. two targets). The match number must be specified in the MatchNo property of the device.
             /// </summary>
             Match
+        }
+
+        /// <summary>
+        /// Specifies the theme for the device display.
+        /// </summary>
+        public enum DisplayTheme
+        {
+            /// <summary>
+            /// Light theme for the device display.
+            /// </summary>
+            Light,
+            /// <summary>
+            /// Dark theme for the device display.
+            /// </summary>
+            Dark
         }
 
         public class AssignDeviceToFixtureRequest

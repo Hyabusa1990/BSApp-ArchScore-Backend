@@ -101,4 +101,24 @@ app.MapGet("/testemail", async (EmailService emailService) =>
     return Results.Ok("Test email sent successfully");
 });
 
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        await services.GetRequiredService<IdentityDbContext>().Database.MigrateAsync();
+        Console.WriteLine("Migrations applied successfully: IdentityDbContext.");
+        await services.GetRequiredService<FawkesDbContext>().Database.MigrateAsync();
+        Console.WriteLine("Migrations applied successfully: FawkesDbContext.");
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while applying migrations.");
+        // Optionally stop startup if critical
+        // throw;
+    }
+}
+
 app.Run();

@@ -14,7 +14,6 @@ namespace Fawkes.Api.Authentication
             /// <summary>
             /// Injects Fawkes authentication services into the provided IServiceCollection.
             /// </summary>
-            /// <param name="services"></param>
             public void AddFawkesAuthentication(IConfiguration configuration)
             {
                 services.AddDbContextPool<IdentityDbContext>(options =>

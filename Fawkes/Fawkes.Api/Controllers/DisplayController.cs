@@ -70,11 +70,15 @@ namespace Fawkes.Api.Controllers
             /// The type of display currently being shown on the device.
             /// </summary>
             public required DisplayType DisplayType { get; set; }
-            
+
+            public required DisplayTheme DisplayTheme { get; set; } = DisplayTheme.Light;
+
             /// <summary>
             /// 
             /// </summary>
             public TargetDisplayData[]? Targets { get; set; }
+
+            public LeagueTablePosition[]? LeagueTablePositions { get; set; }
         }
 
         /// <summary>
@@ -113,6 +117,17 @@ namespace Fawkes.Api.Controllers
             public int? SetPoints { get; set; }
         }
 
+        public class LeagueTablePosition
+        {
+            public int Position { get; set; }
+            public string TeamName { get; set; } = string.Empty;
+
+            public int SetPointsWon {  get; set; }
+            public int SetPointsLost { get; set; }
+            public int MatchPointsWon { get; set; }
+            public int MatchPointsLost { get; set; }
+        }
+
 
         public enum DisplayType
         {
@@ -135,6 +150,16 @@ namespace Fawkes.Api.Controllers
             /// Display device showing table/standings information.
             /// </summary>
             Table
+        }
+
+        public enum DisplayTheme
+        {
+            /// <summary>
+            /// 
+            /// </summary>
+            Light,
+
+            Dark
         }
 
 

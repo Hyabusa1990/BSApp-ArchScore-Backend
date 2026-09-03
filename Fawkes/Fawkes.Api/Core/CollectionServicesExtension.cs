@@ -1,5 +1,4 @@
-﻿using Fawkes.Api.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -13,7 +12,6 @@ namespace Fawkes.Api.Core
             /// <summary>
             /// Injects application logic services into the provided IServiceCollection.
             /// </summary>
-            /// <param name="services"></param>
             public void AddApplicationLogic()
             {
 
