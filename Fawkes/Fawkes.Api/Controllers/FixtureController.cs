@@ -220,6 +220,10 @@ namespace Fawkes.Api.Controllers
                 await fixtureService.RemoveUserFromFixtureAsync(id, userName, User.Identity.Name);
                 return NoContent();
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (UnauthorizedAccessException)
             {
                 return Unauthorized();

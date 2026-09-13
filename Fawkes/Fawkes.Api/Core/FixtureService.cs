@@ -84,6 +84,11 @@ namespace Fawkes.Api.Core
         {
             if (await dataStore.CheckOwnerAccessToFixtureAsync(id, requestingUserName))
             {
+                if (requestedUserName == requestingUserName)
+                {
+                    throw new InvalidOperationException("Owners cannot remove themselves from a fixture.");
+                }
+
                 await dataStore.GrantFixtureAccessAsync(id, requestedUserName, AccessLevel.None);
                 return;
             }
