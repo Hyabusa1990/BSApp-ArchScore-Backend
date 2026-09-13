@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 namespace Fawkes.Api.Authentication
@@ -24,13 +26,14 @@ namespace Fawkes.Api.Authentication
 
                 services.AddIdentityCore<IdentityUser>(options =>
                 {
-                    options.SignIn.RequireConfirmedAccount = true;
+                    options.SignIn.RequireConfirmedAccount = false;
                     options.User.RequireUniqueEmail = true;
                     options.Password.RequireDigit = true;
                     options.Password.RequiredLength = 8;
                     options.Password.RequireNonAlphanumeric = true;
                     options.Password.RequireUppercase = true;
                     options.Password.RequireLowercase = true;
+                    options.ClaimsIdentity.UserNameClaimType = ClaimTypes.Email;
                 }).AddEntityFrameworkStores<IdentityDbContext>()
                   .AddDefaultTokenProviders();
 
@@ -38,6 +41,8 @@ namespace Fawkes.Api.Authentication
                 services.AddScoped<ITokenService, TokenService>();
                 services.AddScoped<SignInManager<IdentityUser>>();
                 services.AddScoped<EmailService>();
+
+                JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
                 services.AddAuthentication(options =>
                 {

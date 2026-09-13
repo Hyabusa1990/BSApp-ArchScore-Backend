@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Fawkes.Api.Core;
+using Fawkes.Api.Store;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fawkes.Api.Controllers
@@ -15,7 +17,7 @@ namespace Fawkes.Api.Controllers
     [Route("[controller]")]
     [ApiController]
     [Authorize]
-    public class FixtureController : ControllerBase
+    public class FixtureController(IFixtureService fixtureService) : ControllerBase
     {
 
         /// <summary>
@@ -27,7 +29,34 @@ namespace Fawkes.Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<GetFixtureResponse>> GetFixtureAsync(int id)
         {
-            throw new NotImplementedException();
+            if (User?.Identity?.IsAuthenticated != true || string.IsNullOrEmpty(User.Identity.Name))
+            {
+                return Unauthorized();
+            }
+
+
+            var fixture = await fixtureService.GetFixtureAsync(id, User.Identity.Name);
+
+            if (fixture == null)
+            {
+                return NotFound();
+            }
+            return ConvertToRepsonse(fixture);
+
+        }
+
+        private static GetFixtureResponse ConvertToRepsonse(Fixture fixture)
+        {
+            return new GetFixtureResponse()
+            {
+                Id = fixture.Id,
+                UniqueId = fixture.UniqueId,
+                Date = fixture.Date,
+                FixtureName = fixture.FixtureName ?? string.Empty,
+                LeagueName = fixture.LeagueName ?? string.Empty,
+                Location = fixture.Location ?? string.Empty
+
+            };
         }
 
 
@@ -39,7 +68,13 @@ namespace Fawkes.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetFixtureResponse>>> GetFixturesAsync()
         {
-            throw new NotImplementedException();
+            if (User?.Identity?.IsAuthenticated != true || string.IsNullOrEmpty(User.Identity.Name))
+            {
+                return Unauthorized();
+            }
+
+            var fixtures = await fixtureService.GetFixturesForUserAsync(User?.Identity?.Name ?? string.Empty);
+            return fixtures.Select(f => ConvertToRepsonse(f)).ToList();
         }
 
         /// <summary>
@@ -51,7 +86,14 @@ namespace Fawkes.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<GetFixtureResponse>> CreateFixtureAsync(CreateFixtureRequest request)
         {
-            throw new NotImplementedException();
+            if (User?.Identity?.IsAuthenticated != true || string.IsNullOrEmpty(User.Identity.Name))
+            {
+                return Unauthorized();
+            }
+
+            var fixture = await fixtureService.CreateFixtureAsync(request.Date, request.Location, request.LeagueName, request.FixtureName, User.Identity.Name);
+
+            return ConvertToRepsonse(fixture);
         }
 
         /// <summary>
@@ -64,7 +106,25 @@ namespace Fawkes.Api.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<GetFixtureResponse>> UpdateFixtureAsync(int id, UpdateFixtureRequest request)
         {
-            throw new NotImplementedException();
+            if (User?.Identity?.IsAuthenticated != true || string.IsNullOrEmpty(User.Identity.Name))
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                var fixture = await fixtureService.UpdateFixtureAsync(id, request.Date, request.Location, request.LeagueName, request.FixtureName, User.Identity.Name);
+                return ConvertToRepsonse(fixture);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+
         }
 
         /// <summary>
@@ -76,26 +136,98 @@ namespace Fawkes.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteFixtureAsync(int id)
         {
-            throw new NotImplementedException();
+            if (User?.Identity?.IsAuthenticated != true || string.IsNullOrEmpty(User.Identity.Name))
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                await fixtureService.DeleteFixtureAsync(id, User?.Identity?.Name ?? string.Empty);
+                return NoContent();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
         }
 
 
         [HttpGet("{id}/users")]
         public async Task<ActionResult<IEnumerable<GetUserResponse>>> GetUsersAsync(int id)
         {
-            throw new NotImplementedException();
+            if (User?.Identity?.IsAuthenticated != true || string.IsNullOrEmpty(User.Identity.Name))
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                var users = await fixtureService.GetUsersForFixtureAsync(id, User.Identity.Name);
+                return users.Select(u => new GetUserResponse
+                {
+                    UserName = u.UserName,
+                    IsOwner = u.AccessLevel == AccessLevel.Owner
+                }).ToList();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
         }
 
         [HttpPost("{id}/users/add")]
         public async Task<ActionResult> AddUserAsync(int id, AddUserRequest request)
         {
-            throw new NotImplementedException();
+            if (User?.Identity?.IsAuthenticated != true || string.IsNullOrEmpty(User.Identity.Name))
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                await fixtureService.AddUserToFixtureAsync(id, request.UserName, User.Identity.Name);
+                return NoContent();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
         }
 
         [HttpDelete("{id}/users/{userName}")]
         public async Task<ActionResult> RemoveUserAsync(int id, string userName)
         {
-            throw new NotImplementedException();
+            if (User?.Identity?.IsAuthenticated != true || string.IsNullOrEmpty(User.Identity.Name))
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                await fixtureService.RemoveUserFromFixtureAsync(id, userName, User.Identity.Name);
+                return NoContent();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
         }
 
         

@@ -11,7 +11,8 @@
             public void AddUtils()
             {
                 services.AddSingleton<EmailService>();
+                services.AddSingleton<RandomService>();
             }
         }
-    }   
+    }
 }

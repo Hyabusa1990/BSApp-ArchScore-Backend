@@ -3,6 +3,7 @@ using System;
 using Fawkes.Api.Store;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Fawkes.Api.Migrations
 {
     [DbContext(typeof(FawkesDbContext))]
-    partial class FawkesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260910184650_Update2")]
+    partial class Update2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,7 +26,7 @@ namespace Fawkes.Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Fawkes.Api.Store.FawkesDbContext+Device", b =>
+            modelBuilder.Entity("Fawkes.Api.Store.FawkesDbContext+DeviceDTO", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -34,9 +37,6 @@ namespace Fawkes.Api.Migrations
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int>("DisplayTheme")
-                        .HasColumnType("integer");
 
                     b.Property<int>("DisplayType")
                         .HasColumnType("integer");
@@ -68,9 +68,6 @@ namespace Fawkes.Api.Migrations
                     b.Property<string>("LeagueName")
                         .HasColumnType("text");
 
-                    b.Property<string>("Location")
-                        .HasColumnType("text");
-
                     b.Property<Guid>("UniqueId")
                         .HasColumnType("uuid");
 
@@ -87,9 +84,6 @@ namespace Fawkes.Api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AccessLevel")
-                        .HasColumnType("integer");
-
                     b.Property<int>("FixtureId")
                         .HasColumnType("integer");
 
@@ -101,10 +95,10 @@ namespace Fawkes.Api.Migrations
 
                     b.HasIndex("FixtureId");
 
-                    b.ToTable("FixturePermissions", "Core");
+                    b.ToTable("FixturePermission", "Core");
                 });
 
-            modelBuilder.Entity("Fawkes.Api.Store.FawkesDbContext+Device", b =>
+            modelBuilder.Entity("Fawkes.Api.Store.FawkesDbContext+DeviceDTO", b =>
                 {
                     b.HasOne("Fawkes.Api.Store.FawkesDbContext+Fixture", "Fixture")
                         .WithMany()
@@ -116,13 +110,11 @@ namespace Fawkes.Api.Migrations
 
             modelBuilder.Entity("Fawkes.Api.Store.FawkesDbContext+FixturePermission", b =>
                 {
-                    b.HasOne("Fawkes.Api.Store.FawkesDbContext+Fixture", "Fixture")
+                    b.HasOne("Fawkes.Api.Store.FawkesDbContext+Fixture", null)
                         .WithMany()
                         .HasForeignKey("FixtureId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Fixture");
                 });
 #pragma warning restore 612, 618
         }

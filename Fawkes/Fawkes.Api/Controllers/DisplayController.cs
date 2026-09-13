@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Fawkes.Api.Authentication;
+using Fawkes.Api.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 
 namespace Fawkes.Api.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class DisplayController
+    public class DisplayController(IDeviceService deviceService, IDisplayService displayService, ITokenService tokenService, IConfiguration configuration) : ControllerBase
     {
 
         /// <summary>
@@ -13,12 +16,32 @@ namespace Fawkes.Api.Controllers
         /// </summary>
         /// <returns>Access token, refresh token, and expiration time.</returns>
         /// <exception cref="NotImplementedException"></exception>
+        /// 
+        [Authorize]
         [HttpGet("register")]
         public async Task<ActionResult<DeviceTokenResponse>> RegisterDeviceAsync()
         {
-            throw new NotImplementedException();
 
             // keinen neuen erzeugen wenn bearer token mitschickst.
+
+
+
+            var device = await deviceService.RegisterNewDeviceAsync();
+
+
+
+
+            return new DeviceTokenResponse()
+            {
+                DeviceCode = device.Code,
+                AccessToken = tokenService.GenerateAccessTokenForDevice(device.Code),
+                RefreshToken = tokenService.GenerateRefreshToken(),
+                ExpiresIn = Convert.ToInt32(configuration["JwtDevice:ExpirationMinutes"] ?? "7200") * 60
+            };
+
+
+
+
         }
 
 
@@ -31,7 +54,47 @@ namespace Fawkes.Api.Controllers
         [HttpGet("data")]
         public async Task<ActionResult<DisplayDataResponse>> GetDisplayDataAsync()
         {
-            throw new NotImplementedException();
+            var deviceCode = User.Claims.FirstOrDefault(c => c.Type == "device_code")?.Value;
+            if (string.IsNullOrEmpty(deviceCode))
+            {
+                return Unauthorized();
+            }
+
+            var displayData = await displayService.GetDisplayDataAsync(deviceCode);
+
+            if (displayData == null)
+                return NotFound();
+
+
+            return ConvertToResponse(displayData);
+                
+        }
+
+        private ActionResult<DisplayDataResponse> ConvertToResponse(DisplayData displayData)
+        {
+            var result = new DisplayDataResponse() 
+            { 
+                DisplayType = DisplayType.None,
+                DisplayTheme = ConvertToResponse(displayData.Theme)
+            };
+
+            if (displayData is UnassignedDisplayData unassignedDisplayData)
+            {
+                result.DisplayType = DisplayType.Unassigned;
+                result.DeviceCode = unassignedDisplayData.DeviceCode;
+            }
+
+            return result;
+        }
+
+        private DisplayTheme ConvertToResponse(Core.DisplayTheme theme)
+        {
+            return theme switch
+            {
+                Core.DisplayTheme.Dark => DisplayTheme.Dark,
+                Core.DisplayTheme.Light => DisplayTheme.Light,
+                _ => throw new ArgumentOutOfRangeException(nameof(theme), $"Not expected display theme value: {theme}"),
+            };
         }
 
 
@@ -79,6 +142,8 @@ namespace Fawkes.Api.Controllers
             public TargetDisplayData[]? Targets { get; set; }
 
             public LeagueTablePosition[]? LeagueTablePositions { get; set; }
+
+            public string DeviceCode { get; set; }
         }
 
         /// <summary>

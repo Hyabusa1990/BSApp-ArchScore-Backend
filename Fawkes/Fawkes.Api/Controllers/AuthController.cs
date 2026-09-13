@@ -82,7 +82,8 @@ namespace Fawkes.Api.Controllers
             {
                 UserName = registerRequest.Email,
                 Email = registerRequest.Email,
-                EmailConfirmed = false
+                // For now all emails are confirmed
+                EmailConfirmed = true
             };
 
             var result = await _userManager.CreateAsync(user, registerRequest.Password);

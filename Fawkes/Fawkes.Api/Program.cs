@@ -16,6 +16,7 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddUtils();
 builder.Services.AddFawkesAuthentication(builder.Configuration);
 builder.Services.AddFawkesDataLayer(builder.Configuration);
 builder.Services.AddApplicationLogic();

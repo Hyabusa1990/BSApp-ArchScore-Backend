@@ -14,10 +14,11 @@ namespace Fawkes.Api.Core
             /// </summary>
             public void AddApplicationLogic()
             {
-
-
-
+                services.AddTransient<IDeviceService, DeviceService>();
+                services.AddTransient<IDisplayService, DisplayService>();
+                services.AddTransient<IFixtureService, FixtureService>();
             }
         }
     }
+
 }
