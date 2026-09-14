@@ -12,7 +12,7 @@
 
   postgres:
 
-    image: postgres:alpine
+    image: postgres:latest
     restart: always
     container_name: postgres
     healthcheck:
