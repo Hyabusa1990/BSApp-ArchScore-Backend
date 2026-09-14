@@ -21,6 +21,9 @@ namespace Fawkes.Api.Store
         Task<bool> CheckReadAccessToFixtureAsync(int fixtureId, string user);
         Task<bool> CheckOwnerAccessToFixtureAsync(int fixtureId, string user);
         Task<IEnumerable<FixtureUser>> GetUsersForFixtureAsync(int fixtureId);
+        Task<IEnumerable<Device>> GetDevicesForFixtureAsync(int fixtureId);
+        Task<Device> GetDeviceByIdAsync(int deviceId);
+        Task UpdateDeviceAsync(Device device);
     }
 
     public class FawkesDataStore(FawkesDbContext context) : IFawkesDataStore
@@ -59,13 +62,7 @@ namespace Fawkes.Api.Store
                 return null;
             }
 
-            return new Device()
-            {
-                Id = device.Id,
-                FixtureId = device.FixtureId,
-                DisplayType = ConvertDisplayType(device.DisplayType),
-                DisplayTheme = ConvertDisplayTheme(device.DisplayTheme)
-            };
+            return ConvertDevice(device);
         }
 
         public async Task<Fixture?> GetFixtureAsync(int id)
@@ -264,6 +261,75 @@ namespace Fawkes.Api.Store
                 FawkesDbContext.AccessLevel.Write => AccessLevel.Write,
                 FawkesDbContext.AccessLevel.Owner => AccessLevel.Owner,
                 _ => throw new ArgumentOutOfRangeException(nameof(accessLevel), $"Not expected access level value: {accessLevel}"),
+            };
+        }
+
+        public async Task<IEnumerable<Device>> GetDevicesForFixtureAsync(int fixtureId)
+        {
+            var devices = (await context.Devices
+                .Where(d => d.FixtureId == fixtureId)
+                .ToArrayAsync())
+                .Select(ConvertDevice).ToArray();
+            return devices;
+        }
+
+        private Device ConvertDevice(FawkesDbContext.Device d)
+        {
+            return new Device
+            {
+                Id = d.Id,
+                FixtureId = d.FixtureId,
+                Code = d.Code,
+                DisplayType = ConvertDisplayType(d.DisplayType),
+                DisplayTheme = ConvertDisplayTheme(d.DisplayTheme)
+            };
+        }
+
+        public async Task<Device> GetDeviceByIdAsync(int deviceId)
+        {
+            var device = await context.Devices.FindAsync(deviceId);
+            if (device == null)
+            {
+                throw new KeyNotFoundException($"Device with id {deviceId} not found.");
+            }
+            return ConvertDevice(device);
+        }
+
+        public async Task UpdateDeviceAsync(Device device)
+        {
+            var existingDevice = await context.Devices.FindAsync(device.Id);
+            if (existingDevice == null)
+            {
+                throw new KeyNotFoundException($"Device with id {device.Id} not found.");
+            }
+
+            existingDevice.FixtureId = device.FixtureId;
+            existingDevice.Code = device.Code;
+            existingDevice.DisplayType = ConvertDisplayType(device.DisplayType);
+            existingDevice.DisplayTheme = ConvertDisplayTheme(device.DisplayTheme);
+            existingDevice.MatchNo = device.MatchNo;
+
+            await context.SaveChangesAsync();
+        }
+
+        private FawkesDbContext.DisplayTheme ConvertDisplayTheme(DisplayTheme displayTheme)
+        {
+            return displayTheme switch
+            {
+                DisplayTheme.Dark => FawkesDbContext.DisplayTheme.Dark,
+                DisplayTheme.Light => FawkesDbContext.DisplayTheme.Light,
+                _ => throw new ArgumentOutOfRangeException(nameof(displayTheme), $"Not expected display theme value: {displayTheme}")
+            };
+        }
+
+        private FawkesDbContext.DisplayType ConvertDisplayType(DisplayType displayType)
+        {
+            return displayType switch
+            {
+                DisplayType.None => FawkesDbContext.DisplayType.None,
+                DisplayType.Match => FawkesDbContext.DisplayType.Match,
+                DisplayType.Table => FawkesDbContext.DisplayType.Table,
+                _ => throw new ArgumentOutOfRangeException(nameof(displayType), $"Not expected display type value: {displayType}")
             };
         }
     }

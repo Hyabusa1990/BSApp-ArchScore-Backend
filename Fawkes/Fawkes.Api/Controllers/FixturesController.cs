@@ -14,10 +14,10 @@ namespace Fawkes.Api.Controllers
     /// Controller for managing fixtures in the Fawkes API. Provides endpoints for creating, retrieving, updating, and deleting fixtures.
     /// </summary>
 
-    [Route("[controller]")]
+    [Route("fixtures")]
     [ApiController]
     [Authorize]
-    public class FixtureController(IFixtureService fixtureService) : ControllerBase
+    public class FixturesController(IFixtureService fixtureService) : ControllerBase
     {
 
         /// <summary>

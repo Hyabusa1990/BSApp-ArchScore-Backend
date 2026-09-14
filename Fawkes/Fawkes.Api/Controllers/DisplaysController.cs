@@ -8,16 +8,14 @@ namespace Fawkes.Api.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class DisplayController(IDeviceService deviceService, IDisplayService displayService, ITokenService tokenService, IConfiguration configuration) : ControllerBase
+    public class DisplaysController(IDeviceService deviceService, IDisplayService displayService, ITokenService tokenService, IConfiguration configuration) : ControllerBase
     {
 
         /// <summary>
         /// Registers a device and returns the access token, refresh token, and expiration time. Payload of the access token contains the device code issued during registration.
         /// </summary>
         /// <returns>Access token, refresh token, and expiration time.</returns>
-        /// <exception cref="NotImplementedException"></exception>
-        /// 
-        [Authorize]
+        /// <exception cref="NotImplementedException"></exception>       
         [HttpGet("register")]
         public async Task<ActionResult<DeviceTokenResponse>> RegisterDeviceAsync()
         {

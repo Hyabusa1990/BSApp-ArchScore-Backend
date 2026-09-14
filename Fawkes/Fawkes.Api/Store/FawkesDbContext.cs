@@ -61,6 +61,7 @@ namespace Fawkes.Api.Store
             public required string Code { get; set; }
             public DisplayType DisplayType { get; set; }
             public DisplayTheme DisplayTheme { get; set; }
+            public int? MatchNo { get; set; }
             public Fixture? Fixture { get; set; }
         }
 

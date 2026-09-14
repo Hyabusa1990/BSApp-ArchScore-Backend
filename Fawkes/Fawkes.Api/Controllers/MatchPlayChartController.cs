@@ -5,7 +5,6 @@ namespace Fawkes.Api.Controllers
 {
 
     [Authorize]
-    [Route("[controller]")]
     [ApiController]
     public class MatchPlayChartController : ControllerBase
     {
@@ -16,7 +15,7 @@ namespace Fawkes.Api.Controllers
         /// <param name="fixtureId">The unique identifier of the fixture.</param>
         /// <returns>The match play chart response.</returns>
         /// <exception cref="NotImplementedException"></exception>
-        [HttpGet("{fixtureId}")]
+        [HttpGet("fixtures/{fixtureId}/matchplaychart")]
         public async Task<ActionResult<GetMatchPlayChartResponse>> GetMatchPlayChartAsync(int fixtureId)
         {
             throw new NotImplementedException();
@@ -30,7 +29,7 @@ namespace Fawkes.Api.Controllers
         /// <param name="request">The request containing the match play chart details.</param>
         /// <returns>The created match play chart response.</returns>
         /// <exception cref="NotImplementedException"></exception>
-        [HttpPost("{fixtureId}")]
+        [HttpPost("fixtures/{fixtureId}/matchplaychart")]
         public async Task<ActionResult<GetMatchPlayChartResponse>> CreateMatchPlayChartAsync(int fixtureId, CreateMatchPlayChartRequest request)
         {
             throw new NotImplementedException();

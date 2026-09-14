@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Core;
+using Fawkes.Api.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.Contracts;
 
@@ -7,8 +9,9 @@ namespace Fawkes.Api.Controllers
 
     [Authorize]
     [ApiController]
-    public class DeviceManagementController
+    public class DeviceManagementController(IDeviceService deviceService) : ControllerBase
     {
+        private readonly IDeviceService deviceService = deviceService;
 
         /// <summary>
         /// Returns all display devices used for a fixture.
@@ -19,9 +22,25 @@ namespace Fawkes.Api.Controllers
         [HttpGet("fixtures/{fixtureId}/devices/")]
         public async Task<ActionResult<IEnumerable<DeviceBase>>> GetDevicesForFixtureAsync(int fixtureId)
         {
-            throw new NotImplementedException();
-        }
+            if (User?.Identity?.IsAuthenticated == false || string.IsNullOrEmpty(User?.Identity?.Name))
+            {
+                return Unauthorized();
+            }
 
+            try
+            {
+                var devices = await deviceService.GetDevicesForFixtureAsync(fixtureId, User.Identity.Name);
+                return Ok(devices);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
 
         /// <summary>
         /// Returns details of a specific device used for a fixture.
@@ -33,20 +52,93 @@ namespace Fawkes.Api.Controllers
         [HttpGet("fixtures/{fixtureId}/devices/{deviceId}")]
         public async Task<ActionResult<GetDeviceResponse>> GetDeviceAsync(int fixtureId, int deviceId)
         {
-            throw new NotImplementedException();
+            if (User?.Identity?.IsAuthenticated == false || string.IsNullOrEmpty(User?.Identity?.Name))
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                var device = await deviceService.GetDeviceForFixtureAsync(fixtureId, deviceId, User.Identity.Name);
+                return ConvertDevice(device);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
+
+        private GetDeviceResponse ConvertDevice(Device device)
+        {
+            return new GetDeviceResponse
+            {
+                Id = device.Id,
+                DisplayType = ConvertDisplayType(device.DisplayType),
+                DisplayTheme = ConvertDisplayTheme(device.DisplayTheme),
+                MatchNo = device.MatchNo
+
+            };
+        }
+
+        private DisplayTheme ConvertDisplayTheme(Core.DisplayTheme displayTheme)
+        {
+            return displayTheme switch
+            {
+                Core.DisplayTheme.Dark => DisplayTheme.Dark,
+                Core.DisplayTheme.Light => DisplayTheme.Light,
+                _ => throw new ArgumentOutOfRangeException(nameof(displayTheme), $"Not expected display theme value: {displayTheme}")
+            };
+        }
+
+        private DisplayType ConvertDisplayType(Core.DisplayType displayType)
+        {
+            return displayType switch
+            {
+                Core.DisplayType.None => DisplayType.None,
+                Core.DisplayType.Match => DisplayType.Match,
+                Core.DisplayType.Table => DisplayType.LeagueTable,
+                _ => throw new ArgumentOutOfRangeException(nameof(displayType), $"Not expected display type value: {displayType}")
+            };
         }
 
 
         /// <summary>
         /// Assigns a device to a fixture.
         /// </summary>
+        /// <param name="fixtureId">The id of the fixture for which to assign the device.</param>
         /// <param name="request">The request object containing the details of the device to assign.</param>
         /// <returns>The details of the assigned device.</returns>
         /// <exception cref="NotImplementedException"></exception>
         [HttpPut("fixtures/{fixtureId}/devices/assign")]
-        public async Task<ActionResult<GetDeviceResponse>> AssignDeviceToFixtureAsync(AssignDeviceToFixtureRequest request)
+        public async Task<ActionResult<GetDeviceResponse>> AssignDeviceToFixtureAsync(int fixtureId, AssignDeviceToFixtureRequest request)
         {
-            throw new NotImplementedException();
+            if (User?.Identity?.IsAuthenticated == false || string.IsNullOrEmpty(User?.Identity?.Name))
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                var result = await deviceService.AssignDeviceToFixtureAsync(fixtureId, request.DeviceCode, User.Identity.Name);
+                return ConvertDevice(result);
+            }
+            catch (UnauthorizedAccessException) {
+                return Unauthorized();
+            }
+            catch(KeyNotFoundException)
+            { 
+                return NotFound();
+            }
+            catch(InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }   
+
+
         }
 
 
@@ -60,7 +152,28 @@ namespace Fawkes.Api.Controllers
         [HttpPut("fixtures/{fixtureId}/devices/{deviceId}/unassign")]
         public async Task<ActionResult> UnassignDeviceFromFixtureAsync(int fixtureId, int deviceId)
         {
-            throw new NotImplementedException();
+            if (User?.Identity?.IsAuthenticated == false || string.IsNullOrEmpty(User?.Identity?.Name))
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                await deviceService.RemoveDeviceFromFixtureAsync(fixtureId, deviceId, User.Identity.Name);
+                return Ok();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
 
@@ -75,14 +188,56 @@ namespace Fawkes.Api.Controllers
         [HttpPut("fixtures/{fixtureId}/devices/{deviceId}")]
         public async Task<ActionResult<GetDeviceResponse>> UpdateDeviceAsync(int fixtureId, int deviceId, UpdateDeviceRequest request)
         {
-            throw new NotImplementedException();
+            if (User?.Identity?.IsAuthenticated == false || string.IsNullOrEmpty(User?.Identity?.Name))
+            {
+                return Unauthorized();
+            }
+            try
+            {
+                var updatedDevice = await deviceService.UpdateDeviceAsync(fixtureId, deviceId, User.Identity.Name, ConvertDisplayType(request.DisplayType), ConvertDisplayTheme(request.DisplayTheme), request.MatchNo);
+                return ConvertDevice(updatedDevice);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
+        private Core.DisplayTheme ConvertDisplayTheme(DisplayTheme displayTheme)
+        {
+            switch (displayTheme)
+            {
+                case DisplayTheme.Light:
+                    return Core.DisplayTheme.Light;
+                case DisplayTheme.Dark:
+                    return Core.DisplayTheme.Dark;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(displayTheme), displayTheme, null);
+            }
+        }
 
-
-
-
-
+        private Core.DisplayType ConvertDisplayType(DisplayType displayType)
+        {
+            switch (displayType)
+            {
+                case DisplayType.None:
+                    return Core.DisplayType.None;
+                case DisplayType.Match:
+                    return Core.DisplayType.Match;
+                case DisplayType.LeagueTable:
+                    return Core.DisplayType.Table;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(displayType), displayType, null);
+            }   
+        }
 
         public class GetDeviceResponse : DeviceBase
         {
@@ -131,7 +286,12 @@ namespace Fawkes.Api.Controllers
             /// <summary>
             /// The device should display information related to a match (i.e. two targets). The match number must be specified in the MatchNo property of the device.
             /// </summary>
-            Match
+            Match,
+
+            /// <summary>
+            /// The device should display information related to the league table. The MatchNo property of the device is not relevant when DisplayType is set to LeagueTable.
+            /// </summary>
+            LeagueTable
         }
 
         /// <summary>
