@@ -6,7 +6,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace Fawkes.Api.Controllers
 {
-    [Route("[controller]")]
+    [Route("displays")]
     [ApiController]
     public class DisplaysController(IDeviceService deviceService, IDisplayService displayService, ITokenService tokenService, IConfiguration configuration) : ControllerBase
     {
