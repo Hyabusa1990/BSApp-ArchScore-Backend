@@ -17,6 +17,7 @@ namespace Fawkes.Api.Core
                 services.AddTransient<IDeviceService, DeviceService>();
                 services.AddTransient<IDisplayService, DisplayService>();
                 services.AddTransient<IFixtureService, FixtureService>();
+                services.AddTransient<IMatchPlayChartService, MatchPlayChartService>();
             }
         }
     }

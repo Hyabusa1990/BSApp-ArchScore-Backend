@@ -11,6 +11,9 @@ namespace Fawkes.Api.Store
     {
         Task<Device> CreateNewDevice(string deviceCode);
         Task<Device?> GetDeviceByCodeAsync(string deviceCode);
+
+        Task<bool> FixtureExistsAsync(int fixtureId);
+
         Task<Fixture?> GetFixtureAsync(int id);
         Task<IEnumerable<Fixture>> GetFixturesForUserAsync(string user);
         Task<Fixture> CreateFixtureAsync(DateTime date, string location, string leagueName, string fixtureName);
@@ -24,6 +27,10 @@ namespace Fawkes.Api.Store
         Task<IEnumerable<Device>> GetDevicesForFixtureAsync(int fixtureId);
         Task<Device> GetDeviceByIdAsync(int deviceId);
         Task UpdateDeviceAsync(Device device);
+        Task<bool> MatchPlayChartExistsAsync(int fixtureId);
+        Task DeleteMatchPlayChartAsync(int fixtureId);
+        Task<Team> AddTeamToFixtureAsync(int fixtureId, Team team);
+        Task AssignTeamToTargetAsync(int fixtureId, int roundNo, int targetNo, int teamId);
     }
 
     public class FawkesDataStore(FawkesDbContext context) : IFawkesDataStore
@@ -76,6 +83,12 @@ namespace Fawkes.Api.Store
 
 
             return ConvertFixture(dbFixture);
+        }
+
+
+        public async Task<bool> FixtureExistsAsync(int fixtureId)
+        {
+            return await context.Fixtures.AnyAsync(f => f.Id == fixtureId);
         }
 
         public async Task<Fixture> CreateFixtureAsync(DateTime date, string location, string leagueName, string fixtureName)
@@ -331,6 +344,59 @@ namespace Fawkes.Api.Store
                 DisplayType.Table => FawkesDbContext.DisplayType.Table,
                 _ => throw new ArgumentOutOfRangeException(nameof(displayType), $"Not expected display type value: {displayType}")
             };
+        }
+
+        public async Task<bool> MatchPlayChartExistsAsync(int fixtureId)
+        {
+            return await context.TargetAssignments.AnyAsync(ta => ta.FixtureId == fixtureId) || await context.Teams.AnyAsync(t => t.FixtureId == fixtureId);
+        }
+
+        public async Task DeleteMatchPlayChartAsync(int fixtureId)
+        {
+            await context.TargetAssignments.Where(ta => ta.FixtureId == fixtureId).ExecuteDeleteAsync();
+            await context.Teams.Where(t => t.FixtureId == fixtureId).ExecuteDeleteAsync();
+        }
+
+        public async Task<Team> AddTeamToFixtureAsync(int fixtureId, Team team)
+        {
+            var newTeam = new FawkesDbContext.Team()
+            {
+                FixtureId = fixtureId,
+                Name = team.Name,
+                MatchPointsWon = team.MatchPointsWon,
+                MatchPointsLost = team.MatchPointsLost,
+                SetPointsWon = team.SetPointsWon,
+                SetPointsLost = team.SetPointsLost
+            };
+
+            context.Teams.Add(newTeam);
+
+            await context.SaveChangesAsync();
+
+            return new Team
+            {
+                Id = newTeam.Id,
+                Name = newTeam.Name,
+                MatchPointsWon = newTeam.MatchPointsWon,
+                MatchPointsLost = newTeam.MatchPointsLost,
+                SetPointsWon = newTeam.SetPointsWon,
+                SetPointsLost = newTeam.SetPointsLost
+            };
+        }
+
+        public async Task AssignTeamToTargetAsync(int fixtureId, int roundNo, int targetNo, int teamId)
+        {
+            var newTargetAssignment = new FawkesDbContext.TargetAssignment()
+            {
+                FixtureId = fixtureId,
+                RoundNo = roundNo,
+                TargetNo = targetNo,
+                TeamId = teamId
+            };
+            context.TargetAssignments.Add(newTargetAssignment);
+            await context.SaveChangesAsync();
+ 
+
         }
     }
 }

@@ -14,6 +14,10 @@ namespace Fawkes.Api.Store
 
         public DbSet<FixturePermission> FixturePermissions { get; set; }
 
+        public DbSet<TargetAssignment> TargetAssignments { get; set; }
+
+        public DbSet<Team> Teams { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -28,6 +32,23 @@ namespace Fawkes.Api.Store
                 .HasMany<FixturePermission>()
                 .WithOne(_ => _.Fixture)
                 .OnDelete(DeleteBehavior.Cascade);
+
+
+            modelBuilder.Entity<Fixture>()
+                .HasMany<Team>()
+                .WithOne(_ => _.Fixture)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Fixture>()
+                .HasMany<TargetAssignment>()
+                .WithOne(_ => _.Fixture)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Team>()
+                .HasMany<TargetAssignment>()
+                .WithOne(_ => _.Team)
+                .OnDelete(DeleteBehavior.Cascade);
+
 
 
 
@@ -65,6 +86,30 @@ namespace Fawkes.Api.Store
             public Fixture? Fixture { get; set; }
         }
 
+        public class TargetAssignment
+        {
+            public int Id { get; set; }
+            public int FixtureId { get; set; }
+            public int TeamId { get; set; }
+            public int RoundNo { get; set; }
+            public int TargetNo { get; set; }
+
+            public Fixture Fixture { get; set; }
+            public Team Team { get; set; }
+        }
+
+
+        public class Team
+        {
+            public int Id { get; set; }
+            public int FixtureId { get; set; }
+            public required string Name { get; set; }
+            public int MatchPointsWon { get; set; }
+            public int MatchPointsLost { get; set; }
+            public int SetPointsWon { get; set; }
+            public int SetPointsLost { get; set; }
+            public Fixture Fixture { get; set; }
+        }
 
 
         public enum DisplayType

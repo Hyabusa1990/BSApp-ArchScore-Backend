@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Fawkes.Api.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fawkes.Api.Controllers
@@ -6,20 +7,8 @@ namespace Fawkes.Api.Controllers
 
     [Authorize]
     [ApiController]
-    public class MatchPlayChartController : ControllerBase
+    public class MatchPlayChartController(IMatchPlayChartService matchPlayChartService) : ControllerBase
     {
-
-        /// <summary>
-        /// Gets the match play chart for a given fixture.
-        /// </summary>
-        /// <param name="fixtureId">The unique identifier of the fixture.</param>
-        /// <returns>The match play chart response.</returns>
-        /// <exception cref="NotImplementedException"></exception>
-        [HttpGet("fixtures/{fixtureId}/matchplaychart")]
-        public async Task<ActionResult<GetMatchPlayChartResponse>> GetMatchPlayChartAsync(int fixtureId)
-        {
-            throw new NotImplementedException();
-        }
 
 
         /// <summary>
@@ -30,29 +19,52 @@ namespace Fawkes.Api.Controllers
         /// <returns>The created match play chart response.</returns>
         /// <exception cref="NotImplementedException"></exception>
         [HttpPost("fixtures/{fixtureId}/matchplaychart")]
-        public async Task<ActionResult<GetMatchPlayChartResponse>> CreateMatchPlayChartAsync(int fixtureId, CreateMatchPlayChartRequest request)
+        public async Task<ActionResult> CreateMatchPlayChartAsync(int fixtureId, CreateMatchPlayChartRequest request)
         {
-            throw new NotImplementedException();
+
+            if (User?.Identity?.IsAuthenticated != true || string.IsNullOrEmpty(User.Identity.Name))
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                var teams = request.Teams.Select(t => new Core.Team
+                {
+                    Name = t.Name,
+                    SetPointsWon = t.SetPointsWon,
+                    SetPointsLost = t.SetPointsLost,
+                    MatchPointsWon = t.MatchPointsWon,
+                    MatchPointsLost = t.MatchPointsLost
+                }).ToArray();
+
+                await matchPlayChartService.CreateMatchPlayChartAsync(fixtureId, teams, request.TargetAssignments, request.HardOverride ?? false, User.Identity.Name);
+                return Ok();
+            }
+            catch(UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch(KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
 
 
-        public class GetMatchPlayChartResponse : MatchPlayChartBase
-        {
-            public int FixtureId { get; set; }
-        }
 
-        public class CreateMatchPlayChartRequest : MatchPlayChartBase
+        public class CreateMatchPlayChartRequest
         {
             /// <summary>
             /// If true, the match play chart will be created even if some of the matches already contain data. If false or null, the request will fail if any of the matches already contain data.
             /// </summary>
             public bool? HardOverride { get; set; }
-        }
-        
 
-        public abstract class MatchPlayChartBase
-        {
             /// <summary>
             /// List of teams participating in the fixture. Each team should have a unique name. The order of the teams in the array determines their position in the match play chart.
             /// </summary>
@@ -65,19 +77,31 @@ namespace Fawkes.Api.Controllers
         }
 
 
+
         public class Team
         {
             public required string Name { get; set; }
 
             /// <summary>
-            /// Points scored by the team before the current fixture.
+            /// Set points won by the team before the current fixture.
             /// </summary>
-            public int SetPoints { get; set; }
+            public int SetPointsWon { get; set; }
+            
+            /// <summary>
+            /// Set points lost by the team before the current fixture.
+            /// </summary>
+            public int SetPointsLost { get; set; }
 
             /// <summary>
             /// Total match points/wins accumulated by the team before the current fixture.
             /// </summary>
-            public int MatchPoints { get; set; }
+            public int MatchPointsWon { get; set; }
+            
+            /// <summary>
+            /// Total match points/wins lost by the team before the current fixture.
+            /// </summary>
+            public int MatchPointsLost { get; set; }
         }
+
     }
 }
