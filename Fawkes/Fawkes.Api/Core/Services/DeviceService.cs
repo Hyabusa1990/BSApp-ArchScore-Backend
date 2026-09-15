@@ -1,11 +1,11 @@
 ﻿using Fawkes.Api.Controllers;
-using Fawkes.Api.Core.Services;
+using Fawkes.Api.Core.Model;
 using Fawkes.Api.Store;
 using Fawkes.Api.Utils;
 using Microsoft.AspNetCore.Mvc;
 using System.Runtime.CompilerServices;
 
-namespace Fawkes.Api.Core.Model
+namespace Fawkes.Api.Core.Services
 {
 
 

@@ -94,6 +94,16 @@ namespace Fawkes.Api.Store
             public int RoundNo { get; set; }
             public int TargetNo { get; set; }
 
+            public string Shots { get; set; } = string.Empty;
+            public int? ConfirmedSet01Score { get; set; }
+            public int? ConfirmedSet02Score { get; set; }
+            public int? ConfirmedSet03Score { get; set; }
+            public int? ConfirmedSet04Score { get; set; }
+            public int? ConfirmedSet05Score { get; set; }
+
+            public int? SetPointsTotal { get; set; }
+            public int? MatchPointsTotal { get; set; }
+
             public Fixture Fixture { get; set; }
             public Team Team { get; set; }
         }

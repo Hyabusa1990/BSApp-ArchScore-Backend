@@ -1,4 +1,5 @@
-﻿using Fawkes.Api.Store;
+﻿using Fawkes.Api.Core.Model;
+using Fawkes.Api.Store;
 using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace Fawkes.Api.Core.Services
@@ -31,23 +32,6 @@ namespace Fawkes.Api.Core.Services
 
             
         }
-    }
-
-
-    public class DisplayData
-    {
-        public DisplayTheme Theme { get; set; }
-    }
-
-    public class UnassignedDisplayData : DisplayData
-    {
-        public string DeviceCode { get; set; }
-    }
-
-    public enum DisplayTheme
-    {
-        Dark,
-        Light
     }
 
 }

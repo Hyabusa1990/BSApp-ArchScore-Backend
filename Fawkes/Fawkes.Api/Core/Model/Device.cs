@@ -1,6 +1,4 @@
-﻿using Fawkes.Api.Core.Services;
-
-namespace Fawkes.Api.Core.Model
+﻿namespace Fawkes.Api.Core.Model
 {
     public class Device
     {

@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using Fawkes.Api.Core.Model;
+using Fawkes.Api.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.Contracts;
@@ -84,12 +85,12 @@ namespace Fawkes.Api.Controllers
             };
         }
 
-        private DisplayTheme ConvertDisplayTheme(Core.Services.DisplayTheme displayTheme)
+        private DisplayTheme ConvertDisplayTheme(Core.Model.DisplayTheme displayTheme)
         {
             return displayTheme switch
             {
-                Core.Services.DisplayTheme.Dark => DisplayTheme.Dark,
-                Core.Services.DisplayTheme.Light => DisplayTheme.Light,
+                Core.Model.DisplayTheme.Dark => DisplayTheme.Dark,
+                Core.Model.DisplayTheme.Light => DisplayTheme.Light,
                 _ => throw new ArgumentOutOfRangeException(nameof(displayTheme), $"Not expected display theme value: {displayTheme}")
             };
         }
@@ -211,14 +212,14 @@ namespace Fawkes.Api.Controllers
             }
         }
 
-        private Core.Services.DisplayTheme ConvertDisplayTheme(DisplayTheme displayTheme)
+        private Core.Model.DisplayTheme ConvertDisplayTheme(DisplayTheme displayTheme)
         {
             switch (displayTheme)
             {
                 case DisplayTheme.Light:
-                    return Core.Services.DisplayTheme.Light;
+                    return Core.Model.DisplayTheme.Light;
                 case DisplayTheme.Dark:
-                    return Core.Services.DisplayTheme.Dark;
+                    return Core.Model.DisplayTheme.Dark;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(displayTheme), displayTheme, null);
             }

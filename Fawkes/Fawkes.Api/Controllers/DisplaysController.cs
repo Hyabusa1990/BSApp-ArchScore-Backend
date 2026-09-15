@@ -86,12 +86,12 @@ namespace Fawkes.Api.Controllers
             return result;
         }
 
-        private DisplayTheme ConvertToResponse(Core.Services.DisplayTheme theme)
+        private DisplayTheme ConvertToResponse(Core.Model.DisplayTheme theme)
         {
             return theme switch
             {
-                Core.Services.DisplayTheme.Dark => DisplayTheme.Dark,
-                Core.Services.DisplayTheme.Light => DisplayTheme.Light,
+                Core.Model.DisplayTheme.Dark => DisplayTheme.Dark,
+                Core.Model.DisplayTheme.Light => DisplayTheme.Light,
                 _ => throw new ArgumentOutOfRangeException(nameof(theme), $"Not expected display theme value: {theme}"),
             };
         }

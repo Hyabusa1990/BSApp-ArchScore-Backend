@@ -1,7 +1,6 @@
 ﻿using Fawkes.Api.Authentication;
 using Fawkes.Api.Controllers;
 using Fawkes.Api.Core.Model;
-using Fawkes.Api.Core.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fawkes.Api.Store
