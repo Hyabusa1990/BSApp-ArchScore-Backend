@@ -1,5 +1,5 @@
 ﻿using Azure.Core;
-using Fawkes.Api.Core;
+using Fawkes.Api.Core.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.Contracts;
@@ -84,23 +84,23 @@ namespace Fawkes.Api.Controllers
             };
         }
 
-        private DisplayTheme ConvertDisplayTheme(Core.DisplayTheme displayTheme)
+        private DisplayTheme ConvertDisplayTheme(Core.Services.DisplayTheme displayTheme)
         {
             return displayTheme switch
             {
-                Core.DisplayTheme.Dark => DisplayTheme.Dark,
-                Core.DisplayTheme.Light => DisplayTheme.Light,
+                Core.Services.DisplayTheme.Dark => DisplayTheme.Dark,
+                Core.Services.DisplayTheme.Light => DisplayTheme.Light,
                 _ => throw new ArgumentOutOfRangeException(nameof(displayTheme), $"Not expected display theme value: {displayTheme}")
             };
         }
 
-        private DisplayType ConvertDisplayType(Core.DisplayType displayType)
+        private DisplayType ConvertDisplayType(Core.Model.DisplayType displayType)
         {
             return displayType switch
             {
-                Core.DisplayType.None => DisplayType.None,
-                Core.DisplayType.Match => DisplayType.Match,
-                Core.DisplayType.Table => DisplayType.LeagueTable,
+                Core.Model.DisplayType.None => DisplayType.None,
+                Core.Model.DisplayType.Match => DisplayType.Match,
+                Core.Model.DisplayType.Table => DisplayType.LeagueTable,
                 _ => throw new ArgumentOutOfRangeException(nameof(displayType), $"Not expected display type value: {displayType}")
             };
         }
@@ -211,29 +211,29 @@ namespace Fawkes.Api.Controllers
             }
         }
 
-        private Core.DisplayTheme ConvertDisplayTheme(DisplayTheme displayTheme)
+        private Core.Services.DisplayTheme ConvertDisplayTheme(DisplayTheme displayTheme)
         {
             switch (displayTheme)
             {
                 case DisplayTheme.Light:
-                    return Core.DisplayTheme.Light;
+                    return Core.Services.DisplayTheme.Light;
                 case DisplayTheme.Dark:
-                    return Core.DisplayTheme.Dark;
+                    return Core.Services.DisplayTheme.Dark;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(displayTheme), displayTheme, null);
             }
         }
 
-        private Core.DisplayType ConvertDisplayType(DisplayType displayType)
+        private Core.Model.DisplayType ConvertDisplayType(DisplayType displayType)
         {
             switch (displayType)
             {
                 case DisplayType.None:
-                    return Core.DisplayType.None;
+                    return Core.Model.DisplayType.None;
                 case DisplayType.Match:
-                    return Core.DisplayType.Match;
+                    return Core.Model.DisplayType.Match;
                 case DisplayType.LeagueTable:
-                    return Core.DisplayType.Table;
+                    return Core.Model.DisplayType.Table;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(displayType), displayType, null);
             }   

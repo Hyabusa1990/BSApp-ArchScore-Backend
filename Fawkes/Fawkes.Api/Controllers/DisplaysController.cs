@@ -1,5 +1,6 @@
 ﻿using Fawkes.Api.Authentication;
-using Fawkes.Api.Core;
+using Fawkes.Api.Core.Model;
+using Fawkes.Api.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
@@ -85,12 +86,12 @@ namespace Fawkes.Api.Controllers
             return result;
         }
 
-        private DisplayTheme ConvertToResponse(Core.DisplayTheme theme)
+        private DisplayTheme ConvertToResponse(Core.Services.DisplayTheme theme)
         {
             return theme switch
             {
-                Core.DisplayTheme.Dark => DisplayTheme.Dark,
-                Core.DisplayTheme.Light => DisplayTheme.Light,
+                Core.Services.DisplayTheme.Dark => DisplayTheme.Dark,
+                Core.Services.DisplayTheme.Light => DisplayTheme.Light,
                 _ => throw new ArgumentOutOfRangeException(nameof(theme), $"Not expected display theme value: {theme}"),
             };
         }

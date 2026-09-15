@@ -1,4 +1,4 @@
-﻿using Fawkes.Api.Core;
+﻿using Fawkes.Api.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,7 +29,7 @@ namespace Fawkes.Api.Controllers
 
             try
             {
-                var teams = request.Teams.Select(t => new Core.Team
+                var teams = request.Teams.Select(t => new Core.Model.Team
                 {
                     Name = t.Name,
                     SetPointsWon = t.SetPointsWon,

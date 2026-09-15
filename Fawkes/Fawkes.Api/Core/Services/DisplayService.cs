@@ -1,7 +1,7 @@
 ﻿using Fawkes.Api.Store;
 using Microsoft.AspNetCore.Mvc.Formatters;
 
-namespace Fawkes.Api.Core
+namespace Fawkes.Api.Core.Services
 {
     public interface IDisplayService
     {

@@ -1,10 +1,11 @@
 ﻿using Fawkes.Api.Controllers;
+using Fawkes.Api.Core.Services;
 using Fawkes.Api.Store;
 using Fawkes.Api.Utils;
 using Microsoft.AspNetCore.Mvc;
 using System.Runtime.CompilerServices;
 
-namespace Fawkes.Api.Core
+namespace Fawkes.Api.Core.Model
 {
 
 
@@ -152,27 +153,6 @@ namespace Fawkes.Api.Core
 
             return device;
         }
-    }
-
-
-
-
-    public class Device
-    {
-        public int Id { get; set; }
-        public int? FixtureId { get; set; }
-        public required string Code { get; set; }
-        public DisplayType DisplayType { get; set; }
-        public DisplayTheme DisplayTheme { get; set; }
-        public int? MatchNo { get; set; } = null;
-    }
-
-
-    public enum DisplayType
-    {
-        None,
-        Match,
-        Table
     }
 
 

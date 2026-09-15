@@ -1,6 +1,7 @@
-﻿using Fawkes.Api.Store;
+﻿using Fawkes.Api.Core.Model;
+using Fawkes.Api.Store;
 
-namespace Fawkes.Api.Core
+namespace Fawkes.Api.Core.Services
 {
 
     public interface IMatchPlayChartService
@@ -82,23 +83,5 @@ namespace Fawkes.Api.Core
         }
 
     }
-
-
-    public class Team
-    {
-        public int Id { get; set; } = 0;
-        public string Name { get; set; } = string.Empty;
-        public int MatchPointsWon { get; set; } = 0;
-        public int MatchPointsLost { get; set; } = 0;
-        public int SetPointsWon { get; set; } = 0;
-        public int SetPointsLost { get; set; } = 0;
-    }
-
-    public class TargetAssignment
-    {
-        public int TeamIndex { get; set; }
-        public int TargetNumber { get; set; }
-    }
-
 
 }

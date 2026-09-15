@@ -1,7 +1,8 @@
-﻿using Fawkes.Api.Store;
+﻿using Fawkes.Api.Core.Model;
+using Fawkes.Api.Store;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
-namespace Fawkes.Api.Core
+namespace Fawkes.Api.Core.Services
 {
     public interface IFixtureService
     {
@@ -94,31 +95,6 @@ namespace Fawkes.Api.Core
             }
             throw new UnauthorizedAccessException();
         }
-    }
-
-
-    public class Fixture
-    {
-        public int Id { get; set; }
-        public Guid UniqueId { get; set; }
-        public DateTime Date { get; set; }
-        public string? LeagueName { get; set; }
-        public string? FixtureName { get; set; }
-        public string? Location { get; set; }
-    }
-
-    public class FixtureUser
-    {
-        public string UserName { get; set; } = string.Empty;
-        public AccessLevel AccessLevel { get; set; }
-    }
-
-    public enum AccessLevel
-    {
-        None,
-        Read,
-        Write,
-        Owner
     }
 
 
