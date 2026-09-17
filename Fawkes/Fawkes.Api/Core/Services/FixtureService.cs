@@ -1,6 +1,8 @@
 ﻿using Fawkes.Api.Core.Model;
 using Fawkes.Api.Store;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using static Fawkes.Api.Controllers.FixturesController;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Fawkes.Api.Core.Services
 {
@@ -14,6 +16,7 @@ namespace Fawkes.Api.Core.Services
         Task<IEnumerable<FixtureUser>> GetUsersForFixtureAsync(int fixtureId, string userName);
         Task AddUserToFixtureAsync(int id, string requestedUserName, string requestingUserName);
         Task RemoveUserFromFixtureAsync(int id, string requestedUserName, string requestingUserName);
+        Task SetPhaseAsync(int fixtureId, int roundNo, string userName);
     }
 
     public class FixtureService(IFawkesDataStore dataStore) : IFixtureService
@@ -91,6 +94,16 @@ namespace Fawkes.Api.Core.Services
                 }
 
                 await dataStore.GrantFixtureAccessAsync(id, requestedUserName, AccessLevel.None);
+                return;
+            }
+            throw new UnauthorizedAccessException();
+        }
+
+        public async Task SetPhaseAsync(int fixtureId, int roundNo, string userName)
+        {
+            if (await dataStore.CheckWriteAccessToFixtureAsync(fixtureId, userName))
+            {
+                await dataStore.UpdateFixtureAsync(fixtureId, roundNo: roundNo);
                 return;
             }
             throw new UnauthorizedAccessException();

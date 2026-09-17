@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Fawkes.Api.Core.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Fawkes.Api.Controllers
 {
     [ApiController]
-    public class SpotterController
+    public class SpotterController(ISpotterService spotterService) : ControllerBase
     {
 
         /// <summary>
@@ -16,7 +17,32 @@ namespace Fawkes.Api.Controllers
         [HttpGet("fixtures/{fixtureUniqueId}/targets/{targetNo}/spotter/info")]
         public async Task<ActionResult<GetTargetResponse>> GetTargetAsync(Guid fixtureUniqueId, int targetNo)
         {
-            throw new NotImplementedException();
+
+            try
+            {
+                var targetData = await spotterService.GetTargetDataAsync(fixtureUniqueId, targetNo);
+
+
+                return Ok(new GetTargetResponse
+                {
+                    TargetNo = targetData.TargetNo,
+                    CurrentSetNo = targetData.CurrentSetNo,
+                    TeamName = targetData.TeamName,
+                    Shots = targetData.Shots,
+                    CurrentSetScore = targetData.CurrentSetScore,
+                    IsConfirmed = targetData.IsConfirmed
+                });
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+
         }
 
 
@@ -31,7 +57,29 @@ namespace Fawkes.Api.Controllers
         [HttpPut("fixtures/{fixtureUniqueId}/targets/{targetNo}/spotter/shots")]
         public async Task<ActionResult<GetTargetResponse>> UpdateTargetAsync(Guid fixtureUniqueId, int targetNo, SubmitShotsRequest request)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var targetInfo = await spotterService.ProcessScoreAsync(fixtureUniqueId, targetNo, request.Shots);
+
+
+                return Ok(new GetTargetResponse
+                {
+                    TargetNo = targetInfo.TargetNo,
+                    CurrentSetNo = targetInfo.CurrentSetNo,
+                    TeamName = targetInfo.TeamName,
+                    Shots = targetInfo.Shots,
+                    CurrentSetScore = targetInfo.CurrentSetScore,
+                    IsConfirmed = targetInfo.IsConfirmed
+                });
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
 
@@ -60,6 +108,11 @@ namespace Fawkes.Api.Controllers
             public required int TargetNo { get; set; }
 
             /// <summary>
+            /// The current set number of the match. This indicates which set is currently being played in the match. The current set number is zero, when the match has not yet started or is already over.
+            /// </summary>
+            public required int CurrentSetNo { get; set; }
+
+            /// <summary>
             /// Team name
             /// </summary>
             public required string TeamName { get; set; }
@@ -70,9 +123,9 @@ namespace Fawkes.Api.Controllers
             public int? CurrentSetScore { get; set; }
 
             /// <summary>
-            /// Indicates whether the current set score has been confirmed. Once confirmed, the score is finalized and cannot be changed by spotters.
+            /// Indicates whether the current set score has been confirmed. This property is used to determine if the score for the current set has been finalized and cannot be changed. If true, the score is confirmed; if false, the score can still be modified.
             /// </summary>
-            public required bool IsConfirmed { get; set; }
+            public bool IsConfirmed { get; set; }
         }
 
         /// <summary>

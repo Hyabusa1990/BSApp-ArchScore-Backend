@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Fawkes.Api.Core.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fawkes.Api.Controllers
 {
     [Authorize]
     [ApiController]
-    public class DosController
+    public class DosController(IFixtureService fixtureService) : ControllerBase
     {
 
 
@@ -19,21 +20,55 @@ namespace Fawkes.Api.Controllers
         [HttpGet("fixtures/{fixtureId}/phase")]
         public async Task<ActionResult<GetPhaseResponse>> GetPhase(int fixtureId)
         {
-            throw new NotImplementedException();
+            if (User?.Identity?.IsAuthenticated != true || string.IsNullOrEmpty(User.Identity.Name))
+            {
+                return Unauthorized();
+            }
+
+            var fixture = await fixtureService.GetFixtureAsync(fixtureId, User.Identity.Name);
+
+            if (fixture == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new GetPhaseResponse
+            {
+                FixtureId = fixture.Id,
+                RoundNo = fixture.CurrentRoundNo
+            });
         }
 
 
         /// <summary>
         /// Sets the current phase of the fixture. The current phase controls which information is displayed and also where shots captured by the spotters are recorded.
         /// </summary>
-        /// <param name="fixtureId"></param>
-        /// <param name="request"></param>
+        /// <param name="fixtureId">The id of the fixture.</param>
+        /// <param name="request">The request containing the phase information to set.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         [HttpPut("fixtures/{fixtureId}/phase")]
         public async Task<ActionResult> SetPhase(int fixtureId, SetPhaseRequest request)
         {
-            throw new NotImplementedException();
+            if (User?.Identity?.IsAuthenticated != true || string.IsNullOrEmpty(User.Identity.Name))
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                await fixtureService.SetPhaseAsync(fixtureId, request.RoundNo, User.Identity.Name);
+            }
+            catch (InvalidOperationException)
+            {
+                return BadRequest("Invalid phase transition.");
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+
+            return Ok();
         }
 
 

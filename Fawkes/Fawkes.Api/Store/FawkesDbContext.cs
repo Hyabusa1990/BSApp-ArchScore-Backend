@@ -63,6 +63,8 @@ namespace Fawkes.Api.Store
             public string? LeagueName { get; set; }
             public string? FixtureName { get; set; }
             public string? Location { get; set; }
+            public int CurrentRoundNo { get; set; }
+            public string RuleSetKey { get; set; } = string.Empty;
 
         }
 
@@ -93,6 +95,7 @@ namespace Fawkes.Api.Store
             public int TeamId { get; set; }
             public int RoundNo { get; set; }
             public int TargetNo { get; set; }
+            public int CurrentSetNo { get; set; }
 
             public string Shots { get; set; } = string.Empty;
             public int? ConfirmedSet01Score { get; set; }

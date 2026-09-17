@@ -1,4 +1,5 @@
-﻿using Fawkes.Api.Core.Services;
+﻿using Fawkes.Api.Core.Rules;
+using Fawkes.Api.Core.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -19,6 +20,9 @@ namespace Fawkes.Api.Core
                 services.AddTransient<IDisplayService, DisplayService>();
                 services.AddTransient<IFixtureService, FixtureService>();
                 services.AddTransient<IMatchPlayChartService, MatchPlayChartService>();
+                services.AddTransient<ISpotterService, SpotterService>();
+                services.AddTransient<IRuleSetFactory, RuleSetFactory>();
+
             }
         }
     }

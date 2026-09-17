@@ -1,6 +1,7 @@
 ﻿using Fawkes.Api.Authentication;
 using Fawkes.Api.Controllers;
 using Fawkes.Api.Core.Model;
+using Fawkes.Api.Core.Rules;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fawkes.Api.Store
@@ -15,10 +16,11 @@ namespace Fawkes.Api.Store
         Task<bool> FixtureExistsAsync(int fixtureId);
 
         Task<Fixture?> GetFixtureAsync(int id);
+        Task<Fixture> GetFixtureByUniqueIdAsync(Guid fixtureUniqueId);
         Task<IEnumerable<Fixture>> GetFixturesForUserAsync(string user);
         Task<Fixture> CreateFixtureAsync(DateTime date, string location, string leagueName, string fixtureName);
         Task GrantFixtureAccessAsync(int id, string userName, AccessLevel accessLevel);
-        Task<Fixture> UpdateFixtureAsync(int id, DateTime date, string location, string leagueName, string fixtureName);
+        Task<Fixture> UpdateFixtureAsync(int id, DateTime? date = null, string? location = null, string? leagueName = null, string? fixtureName = null, int? roundNo = null);
         Task DeleteFixtureAsync(int id);
         Task<bool> CheckWriteAccessToFixtureAsync(int fixtureId, string user);
         Task<bool> CheckReadAccessToFixtureAsync(int fixtureId, string user);
@@ -31,6 +33,8 @@ namespace Fawkes.Api.Store
         Task DeleteMatchPlayChartAsync(int fixtureId);
         Task<Team> AddTeamToFixtureAsync(int fixtureId, Team team);
         Task AssignTeamToTargetAsync(int fixtureId, int roundNo, int targetNo, int teamId);
+        Task<TargetData> GetTargetDataAsync(int fixtureId, int roundNo, int targetNo);
+        Task SaveShotsAsync(int id, int currentRoundNo, int targetNo, string shots);
     }
 
     public class FawkesDataStore(FawkesDbContext context) : IFawkesDataStore
@@ -85,6 +89,15 @@ namespace Fawkes.Api.Store
             return ConvertFixture(dbFixture);
         }
 
+        public async Task<Fixture> GetFixtureByUniqueIdAsync(Guid fixtureUniqueId)
+        {
+            var dbFixture = await context.Fixtures.FirstOrDefaultAsync(f => f.UniqueId == fixtureUniqueId);
+            if (dbFixture == null)
+            {
+                throw new KeyNotFoundException($"Fixture with UniqueId {fixtureUniqueId} not found.");
+            }
+            return ConvertFixture(dbFixture);
+        }
 
         public async Task<bool> FixtureExistsAsync(int fixtureId)
         {
@@ -100,7 +113,8 @@ namespace Fawkes.Api.Store
                 Date = date,
                 LeagueName = leagueName,
                 FixtureName = fixtureName,
-                Location = location
+                Location = location,
+                RuleSetKey = RuleSetKeys.Default
             };
 
             context.Fixtures.Add(newFixture);
@@ -122,7 +136,9 @@ namespace Fawkes.Api.Store
                 UniqueId = dbFixture.UniqueId,
                 Date = dbFixture.Date,
                 LeagueName = dbFixture.LeagueName,
-                FixtureName = dbFixture.FixtureName
+                FixtureName = dbFixture.FixtureName,
+                Location = dbFixture.Location,
+                CurrentRoundNo = dbFixture.CurrentRoundNo
             };
         }
 
@@ -223,17 +239,18 @@ namespace Fawkes.Api.Store
             };
         }
 
-        public async Task<Fixture> UpdateFixtureAsync(int id, DateTime date, string location, string leagueName, string fixtureName)
+        public async Task<Fixture> UpdateFixtureAsync(int id, DateTime? date = null, string? location = null, string? leagueName = null, string? fixtureName = null, int? roundNo = null)
         {
             var fixture = await context.Fixtures.FindAsync(id);
 
             if (fixture == null)
                 throw new KeyNotFoundException($"Fixture with id {id} not found.");
 
-            fixture.Date = date;
-            fixture.Location = location;
-            fixture.LeagueName = leagueName;
-            fixture.FixtureName = fixtureName;
+            fixture.Date = date ?? fixture.Date;
+            fixture.Location = location ?? fixture.Location;
+            fixture.LeagueName = leagueName ?? fixture.LeagueName;
+            fixture.FixtureName = fixtureName ?? fixture.FixtureName;
+            fixture.CurrentRoundNo = roundNo ?? fixture.CurrentRoundNo;
 
             await context.SaveChangesAsync();
 
@@ -397,6 +414,45 @@ namespace Fawkes.Api.Store
             await context.SaveChangesAsync();
  
 
+        }
+
+        public async Task<TargetData> GetTargetDataAsync(int fixtureId, int roundNo, int targetNo)
+        {
+            var targetAssignment = await context.TargetAssignments
+                .Include(ta => ta.Team)
+                .FirstOrDefaultAsync(ta => ta.FixtureId == fixtureId && ta.RoundNo == roundNo && ta.TargetNo == targetNo);
+
+            if (targetAssignment == null)
+                return null;
+
+            return new TargetData
+            {
+                RoundNo = targetAssignment.RoundNo,
+                TargetNo = targetAssignment.TargetNo,
+                TeamName = targetAssignment.Team.Name,
+                CurrentSetNo = targetAssignment.CurrentSetNo,
+                Shots = targetAssignment.Shots,
+                ConfirmedSet01Score = targetAssignment.ConfirmedSet01Score,
+                ConfirmedSet02Score = targetAssignment.ConfirmedSet02Score,
+                ConfirmedSet03Score = targetAssignment.ConfirmedSet03Score,
+                ConfirmedSet04Score = targetAssignment.ConfirmedSet04Score,
+                ConfirmedSet05Score = targetAssignment.ConfirmedSet05Score,
+                SetPointsTotal = targetAssignment.SetPointsTotal,
+                MatchPointsTotal = targetAssignment.MatchPointsTotal
+            };
+        }
+
+        public async Task SaveShotsAsync(int id, int currentRoundNo, int targetNo, string shots)
+        {
+            var targetAssignment = await context.TargetAssignments
+                .FirstOrDefaultAsync(ta => ta.Id == id && ta.RoundNo == currentRoundNo && ta.TargetNo == targetNo);
+
+            if (targetAssignment == null)
+                throw new InvalidOperationException($"TargetAssignment not found for Id={id}, RoundNo={currentRoundNo}, TargetNo={targetNo}");
+
+            targetAssignment.Shots = shots;
+
+            await context.SaveChangesAsync();
         }
     }
 }
