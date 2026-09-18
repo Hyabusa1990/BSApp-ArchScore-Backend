@@ -5,6 +5,10 @@
         private Set[] sets = Enumerable.Range(1, noOfSets).Select(_ => new Set(noOfShotsPerSet)).ToArray();
         private Set shootOff = new Set(noOfShootOffShotsForShootOff);
 
+
+        public int TargetNo { get; set; }
+        public string TeamName { get; set; }
+
         public int SetPoints { get; set; }
         public int? MatchPoints { get; set; }
 

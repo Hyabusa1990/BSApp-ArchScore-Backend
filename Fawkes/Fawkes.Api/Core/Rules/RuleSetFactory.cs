@@ -25,7 +25,7 @@ namespace Fawkes.Api.Core.Rules
 
         public IMatchPlayRuleSet GetMatchPlayRuleSet(string key)
         {
-            throw new NotImplementedException();
+            return new SetSystemMatchPlayRuleSetBase(5, false);
         }
 
         public IScoringRuleSet GetScoringRuleSet(string key)

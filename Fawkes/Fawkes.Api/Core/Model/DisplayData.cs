@@ -23,6 +23,8 @@
             public string TeamName { get; set; } = string.Empty;
             public string Shots { get; set; } = string.Empty;
             public int? CurrentSetScore { get; set; }
+            public int[] SetScores { get; set; } = Array.Empty<int>();
+            public int SetPoints { get; set; }
             public bool IsConfirmed { get; set; }
         }
 

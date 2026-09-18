@@ -53,12 +53,25 @@ namespace Fawkes.Api.Core.Services
 
                 var match = matchPlayRules.EvaluateMatch(targets.Select(scoringRules.EvaluateScoresheet).ToArray());
 
+                var setNo = targets.Min(t => t.CurrentSetNo);
+
 
 
                 return new MatchDisplayData()
                 {
-                    
-                    
+                    Theme = device.DisplayTheme,
+                    Targets = match.Scoresheets.Select(s => new MatchDisplayData.MatchTargetDisplayData()
+                    {
+                        TargetNo = s.TargetNo,
+                        CurrentSetNo = setNo,
+                        TeamName = s.TeamName,
+                        Shots = s[setNo].Shots,
+                        CurrentSetScore = s[setNo].Score,
+                        SetScores = Enumerable.Range(1, setNo).Select(i  => s[i].Score ?? 0).ToArray(),
+                        SetPoints = s.SetPoints,
+                        IsConfirmed = s[setNo].IsConfirmed
+                    }).ToArray()
+
                 };
             }
             else if (device.DisplayType == DisplayType.Table)

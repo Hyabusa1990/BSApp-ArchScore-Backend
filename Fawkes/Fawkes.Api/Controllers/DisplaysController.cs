@@ -83,6 +83,20 @@ namespace Fawkes.Api.Controllers
                 result.DeviceCode = unassignedDisplayData.DeviceCode;
             }
 
+            if (displayData is MatchDisplayData matchDisplayData)
+            {
+                result.DisplayType = DisplayType.Match;
+                result.Targets = matchDisplayData.Targets?.Select(t => new TargetDisplayData()
+                {
+                    TargetNo = t.TargetNo,
+                    TeamName = t.TeamName,
+                    SetScores = t.SetScores,
+                    Shots = t.Shots,
+                    CurrentSetScore = t.CurrentSetScore,
+                    SetPoints = t.SetPoints
+                }).ToArray();
+            }
+
             return result;
         }
 

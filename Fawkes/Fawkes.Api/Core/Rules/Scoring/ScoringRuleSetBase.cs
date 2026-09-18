@@ -27,8 +27,12 @@ namespace Fawkes.Api.Core.Rules.Scoring
 
         public virtual Scoresheet EvaluateScoresheet(TargetData target)
         {
-            
-            var result = new Scoresheet(noOfSets, noOfShotsPerSet, noOfShootOffShotsForShootOff);
+
+            var result = new Scoresheet(noOfSets, noOfShotsPerSet, noOfShootOffShotsForShootOff)
+            {
+                TargetNo = target.TargetNo,
+                TeamName = target.TeamName
+            };
             var shots = (target.Shots ?? string.Empty).ToArray();
             var setScores = new[]
             {
