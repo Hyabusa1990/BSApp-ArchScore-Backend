@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="Fawkes.Api/Fawkes.Api.csproj" />
+  <Project Path="Fawkes.Tests/Fawkes.Tests.csproj" Id="d5186f17-152f-443f-9286-7ef8c32cffd4" />
 </Solution>

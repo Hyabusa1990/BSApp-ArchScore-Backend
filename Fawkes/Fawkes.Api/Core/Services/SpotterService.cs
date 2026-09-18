@@ -98,7 +98,7 @@ namespace Fawkes.Api.Core.Services
                 throw new InvalidOperationException($"Cannot confirm score for TargetNo {targetNo} in Fixture {fixtureUniqueId} and round number {fixture.CurrentRoundNo} because the score is not yet complete.");
 
             if (scoresheet[targetData.CurrentSetNo].IsConfirmed)
-                throw new InvalidOperationException($"Score for TargetNo {targetNo} in Fixture {fixtureUniqueId} and round number {fixture.CurrentRoundNo} has already been confirmed.");])
+                throw new InvalidOperationException($"Score for TargetNo {targetNo} in Fixture {fixtureUniqueId} and round number {fixture.CurrentRoundNo} has already been confirmed.");
 
 
 

@@ -1,8 +1,31 @@
 ﻿namespace Fawkes.Api.Core.Model
 {
-    public class DisplayData
+    public abstract class DisplayData
     {
         public DisplayTheme Theme { get; set; }
+    }
+
+    public class NoDisplayData : DisplayData
+    {
+    }
+
+    public class MatchDisplayData : DisplayData
+    {
+
+
+
+        public IEnumerable<MatchTargetDisplayData> Targets { get; set; }
+
+        public class MatchTargetDisplayData
+        {
+            public int TargetNo { get; set; }
+            public int CurrentSetNo { get; set; }
+            public string TeamName { get; set; } = string.Empty;
+            public string Shots { get; set; } = string.Empty;
+            public int? CurrentSetScore { get; set; }
+            public bool IsConfirmed { get; set; }
+        }
+
     }
 
 }

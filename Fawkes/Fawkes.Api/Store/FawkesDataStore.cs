@@ -36,6 +36,7 @@ namespace Fawkes.Api.Store
         Task<TargetData> GetTargetDataAsync(int fixtureId, int roundNo, int targetNo);
         Task SaveShotsAsync(int id, int currentRoundNo, int targetNo, string shots);
         Task SaveConfirmedSetScoreAsync(int id, int currentRoundNo, int targetNo, int currentSetNo, int? score);
+        Task<IEnumerable<TargetData>> GetTargetDataForMatchAsync(int fixtureId, int roundNo, int matchNo);
     }
 
     public class FawkesDataStore(FawkesDbContext context) : IFawkesDataStore
@@ -426,6 +427,11 @@ namespace Fawkes.Api.Store
             if (targetAssignment == null)
                 return null;
 
+            return ConvertTargetData(targetAssignment);
+        }
+
+        private static TargetData ConvertTargetData(FawkesDbContext.TargetAssignment targetAssignment)
+        {
             return new TargetData
             {
                 RoundNo = targetAssignment.RoundNo,
@@ -467,6 +473,19 @@ namespace Fawkes.Api.Store
             targetAssignment.SetConfirmedScore(currentSetNo, score);
 
             await context.SaveChangesAsync();
+
+        }
+
+        public async Task<IEnumerable<TargetData>> GetTargetDataForMatchAsync(int fixtureId, int roundNo, int matchNo)
+        {
+            var targetNos = new int[] { matchNo*2-1, matchNo * 2 };
+
+            var targetAssignment = await context.TargetAssignments
+                .Include(ta => ta.Team)
+                .Where(ta => ta.FixtureId == fixtureId && ta.RoundNo == roundNo && targetNos.Contains(ta.TargetNo))
+                .ToListAsync();
+
+            return targetAssignment.Select(ConvertTargetData).ToArray();
 
         }
     }
