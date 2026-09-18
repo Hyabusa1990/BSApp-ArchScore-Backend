@@ -16,8 +16,6 @@ namespace Fawkes.Api.Core.Model
         public int? ConfirmedSet04Score { get; set; }
         public int? ConfirmedSet05Score { get; set; }
 
-        public int? SetPointsTotal { get; set; }
-        public int? MatchPointsTotal { get; set; }
     }
 
 

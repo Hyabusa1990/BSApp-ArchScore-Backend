@@ -129,8 +129,6 @@ namespace Fawkes.Api.Store
             public int? ConfirmedSet04Score { get; set; }
             public int? ConfirmedSet05Score { get; set; }
 
-            public int? SetPointsTotal { get; set; }
-            public int? MatchPointsTotal { get; set; }
 
             public Fixture Fixture { get; set; }
             public Team Team { get; set; }

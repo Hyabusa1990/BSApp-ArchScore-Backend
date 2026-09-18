@@ -443,9 +443,7 @@ namespace Fawkes.Api.Store
                 ConfirmedSet02Score = targetAssignment.ConfirmedSet02Score,
                 ConfirmedSet03Score = targetAssignment.ConfirmedSet03Score,
                 ConfirmedSet04Score = targetAssignment.ConfirmedSet04Score,
-                ConfirmedSet05Score = targetAssignment.ConfirmedSet05Score,
-                SetPointsTotal = targetAssignment.SetPointsTotal,
-                MatchPointsTotal = targetAssignment.MatchPointsTotal
+                ConfirmedSet05Score = targetAssignment.ConfirmedSet05Score
             };
         }
 
