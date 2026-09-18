@@ -26,7 +26,7 @@
             public int? Score { get; set; }
             public int NoOfShots { get; set; } = 0;
             public bool IsConfirmed { get; set; }
-            public bool IsComplete => Shots.Length >= noOfShotsExpected;
+            public bool IsComplete => NoOfShots >= noOfShotsExpected;
         }
     }
 }
