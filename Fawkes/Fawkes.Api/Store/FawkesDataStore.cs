@@ -35,6 +35,7 @@ namespace Fawkes.Api.Store
         Task AssignTeamToTargetAsync(int fixtureId, int roundNo, int targetNo, int teamId);
         Task<TargetData> GetTargetDataAsync(int fixtureId, int roundNo, int targetNo);
         Task SaveShotsAsync(int id, int currentRoundNo, int targetNo, string shots);
+        Task SaveConfirmedSetScoreAsync(int id, int currentRoundNo, int targetNo, int currentSetNo, int? score);
     }
 
     public class FawkesDataStore(FawkesDbContext context) : IFawkesDataStore
@@ -453,6 +454,20 @@ namespace Fawkes.Api.Store
             targetAssignment.Shots = shots;
 
             await context.SaveChangesAsync();
+        }
+
+        public async Task SaveConfirmedSetScoreAsync(int id, int currentRoundNo, int targetNo, int currentSetNo, int? score)
+        {
+            var targetAssignment = await context.TargetAssignments
+                .FirstOrDefaultAsync(ta => ta.Id == id && ta.RoundNo == currentRoundNo && ta.TargetNo == targetNo);
+
+            if (targetAssignment == null)
+                throw new InvalidOperationException($"TargetAssignment not found for Id={id}, RoundNo={currentRoundNo}, TargetNo={targetNo}");
+
+            targetAssignment.SetConfirmedScore(currentSetNo, score);
+
+            await context.SaveChangesAsync();
+
         }
     }
 }

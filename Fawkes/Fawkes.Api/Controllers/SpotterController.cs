@@ -1,4 +1,5 @@
-﻿using Fawkes.Api.Core.Services;
+﻿using Azure.Core;
+using Fawkes.Api.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fawkes.Api.Controllers
@@ -15,7 +16,7 @@ namespace Fawkes.Api.Controllers
         /// <returns>The target response containing the current state of the target.</returns>
         /// <exception cref="NotImplementedException"></exception>
         [HttpGet("fixtures/{fixtureUniqueId}/targets/{targetNo}/spotter/info")]
-        public async Task<ActionResult<GetTargetResponse>> GetTargetAsync(Guid fixtureUniqueId, int targetNo)
+        public async Task<ActionResult<GetSpotterTargetInfo>> GetSpotterTargetInfoAsync(Guid fixtureUniqueId, int targetNo)
         {
 
             try
@@ -23,7 +24,7 @@ namespace Fawkes.Api.Controllers
                 var targetData = await spotterService.GetTargetDataAsync(fixtureUniqueId, targetNo);
 
 
-                return Ok(new GetTargetResponse
+                return Ok(new GetSpotterTargetInfo
                 {
                     TargetNo = targetData.TargetNo,
                     CurrentSetNo = targetData.CurrentSetNo,
@@ -55,14 +56,14 @@ namespace Fawkes.Api.Controllers
         /// <returns>The updated target response.</returns>
         /// <exception cref="NotImplementedException"></exception>
         [HttpPut("fixtures/{fixtureUniqueId}/targets/{targetNo}/spotter/shots")]
-        public async Task<ActionResult<GetTargetResponse>> UpdateTargetAsync(Guid fixtureUniqueId, int targetNo, SubmitShotsRequest request)
+        public async Task<ActionResult<GetSpotterTargetInfo>> UpdateTargetAsync(Guid fixtureUniqueId, int targetNo, SubmitShotsRequest request)
         {
             try
             {
-                var targetInfo = await spotterService.ProcessScoreAsync(fixtureUniqueId, targetNo, request.Shots);
+                var targetInfo = await spotterService.ProcessShotsAsync(fixtureUniqueId, targetNo, request.Shots);
 
 
-                return Ok(new GetTargetResponse
+                return Ok(new GetSpotterTargetInfo
                 {
                     TargetNo = targetInfo.TargetNo,
                     CurrentSetNo = targetInfo.CurrentSetNo,
@@ -91,16 +92,38 @@ namespace Fawkes.Api.Controllers
         /// <returns>The updated target response.</returns>
         /// <exception cref="NotImplementedException"></exception>
         [HttpPut("fixtures/{fixtureUniqueId}/targets/{targetNo}/spotter/shots/confirm")]
-        public async Task<ActionResult<GetTargetResponse>> ConfirmCurrentSetScoreAsync(Guid fixtureUniqueId, int targetNo)
+        public async Task<ActionResult<GetSpotterTargetInfo>> ConfirmCurrentSetScoreAsync(Guid fixtureUniqueId, int targetNo)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var targetInfo = await spotterService.ConfirmEndScoreAsync(fixtureUniqueId, targetNo);
+
+
+                return Ok(new GetSpotterTargetInfo
+                {
+                    TargetNo = targetInfo.TargetNo,
+                    CurrentSetNo = targetInfo.CurrentSetNo,
+                    TeamName = targetInfo.TeamName,
+                    Shots = targetInfo.Shots,
+                    CurrentSetScore = targetInfo.CurrentSetScore,
+                    IsConfirmed = targetInfo.IsConfirmed
+                });
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
 
         /// <summary>
         /// Represents the response for retrieving a target's details, including its number, team name, and shots. This class is used to encapsulate the information returned by the GetTargetAsync action.
         /// </summary>
-        public class GetTargetResponse : TargetBase
+        public class GetSpotterTargetInfo : TargetInfoBase
         {
             /// <summary>
             /// Target number
@@ -131,7 +154,7 @@ namespace Fawkes.Api.Controllers
         /// <summary>
         /// Represents the request for updating a target's shots. This class is used to encapsulate the information sent to the UpdateTargetAsync action when modifying the recorded shots for a target.
         /// </summary>
-        public class SubmitShotsRequest : TargetBase
+        public class SubmitShotsRequest : TargetInfoBase
         {
         }
 
@@ -139,7 +162,7 @@ namespace Fawkes.Api.Controllers
         /// <summary>
         /// Represents the base class for target-related information, including the shots. This class is used as a common base for both GetTargetResponse and UpdateTargetRequest.
         /// </summary>
-        public abstract class TargetBase
+        public abstract class TargetInfoBase
         {
 
             /// <summary>

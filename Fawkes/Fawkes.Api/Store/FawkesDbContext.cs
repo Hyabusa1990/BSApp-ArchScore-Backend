@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Net.NetworkInformation;
+using System.Reflection;
 
 namespace Fawkes.Api.Store
 {
@@ -90,6 +92,29 @@ namespace Fawkes.Api.Store
 
         public class TargetAssignment
         {
+            private static PropertyInfo[] setScoreProps = typeof(TargetAssignment).GetProperties().Where(p => p.Name.StartsWith("ConfirmedSet") && p.Name.EndsWith("Score")).ToArray();
+
+
+            static TargetAssignment()
+            {
+                var props = new List<PropertyInfo>();
+
+                var propertyName = nameof(ConfirmedSet01Score).Replace("01", "__");
+
+                var i = 1;
+                while (true)
+                {
+                    var prop = typeof(TargetAssignment).GetProperty(propertyName.Replace("__", i.ToString("00")));
+                    if (prop == null)
+                        break;
+                    props.Add(prop);
+                    i++;
+                }
+            }
+
+
+
+
             public int Id { get; set; }
             public int FixtureId { get; set; }
             public int TeamId { get; set; }
@@ -109,6 +134,15 @@ namespace Fawkes.Api.Store
 
             public Fixture Fixture { get; set; }
             public Team Team { get; set; }
+
+
+            public void SetConfirmedScore(int setNo, int? score)
+            {
+                if (setNo < 1 || setNo > setScoreProps.Length)
+                    throw new ArgumentOutOfRangeException(nameof(setNo), $"Set number must be between 1 and {setScoreProps.Length}.");
+
+                setScoreProps[setNo-1].SetValue(this, score);
+            }
         }
 
 

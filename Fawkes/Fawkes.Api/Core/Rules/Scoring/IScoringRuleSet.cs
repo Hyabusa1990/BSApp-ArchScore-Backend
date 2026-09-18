@@ -27,6 +27,11 @@ namespace Fawkes.Api.Core.Rules.Scoring
             }
         }
 
+        protected virtual int EvaluateNoOfShots(string shots)
+        {
+            return shots.Select(EvaluateShot).Count(_ => _ != null);
+        }
+
         public virtual Scoresheet EvaluateScoresheet(TargetData target)
         {
             
@@ -44,6 +49,7 @@ namespace Fawkes.Api.Core.Rules.Scoring
             {
                 result[setNo].Shots = new string(shots.Take(noOfShotsPerSet).ToArray());
                 result[setNo].Score = setScores[setNo - 1] ?? EvaluateScore(result[setNo].Shots);
+                result[setNo].NoOfShots = EvaluateNoOfShots(result[setNo].Shots);
                 result[setNo].IsConfirmed = setScores[setNo - 1].HasValue;
                 shots = shots.Skip(noOfShotsPerSet).ToArray();
             }
@@ -84,34 +90,6 @@ namespace Fawkes.Api.Core.Rules.Scoring
                     return null; // Invalid shot
             }
 
-        }
-    }
-
-    public class Scoresheet(int noOfSets, int noOfShotsPerSet, int noOfShootOffShotsForShootOff)
-    {
-        private Set[] sets = new Set[noOfSets];
-        private Set shootOff = new Set();
-
-
-        public Set this[int setNo]
-        {
-            get
-            {
-                if (setNo < 1 || setNo > noOfSets)
-                    throw new ArgumentOutOfRangeException(nameof(setNo), $"Set number must be between 1 and {noOfSets}.");
-                return sets[setNo - 1];
-            }
-        }
-
-        public Set ShootOff => shootOff;
-
-        public string AllShots => string.Concat(sets.Select(s => (s.Shots ?? string.Empty).PadRight(noOfShotsPerSet,' ')).Concat(new[] { (shootOff.Shots ?? string.Empty).PadRight(noOfShootOffShotsForShootOff,' ') }));
-
-        public class Set
-        {
-            public string Shots { get; set; } = string.Empty;
-            public int? Score { get; set; }
-            public bool IsConfirmed { get; set; }
         }
     }
 }
