@@ -1,6 +1,8 @@
 ﻿using Fawkes.Api.Core.Model;
+using Fawkes.Api.Core.Rules;
 using Fawkes.Api.Store;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using Microsoft.IdentityModel.Tokens;
 using static Fawkes.Api.Controllers.FixturesController;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -19,7 +21,7 @@ namespace Fawkes.Api.Core.Services
         Task SetPhaseAsync(int fixtureId, int roundNo, string userName);
     }
 
-    public class FixtureService(IFawkesDataStore dataStore) : IFixtureService
+    public class FixtureService(IFawkesDataStore dataStore, IRuleSetFactory ruleSetFactory) : IFixtureService
     {
 
         public async Task<Fixture?> GetFixtureAsync(int id, string user)
@@ -104,9 +106,44 @@ namespace Fawkes.Api.Core.Services
             if (await dataStore.CheckWriteAccessToFixtureAsync(fixtureId, userName))
             {
                 await dataStore.UpdateFixtureAsync(fixtureId, roundNo: roundNo);
+                await UpdateLeagueTableAsync(fixtureId);
                 return;
             }
             throw new UnauthorizedAccessException();
+        }
+
+        private async Task UpdateLeagueTableAsync(int fixtureId)
+        {
+            var fixture = await dataStore.GetFixtureAsync(fixtureId);
+            if (fixture == null)
+            {
+                throw new KeyNotFoundException($"Fixture {fixtureId} does not exist.");
+            }
+
+            var scoringRuleSet = ruleSetFactory.GetScoringRuleSet(fixture.RuleSetKey);
+            var matchRules = ruleSetFactory.GetMatchPlayRuleSet(fixture.RuleSetKey);
+            var leagueRules = ruleSetFactory.GetLeagueRuleSet(fixture.RuleSetKey);
+
+
+
+
+            var initialLeagueTable = await dataStore.GetInitialLeagueTableAsync(fixtureId);
+            var scoresheets = (await dataStore.GetTargetDataAsync(fixtureId)).Select(scoringRuleSet.EvaluateScoresheet).ToArray();
+            var matches = scoresheets.GroupBy(s => new { s.RoundNo, MatchNo = (s.TargetNo+1)/2 }).Select(m => matchRules.EvaluateMatch(m.ToArray())).ToArray();
+
+            var currentLeagueTable = leagueRules.CalculateLeagueTable(initialLeagueTable, matches);
+
+
+            await dataStore.UpdateLeagueTableAsync(fixtureId, currentLeagueTable);
+
+
+
+
+
+
+
+
+
         }
     }
 

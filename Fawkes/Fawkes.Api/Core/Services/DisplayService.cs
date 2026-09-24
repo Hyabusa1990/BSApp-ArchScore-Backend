@@ -44,7 +44,7 @@ namespace Fawkes.Api.Core.Services
             }
             else if (device.DisplayType == DisplayType.Match)
             {
-                var targets = await dataStore.GetTargetDataForMatchAsync(fixture.Id, fixture.CurrentRoundNo, device.MatchNo ?? 1);
+                var targets = await dataStore.GetTargetDataAsync(fixture.Id, fixture.CurrentRoundNo, (int?)(device.MatchNo ?? 1));
 
                 
                 var scoringRules = ruleSetFactory.GetScoringRuleSet(fixture.RuleSetKey);
@@ -67,7 +67,7 @@ namespace Fawkes.Api.Core.Services
                         TeamName = s.TeamName,
                         Shots = s[setNo].Shots,
                         CurrentSetScore = s[setNo].Score,
-                        SetScores = Enumerable.Range(1, setNo).Select(i  => s[i].Score ?? 0).ToArray(),
+                        SetScores = Enumerable.Range(1, setNo).Select(i  => s[i].Score).ToArray(),
                         SetPoints = s.SetPoints,
                         IsConfirmed = s[setNo].IsConfirmed
                     }).ToArray()
@@ -76,13 +76,18 @@ namespace Fawkes.Api.Core.Services
             }
             else if (device.DisplayType == DisplayType.Table)
             {
-                throw new NotImplementedException();
-               
+                var table = await dataStore.GetLeagueTableAsync(fixture.Id);
+
+                return new TableDisplayData()
+                {
+                    Theme = device.DisplayTheme,
+                    Positions = table.Positions
+                };
             }
 
-            throw new NotImplementedException();
+            throw new NotImplementedException($"Display type {device.DisplayType} is not implemented.");
 
-            
+
         }
     }
 

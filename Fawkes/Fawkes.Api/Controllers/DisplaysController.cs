@@ -97,6 +97,21 @@ namespace Fawkes.Api.Controllers
                 }).ToArray();
             }
 
+            if (displayData is TableDisplayData tableDisplayData)
+            {
+                result.DisplayType = DisplayType.Table;
+                result.LeagueTablePositions = tableDisplayData.Positions?.Select(p => new LeagueTablePosition()
+                {
+                    Rank = p.Rank,
+                    RankDifference = p.RankDifference,
+                    TeamName = p.TeamName,
+                    SetPointsWon = p.SetPointsWon,
+                    SetPointsLost = p.SetPointsLost,
+                    MatchPointsWon = p.MatchPointsWon,
+                    MatchPointsLost = p.MatchPointsLost
+                }).ToArray();
+            }
+
             return result;
         }
 
@@ -177,7 +192,7 @@ namespace Fawkes.Api.Controllers
             /// <summary>
             /// List of set scores obtained by the team in the match so far.
             /// </summary>
-            public int[]? SetScores { get; set; }
+            public int?[]? SetScores { get; set; }
 
             /// <summary>
             /// Shot values obtained by the team in the current set. 10 is encoded as "+" and "M" is encoded as "0". All other shot values are encoded as their respective integer values. For example, a shot value of 9 is encoded as "9". The shot values are concatenated into a single string. For example, if the team has shot 10, M, and 8 in the current set, the Shots property would be set to "+08".
@@ -197,7 +212,9 @@ namespace Fawkes.Api.Controllers
 
         public class LeagueTablePosition
         {
-            public int Position { get; set; }
+            public int Rank { get; set; }
+
+            public int RankDifference { get; set; }
             public string TeamName { get; set; } = string.Empty;
 
             public int SetPointsWon {  get; set; }

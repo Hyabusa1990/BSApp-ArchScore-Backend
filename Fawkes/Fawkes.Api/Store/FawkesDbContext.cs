@@ -149,10 +149,23 @@ namespace Fawkes.Api.Store
             public int Id { get; set; }
             public int FixtureId { get; set; }
             public required string Name { get; set; }
+
+            public int InitialRank { get; set; }
+            public int InitialMatchPointsWon { get; set; }
+            public int InitialMatchPointsLost { get; set; }
+            public int InitialSetPointsWon { get; set; }
+            public int InitialSetPointsLost { get; set; }
+            public int InitialTotalScore { get; set; }
+
+
+            public int Rank { get; set; }
             public int MatchPointsWon { get; set; }
             public int MatchPointsLost { get; set; }
             public int SetPointsWon { get; set; }
             public int SetPointsLost { get; set; }
+            public int TotalScore { get; set; }
+            public int RankDifference { get; set; }
+
             public Fixture Fixture { get; set; }
         }
 

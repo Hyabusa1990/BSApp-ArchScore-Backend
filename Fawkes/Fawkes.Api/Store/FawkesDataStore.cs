@@ -36,7 +36,10 @@ namespace Fawkes.Api.Store
         Task<TargetData> GetTargetDataAsync(int fixtureId, int roundNo, int targetNo);
         Task SaveShotsAsync(int id, int currentRoundNo, int targetNo, string shots);
         Task SaveConfirmedSetScoreAsync(int id, int currentRoundNo, int targetNo, int currentSetNo, int? score);
-        Task<IEnumerable<TargetData>> GetTargetDataForMatchAsync(int fixtureId, int roundNo, int matchNo);
+        Task<IEnumerable<TargetData>> GetTargetDataAsync(int fixtureId, int? roundNo = null, int? matchNo = null);
+        Task<LeagueTable> GetInitialLeagueTableAsync(int fixtureId);
+        Task<LeagueTable> GetLeagueTableAsync(int fixtureId);
+        Task UpdateLeagueTableAsync(int fixtureId, LeagueTable leagueTable);
     }
 
     public class FawkesDataStore(FawkesDbContext context) : IFawkesDataStore
@@ -382,10 +385,11 @@ namespace Fawkes.Api.Store
             {
                 FixtureId = fixtureId,
                 Name = team.Name,
-                MatchPointsWon = team.MatchPointsWon,
-                MatchPointsLost = team.MatchPointsLost,
-                SetPointsWon = team.SetPointsWon,
-                SetPointsLost = team.SetPointsLost
+                InitialRank = team.InitialRank,
+                InitialMatchPointsWon = team.MatchPointsWon,
+                InitialMatchPointsLost = team.MatchPointsLost,
+                InitialSetPointsWon = team.SetPointsWon,
+                InitialSetPointsLost = team.SetPointsLost
             };
 
             context.Teams.Add(newTeam);
@@ -396,10 +400,10 @@ namespace Fawkes.Api.Store
             {
                 Id = newTeam.Id,
                 Name = newTeam.Name,
-                MatchPointsWon = newTeam.MatchPointsWon,
-                MatchPointsLost = newTeam.MatchPointsLost,
-                SetPointsWon = newTeam.SetPointsWon,
-                SetPointsLost = newTeam.SetPointsLost
+                MatchPointsWon = newTeam.InitialMatchPointsWon,
+                MatchPointsLost = newTeam.InitialMatchPointsLost,
+                SetPointsWon = newTeam.InitialSetPointsWon,
+                SetPointsLost = newTeam.InitialSetPointsLost
             };
         }
 
@@ -474,17 +478,94 @@ namespace Fawkes.Api.Store
 
         }
 
-        public async Task<IEnumerable<TargetData>> GetTargetDataForMatchAsync(int fixtureId, int roundNo, int matchNo)
+        public async Task<IEnumerable<TargetData>> GetTargetDataAsync(int fixtureId, int? roundNo = null, int? matchNo = null)
         {
-            var targetNos = new int[] { matchNo*2-1, matchNo * 2 };
-
-            var targetAssignment = await context.TargetAssignments
+            var query = context.TargetAssignments
                 .Include(ta => ta.Team)
-                .Where(ta => ta.FixtureId == fixtureId && ta.RoundNo == roundNo && targetNos.Contains(ta.TargetNo))
+                .Where(ta => ta.FixtureId == fixtureId);
+
+            if (roundNo != null)
+            {
+                query = query.Where(ta => ta.RoundNo == roundNo.Value);
+            }
+
+            if (matchNo != null)
+            {
+                var targetNos = new int[] { matchNo.Value * 2 - 1, matchNo.Value * 2 };
+                query = query.Where(ta => targetNos.Contains(ta.TargetNo));
+            }
+
+            var targetAssignments = await query.ToListAsync();
+
+            return targetAssignments.Select(ConvertTargetData).ToArray();
+
+        }
+
+        public async Task<LeagueTable> GetInitialLeagueTableAsync(int fixtureId)
+        {
+            var teams = await context.Teams
+                .Where(t => t.FixtureId == fixtureId)
                 .ToListAsync();
 
-            return targetAssignment.Select(ConvertTargetData).ToArray();
+            return new LeagueTable
+            {
+                Positions = teams.Select(t => new LeagueTablePosition
+                {
+                    TeamId = t.Id,
+                    TeamName = t.Name,
+                    Rank = t.InitialRank,
+                    MatchPointsWon = t.InitialMatchPointsWon,
+                    MatchPointsLost = t.InitialMatchPointsLost,
+                    SetPointsWon = t.InitialSetPointsWon,
+                    SetPointsLost = t.InitialSetPointsLost,
+                    TotalScore = t.InitialTotalScore,
+                    RankDifference = 0
+                }).ToArray()
+            };
+        }
 
+        public async Task<LeagueTable> GetLeagueTableAsync(int fixtureId)
+        {
+            var teams = await context.Teams
+                .Where(t => t.FixtureId == fixtureId)
+                .ToListAsync();
+
+            return new LeagueTable
+            {
+                Positions = teams.Select(t => new LeagueTablePosition
+                {
+                    TeamId = t.Id,
+                    TeamName = t.Name,
+                    Rank = t.Rank,
+                    MatchPointsWon = t.MatchPointsWon,
+                    MatchPointsLost = t.MatchPointsLost,
+                    SetPointsWon = t.SetPointsWon,
+                    SetPointsLost = t.SetPointsLost,
+                    TotalScore = t.TotalScore,
+                    RankDifference = t.RankDifference
+                }).ToArray()
+            };
+        }
+
+        public async Task UpdateLeagueTableAsync(int fixtureId, LeagueTable leagueTable)
+        {
+            var teams = await context.Teams
+                .Where(t => t.FixtureId == fixtureId)
+                .ToListAsync();
+
+            foreach(var team in teams)
+            {
+                var position = leagueTable.Positions.First(p => p.TeamId == team.Id);
+                team.Rank = position.Rank;
+                team.MatchPointsWon = position.MatchPointsWon;
+                team.MatchPointsLost = position.MatchPointsLost;
+                team.SetPointsWon = position.SetPointsWon;
+                team.SetPointsLost = position.SetPointsLost;
+                team.TotalScore = position.TotalScore;
+                team.RankDifference = position.RankDifference;
+            }
+
+            await context.SaveChangesAsync();
         }
     }
 }

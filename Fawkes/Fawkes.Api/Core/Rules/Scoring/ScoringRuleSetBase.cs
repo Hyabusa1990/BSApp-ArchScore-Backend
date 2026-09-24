@@ -30,6 +30,7 @@ namespace Fawkes.Api.Core.Rules.Scoring
 
             var result = new Scoresheet(noOfSets, noOfShotsPerSet, noOfShootOffShotsForShootOff)
             {
+                RoundNo = target.RoundNo,
                 TargetNo = target.TargetNo,
                 TeamName = target.TeamName
             };

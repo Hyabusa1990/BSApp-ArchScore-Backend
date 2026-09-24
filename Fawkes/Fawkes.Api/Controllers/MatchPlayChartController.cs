@@ -32,6 +32,7 @@ namespace Fawkes.Api.Controllers
                 var teams = request.Teams.Select(t => new Core.Model.Team
                 {
                     Name = t.Name,
+                    InitialRank = t.Rank,
                     SetPointsWon = t.SetPointsWon,
                     SetPointsLost = t.SetPointsLost,
                     MatchPointsWon = t.MatchPointsWon,
@@ -81,6 +82,11 @@ namespace Fawkes.Api.Controllers
         public class Team
         {
             public required string Name { get; set; }
+
+            /// <summary>
+            /// The initial rank of the team before the current fixture. This is used to determine the order of the teams in the match play chart.
+            /// </summary>
+            public int Rank { get; set; }
 
             /// <summary>
             /// Set points won by the team before the current fixture.

@@ -5,4 +5,10 @@
         public string DeviceCode { get; set; }
     }
 
+    public class TableDisplayData : DisplayData
+    {
+        public IEnumerable<LeagueTablePosition> Positions { get; set; }
+
+    }
+
 }

@@ -4,6 +4,7 @@
     {
         public int Id { get; set; } = 0;
         public string Name { get; set; } = string.Empty;
+        public int InitialRank { get; set; } = 0;
         public int MatchPointsWon { get; set; } = 0;
         public int MatchPointsLost { get; set; } = 0;
         public int SetPointsWon { get; set; } = 0;

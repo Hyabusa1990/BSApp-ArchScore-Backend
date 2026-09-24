@@ -6,11 +6,15 @@
         private Set shootOff = new Set(noOfShootOffShotsForShootOff);
 
 
+        public int RoundNo { get; set; }
         public int TargetNo { get; set; }
+        public int TeamId { get; set; }
         public string TeamName { get; set; }
 
         public int SetPoints { get; set; }
         public int? MatchPoints { get; set; }
+
+        public int TotalScore => sets.Sum(_ => _.Score ?? 0);
 
 
         public Set this[int setNo]
