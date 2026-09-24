@@ -94,13 +94,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapGet("/status", () => "OK");
-app.MapGet("/version", () => "1.0.0");
-
-app.MapGet("/testemail", async (EmailService emailService) =>
-{
-    await emailService.SendEmailAsync("fawkes_test@mailinator.com", "Test Email", "This is a test email.");
-    return Results.Ok("Test email sent successfully");
-});
+app.MapGet("/version", () => "0.0.0 alpha");
 
 
 using (var scope = app.Services.CreateScope())
