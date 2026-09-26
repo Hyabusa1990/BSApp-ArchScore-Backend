@@ -27,6 +27,7 @@ namespace Fawkes.Api.Authentication
                 services.AddIdentityCore<IdentityUser>(options =>
                 {
                     options.SignIn.RequireConfirmedAccount = false;
+                    options.SignIn.RequireConfirmedEmail = false;
                     options.User.RequireUniqueEmail = true;
                     options.Password.RequireDigit = true;
                     options.Password.RequiredLength = 8;

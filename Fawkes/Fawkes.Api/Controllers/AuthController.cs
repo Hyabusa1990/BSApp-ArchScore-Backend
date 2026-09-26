@@ -82,7 +82,7 @@ namespace Fawkes.Api.Controllers
             {
                 UserName = registerRequest.Email,
                 Email = registerRequest.Email,
-                // For now all emails are confirmed
+                LockoutEnabled = false,
                 EmailConfirmed = true
             };
 
