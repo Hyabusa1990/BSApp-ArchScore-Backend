@@ -80,6 +80,7 @@ namespace Fawkes.Api.Controllers
                 Id = device.Id,
                 DisplayType = ConvertDisplayType(device.DisplayType),
                 DisplayTheme = ConvertDisplayTheme(device.DisplayTheme),
+                DeviceCode = device.Code,
                 MatchNo = device.MatchNo
 
             };
@@ -247,6 +248,11 @@ namespace Fawkes.Api.Controllers
             /// </summary>
             public required int Id { get; set; }
 
+            /// <summary>
+            /// The code assigned to the device. This is used to uniquely identify the device.
+            /// </summary>
+            public string? DeviceCode { get; set; }
+
         }
 
         public class UpdateDeviceRequest : DeviceBase
@@ -265,6 +271,8 @@ namespace Fawkes.Api.Controllers
             public required DisplayType DisplayType { get; set; }
 
             public required DisplayTheme DisplayTheme { get; set; } = DisplayTheme.Light;
+
+
 
             /// <summary>
             /// Specifies the match number to display on the device. This property is only relevant when DisplayType is set to Match. If DisplayType is set to Match, this property must be provided and must be a positive integer.

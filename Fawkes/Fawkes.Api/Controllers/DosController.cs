@@ -82,6 +82,8 @@ namespace Fawkes.Api.Controllers
         [HttpGet("fixtures/{fixtureId}/rounds/{roundNo}")]
         public async Task<ActionResult<GetRoundResponse>> GetRoundAsync(int fixtureId, int roundNo)
         {
+            //
+
             throw new NotImplementedException();
         }
 
@@ -89,6 +91,7 @@ namespace Fawkes.Api.Controllers
         [HttpPut("fixtures/{fixtureId}/rounds/{roundNo}/targets/{targetNo}/sets/{setNo}/score")]
         public async Task<ActionResult> UpdateSetScoreAsync(int fixtureId, int roundNo, int targetNo, int setNo, UpdateSetScoreRequest request)
         {
+            ///
             throw new NotImplementedException();
         }
 

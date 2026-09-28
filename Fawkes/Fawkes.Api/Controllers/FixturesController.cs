@@ -36,13 +36,25 @@ namespace Fawkes.Api.Controllers
             }
 
 
-            var fixture = await fixtureService.GetFixtureAsync(id, User.Identity.Name);
+            try
+            {
 
-            if (fixture == null)
+                var fixture = await fixtureService.GetFixtureAsync(id, User.Identity.Name);
+
+                if (fixture == null)
+                {
+                    return NotFound();
+                }
+                return ConvertToRepsonse(fixture);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
+            catch (KeyNotFoundException)
             {
                 return NotFound();
             }
-            return ConvertToRepsonse(fixture);
 
         }
 
