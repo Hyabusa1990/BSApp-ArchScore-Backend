@@ -316,7 +316,8 @@ namespace Fawkes.Api.Store
                 FixtureId = d.FixtureId,
                 Code = d.Code,
                 DisplayType = ConvertDisplayType(d.DisplayType),
-                DisplayTheme = ConvertDisplayTheme(d.DisplayTheme)
+                DisplayTheme = ConvertDisplayTheme(d.DisplayTheme),
+                MatchNo = d.MatchNo
             };
         }
 
