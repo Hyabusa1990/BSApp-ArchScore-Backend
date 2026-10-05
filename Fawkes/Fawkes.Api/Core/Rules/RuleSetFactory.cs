@@ -20,7 +20,7 @@ namespace Fawkes.Api.Core.Rules
     {
         public ILeagueRuleSet GetLeagueRuleSet(string key)
         {
-            throw new NotImplementedException();
+            return new StandardLeagueRuleSet();
         }
 
         public IMatchPlayRuleSet GetMatchPlayRuleSet(string key)
