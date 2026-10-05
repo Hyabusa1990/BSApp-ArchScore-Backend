@@ -20,6 +20,7 @@ namespace Fawkes.Api.Core
                 services.AddTransient<IDisplayService, DisplayService>();
                 services.AddTransient<IFixtureService, FixtureService>();
                 services.AddTransient<IMatchPlayChartService, MatchPlayChartService>();
+                services.AddTransient<IDosService, DosService>();
                 services.AddTransient<ISpotterService, SpotterService>();
                 services.AddTransient<IRuleSetFactory, RuleSetFactory>();
 

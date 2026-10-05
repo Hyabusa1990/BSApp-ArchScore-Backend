@@ -40,6 +40,7 @@ namespace Fawkes.Api.Store
         Task<LeagueTable> GetInitialLeagueTableAsync(int fixtureId);
         Task<LeagueTable> GetLeagueTableAsync(int fixtureId);
         Task UpdateLeagueTableAsync(int fixtureId, LeagueTable leagueTable);
+        Task SaveSetScoreAsync(int fixtureId, int roundNo, int targetNo, int setNo, int? score);
     }
 
     public class FawkesDataStore(FawkesDbContext context) : IFawkesDataStore
@@ -567,6 +568,21 @@ namespace Fawkes.Api.Store
             }
 
             await context.SaveChangesAsync();
+        }
+
+        public async Task SaveSetScoreAsync(int fixtureId, int roundNo, int targetNo, int setNo, int? score)
+        {
+            var target = await context.TargetAssignments.FirstOrDefaultAsync(_ => _.Fixture.Id == fixtureId && _.RoundNo == roundNo && _.TargetNo == targetNo);
+
+            if (target == null)
+                throw new KeyNotFoundException();
+
+            target.SetConfirmedScore(setNo, score);
+
+            await context.SaveChangesAsync();
+
+
+
         }
     }
 }

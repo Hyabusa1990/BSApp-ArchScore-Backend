@@ -9,6 +9,7 @@ namespace Fawkes.Api.Core.Services
 {
 
 
+
     public interface IDeviceService
     {
         Task<IEnumerable<Device>> GetDevicesForFixtureAsync(int fixtureId, string userName);

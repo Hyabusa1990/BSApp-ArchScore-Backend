@@ -1,12 +1,13 @@
 ﻿using Fawkes.Api.Core.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fawkes.Api.Controllers
 {
     [Authorize]
     [ApiController]
-    public class DosController(IFixtureService fixtureService) : ControllerBase
+    public class DosController(IFixtureService fixtureService, IDosService dosService) : ControllerBase
     {
 
 
@@ -82,17 +83,39 @@ namespace Fawkes.Api.Controllers
         [HttpGet("fixtures/{fixtureId}/rounds/{roundNo}")]
         public async Task<ActionResult<GetRoundResponse>> GetRoundAsync(int fixtureId, int roundNo)
         {
-            //
+            if (User?.Identity?.IsAuthenticated != true || string.IsNullOrEmpty(User.Identity.Name))
+            {
+                return Unauthorized();
+            }
 
-            throw new NotImplementedException();
+            var matches = await dosService.GetRoundMatchesAsync(fixtureId, roundNo, User.Identity.Name);
+
+            return new GetRoundResponse()
+            {
+                FixtureId = fixtureId,
+                RoundNo = roundNo,
+                Targets = matches.SelectMany(_ => _.Scoresheets).Select(_ => new TargetInformation() 
+                { 
+                    TargetNo = _.TargetNo,
+                    TeamName = _.TeamName,
+                    SetScores = _.Sets.Select(_ => _.IsConfirmed ? _.Score : null).ToArray()
+                })
+            };
         }
 
 
         [HttpPut("fixtures/{fixtureId}/rounds/{roundNo}/targets/{targetNo}/sets/{setNo}/score")]
         public async Task<ActionResult> UpdateSetScoreAsync(int fixtureId, int roundNo, int targetNo, int setNo, UpdateSetScoreRequest request)
         {
-            ///
-            throw new NotImplementedException();
+            if (User?.Identity?.IsAuthenticated != true || string.IsNullOrEmpty(User.Identity.Name))
+            {
+                return Unauthorized();
+            }
+
+            await dosService.SetConfirmedSetScore(fixtureId, roundNo, targetNo, setNo, request?.Score, User.Identity.Name);
+
+            return Ok();
+
         }
 
 
@@ -161,7 +184,7 @@ namespace Fawkes.Api.Controllers
             /// <summary>
             /// The set scores for the team on this target.
             /// </summary>
-            public required int[] SetScores { get; set; }
+            public required int?[] SetScores { get; set; }
         }
 
         public class UpdateSetScoreRequest
@@ -169,14 +192,7 @@ namespace Fawkes.Api.Controllers
             /// <summary>
             /// The score to set for the specified set. This is the new score that will be recorded for the set.
             /// </summary>
-            public required int Score { get; set; }
-
-            /// <summary>
-            /// Indicates whether the score has been confirmed. If true, set points will be awarded to the team based on the score. If false, the score is still provisional and may be subject to change.
-            /// </summary>
-            public required bool Confirmed { get; set; }
-
-
+            public required int? Score { get; set; }
 
         }
     }

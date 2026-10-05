@@ -1,4 +1,6 @@
-﻿namespace Fawkes.Api.Core.Model
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Fawkes.Api.Core.Model
 {
     public class Scoresheet(int noOfSets, int noOfShotsPerSet, int noOfShootOffShotsForShootOff)
     {
@@ -30,6 +32,8 @@
         public Set ShootOff => shootOff;
 
         public string AllShots => string.Concat(sets.Select(s => (s.Shots ?? string.Empty).PadRight(noOfShotsPerSet,' ')).Concat(new[] { (shootOff.Shots ?? string.Empty).PadRight(noOfShootOffShotsForShootOff,' ') }));
+
+        public IEnumerable<Set> Sets => sets;
 
         public class Set(int noOfShotsExpected)
         {
