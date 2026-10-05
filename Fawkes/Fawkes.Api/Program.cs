@@ -94,7 +94,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapGet("/status", () => "OK");
-app.MapGet("/version", () => "0.0.0 alpha");
+app.MapGet("/version", () => "0.0.1 alpha");
 
 
 using (var scope = app.Services.CreateScope())
