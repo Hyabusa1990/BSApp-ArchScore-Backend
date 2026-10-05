@@ -92,7 +92,7 @@ namespace Fawkes.Api.Store
 
         public class TargetAssignment
         {
-            private static PropertyInfo[] setScoreProps = typeof(TargetAssignment).GetProperties().Where(p => p.Name.StartsWith("ConfirmedSet") && p.Name.EndsWith("Score")).ToArray();
+            private static PropertyInfo[] setScoreProps = typeof(TargetAssignment).GetProperties().Where(p => p.Name.StartsWith("ConfirmedSet") && p.Name.EndsWith("Score")).OrderBy(p => p.Name).ToArray();
 
 
             static TargetAssignment()
@@ -120,7 +120,6 @@ namespace Fawkes.Api.Store
             public int TeamId { get; set; }
             public int RoundNo { get; set; }
             public int TargetNo { get; set; }
-            public int CurrentSetNo { get; set; }
 
             public string Shots { get; set; } = string.Empty;
             public int? ConfirmedSet01Score { get; set; }
