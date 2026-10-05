@@ -98,8 +98,9 @@ namespace Fawkes.Api.Controllers
                 { 
                     TargetNo = _.TargetNo,
                     TeamName = _.TeamName,
-                    SetScores = _.Sets.Select(_ => _.IsConfirmed ? _.Score : null).ToArray()
-                })
+                    SetScores = _.Sets.Select(_ => _.IsConfirmed ? _.Score : null).ToArray(),
+                    TotalSetPoints = _.SetPoints
+                }).ToArray()
             };
         }
 
