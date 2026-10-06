@@ -94,11 +94,13 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapGet("/status", () => "OK");
-// Commit-SHA wird beim Image-Build per --build-arg GIT_SHA gesetzt (siehe Dockerfile/Workflow).
+// Basisversion aus appsettings ("version"), dazu die Commit-SHA des Builds (per --build-arg
+// GIT_SHA beim Image-Build gesetzt, siehe Dockerfile/Workflow).
 var buildSha = Environment.GetEnvironmentVariable("BUILD_SHA");
+var baseVersion = builder.Configuration["version"] ?? "unknown";
 var versionText = string.IsNullOrWhiteSpace(buildSha) || buildSha == "dev"
-    ? "0.0.1 alpha"
-    : $"0.0.1 alpha ({buildSha[..Math.Min(7, buildSha.Length)]})";
+    ? baseVersion
+    : $"{baseVersion} ({buildSha[..Math.Min(7, buildSha.Length)]})";
 app.MapGet("/version", () => versionText);
 
 
