@@ -23,6 +23,15 @@ namespace Fawkes.Api.Core.Services
 
     public class FixtureService(IFawkesDataStore dataStore, IRuleSetFactory ruleSetFactory) : IFixtureService
     {
+        // Npgsql akzeptiert für "timestamp with time zone" nur Kind=Utc. Datum ohne Zone
+        // (Kind=Unspecified, z. B. "2026-10-10") wird als UTC interpretiert.
+        private static DateTime ToUtc(DateTime date) => date.Kind switch
+        {
+            DateTimeKind.Utc => date,
+            DateTimeKind.Local => date.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(date, DateTimeKind.Utc)
+        };
+
 
         public async Task<Fixture?> GetFixtureAsync(int id, string user)
         {
@@ -34,7 +43,7 @@ namespace Fawkes.Api.Core.Services
         }
         public async Task<Fixture> CreateFixtureAsync(DateTime date, string location, string leagueName, string fixtureName, string userName)
         {
-            var fixture = await dataStore.CreateFixtureAsync(date, location, leagueName, fixtureName);
+            var fixture = await dataStore.CreateFixtureAsync(ToUtc(date), location, leagueName, fixtureName);
 
             await dataStore.GrantFixtureAccessAsync(fixture.Id, userName, AccessLevel.Owner);
 
@@ -51,7 +60,7 @@ namespace Fawkes.Api.Core.Services
         {
             if (await dataStore.CheckWriteAccessToFixtureAsync(id, userName))
             {
-                return await dataStore.UpdateFixtureAsync(id, date, location, leagueName, fixtureName);
+                return await dataStore.UpdateFixtureAsync(id, ToUtc(date), location, leagueName, fixtureName);
             }
             throw new UnauthorizedAccessException();
         }
@@ -80,6 +89,10 @@ namespace Fawkes.Api.Core.Services
         {
             if (await dataStore.CheckOwnerAccessToFixtureAsync(id, requestingUserName))
             {
+                // Owner nicht auf Write herabstufen (sonst hat die Veranstaltung keinen Owner mehr).
+                if (await dataStore.CheckOwnerAccessToFixtureAsync(id, requestedUserName))
+                    return;
+
                 await dataStore.GrantFixtureAccessAsync(id, requestedUserName, AccessLevel.Write);
                 return;
             }
