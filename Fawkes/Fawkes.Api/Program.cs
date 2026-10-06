@@ -94,7 +94,14 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapGet("/status", () => "OK");
-app.MapGet("/version", () => builder.Configuration["version"]);
+// Basisversion aus appsettings ("version"), dazu die Commit-SHA des Builds (per --build-arg
+// GIT_SHA beim Image-Build gesetzt, siehe Dockerfile/Workflow).
+var buildSha = Environment.GetEnvironmentVariable("BUILD_SHA");
+var baseVersion = builder.Configuration["version"] ?? "unknown";
+var versionText = string.IsNullOrWhiteSpace(buildSha) || buildSha == "dev"
+    ? baseVersion
+    : $"{baseVersion} ({buildSha[..Math.Min(7, buildSha.Length)]})";
+app.MapGet("/version", () => versionText);
 
 
 using (var scope = app.Services.CreateScope())

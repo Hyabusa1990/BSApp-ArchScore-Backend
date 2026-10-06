@@ -455,10 +455,10 @@ namespace Fawkes.Api.Store
         public async Task SaveShotsAsync(int id, int currentRoundNo, int targetNo, string shots)
         {
             var targetAssignment = await context.TargetAssignments
-                .FirstOrDefaultAsync(ta => ta.Id == id && ta.RoundNo == currentRoundNo && ta.TargetNo == targetNo);
+                .FirstOrDefaultAsync(ta => ta.FixtureId == id && ta.RoundNo == currentRoundNo && ta.TargetNo == targetNo);
 
             if (targetAssignment == null)
-                throw new InvalidOperationException($"TargetAssignment not found for Id={id}, RoundNo={currentRoundNo}, TargetNo={targetNo}");
+                throw new InvalidOperationException($"TargetAssignment not found for FixtureId={id}, RoundNo={currentRoundNo}, TargetNo={targetNo}");
 
             targetAssignment.Shots = shots;
 
@@ -468,10 +468,10 @@ namespace Fawkes.Api.Store
         public async Task SaveConfirmedSetScoreAsync(int id, int currentRoundNo, int targetNo, int currentSetNo, int? score)
         {
             var targetAssignment = await context.TargetAssignments
-                .FirstOrDefaultAsync(ta => ta.Id == id && ta.RoundNo == currentRoundNo && ta.TargetNo == targetNo);
+                .FirstOrDefaultAsync(ta => ta.FixtureId == id && ta.RoundNo == currentRoundNo && ta.TargetNo == targetNo);
 
             if (targetAssignment == null)
-                throw new InvalidOperationException($"TargetAssignment not found for Id={id}, RoundNo={currentRoundNo}, TargetNo={targetNo}");
+                throw new InvalidOperationException($"TargetAssignment not found for FixtureId={id}, RoundNo={currentRoundNo}, TargetNo={targetNo}");
 
             targetAssignment.SetConfirmedScore(currentSetNo, score);
 
