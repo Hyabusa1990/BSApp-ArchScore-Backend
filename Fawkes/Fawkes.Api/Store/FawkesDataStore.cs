@@ -34,8 +34,8 @@ namespace Fawkes.Api.Store
         Task<Team> AddTeamToFixtureAsync(int fixtureId, Team team);
         Task AssignTeamToTargetAsync(int fixtureId, int roundNo, int targetNo, int teamId);
         Task<TargetData> GetTargetDataAsync(int fixtureId, int roundNo, int targetNo);
-        Task SaveShotsAsync(int id, int currentRoundNo, int targetNo, string shots);
-        Task SaveConfirmedSetScoreAsync(int id, int currentRoundNo, int targetNo, int currentSetNo, int? score);
+        Task SaveShotsAsync(int fixtureId, int currentRoundNo, int targetNo, string shots);
+        Task SaveConfirmedSetScoreAsync(int fixtureId, int currentRoundNo, int targetNo, int currentSetNo, int? score);
         Task<IEnumerable<TargetData>> GetTargetDataAsync(int fixtureId, int? roundNo = null, int? matchNo = null);
         Task<LeagueTable> GetInitialLeagueTableAsync(int fixtureId);
         Task<LeagueTable> GetLeagueTableAsync(int fixtureId);
@@ -452,26 +452,26 @@ namespace Fawkes.Api.Store
             };
         }
 
-        public async Task SaveShotsAsync(int id, int currentRoundNo, int targetNo, string shots)
+        public async Task SaveShotsAsync(int fixtureId, int currentRoundNo, int targetNo, string shots)
         {
             var targetAssignment = await context.TargetAssignments
-                .FirstOrDefaultAsync(ta => ta.FixtureId == id && ta.RoundNo == currentRoundNo && ta.TargetNo == targetNo);
+                .FirstOrDefaultAsync(ta => ta.FixtureId == fixtureId && ta.RoundNo == currentRoundNo && ta.TargetNo == targetNo);
 
             if (targetAssignment == null)
-                throw new InvalidOperationException($"TargetAssignment not found for FixtureId={id}, RoundNo={currentRoundNo}, TargetNo={targetNo}");
+                throw new InvalidOperationException($"TargetAssignment not found for FixtureId={fixtureId}, RoundNo={currentRoundNo}, TargetNo={targetNo}");
 
             targetAssignment.Shots = shots;
 
             await context.SaveChangesAsync();
         }
 
-        public async Task SaveConfirmedSetScoreAsync(int id, int currentRoundNo, int targetNo, int currentSetNo, int? score)
+        public async Task SaveConfirmedSetScoreAsync(int fixtureId, int currentRoundNo, int targetNo, int currentSetNo, int? score)
         {
             var targetAssignment = await context.TargetAssignments
-                .FirstOrDefaultAsync(ta => ta.FixtureId == id && ta.RoundNo == currentRoundNo && ta.TargetNo == targetNo);
+                .FirstOrDefaultAsync(ta => ta.FixtureId == fixtureId && ta.RoundNo == currentRoundNo && ta.TargetNo == targetNo);
 
             if (targetAssignment == null)
-                throw new InvalidOperationException($"TargetAssignment not found for FixtureId={id}, RoundNo={currentRoundNo}, TargetNo={targetNo}");
+                throw new InvalidOperationException($"TargetAssignment not found for FixtureId={fixtureId}, RoundNo={currentRoundNo}, TargetNo={targetNo}");
 
             targetAssignment.SetConfirmedScore(currentSetNo, score);
 
