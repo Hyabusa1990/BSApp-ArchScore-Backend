@@ -521,7 +521,7 @@ namespace Fawkes.Api.Store
                     SetPointsLost = t.InitialSetPointsLost,
                     TotalScore = t.InitialTotalScore,
                     RankDifference = 0
-                }).ToArray()
+                }).OrderBy(_ => _.Rank).ToArray()
             };
         }
 
@@ -544,7 +544,7 @@ namespace Fawkes.Api.Store
                     SetPointsLost = t.SetPointsLost,
                     TotalScore = t.TotalScore,
                     RankDifference = t.RankDifference
-                }).ToArray()
+                }).OrderBy(_ => _.Rank).ToArray()
             };
         }
 

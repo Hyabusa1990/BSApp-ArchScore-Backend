@@ -36,9 +36,9 @@ namespace Fawkes.Api.Core.Rules.League
                     };
                     return updatedPosition;
                 })
-                .OrderBy(_ => _.MatchPointsWon)
-                .ThenBy(_ => _.SetPointsDifference)
-                .ThenBy(_ => _.SetPointsWon + _.SetPointsLost > 0 ? _.TotalScore / (_.SetPointsWon + _.SetPointsLost) : 0)
+                .OrderByDescending(_ => _.MatchPointsWon)
+                .ThenByDescending(_ => _.SetPointsDifference)
+                .ThenByDescending(_ => _.SetPointsWon + _.SetPointsLost > 0 ? _.TotalScore / (_.SetPointsWon + _.SetPointsLost) : 0)
                 .ThenBy(_ => _.TeamName)
                 .ToList();
 

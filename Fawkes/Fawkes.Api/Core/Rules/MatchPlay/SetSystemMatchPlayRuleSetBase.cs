@@ -11,6 +11,7 @@ namespace Fawkes.Api.Core.Rules.MatchPlay
         {
 
             var setNo = 1;
+            scoresheets = scoresheets.OrderBy(s => s.TargetNo).ToArray();
             foreach (var scoresheet in scoresheets)
             {
                 scoresheet.SetPoints = 0;
