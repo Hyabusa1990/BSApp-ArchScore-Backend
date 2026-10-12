@@ -31,8 +31,6 @@ namespace Fawkes.Api.Core.Rules.League
                         MatchPointsWon = position.MatchPointsWon + teamScoresheets.Sum(s => s.TeamScoresheet.MatchPoints ?? 0),
                         MatchPointsLost = position.MatchPointsLost + teamScoresheets.Sum(s => s.OpponentScoresheets.Sum(_ => _.MatchPoints ?? 0)),
                         TotalScore = position.TotalScore + teamScoresheets.Sum(_ => _.TeamScoresheet.TotalScore)
-
-
                     };
                     return updatedPosition;
                 })

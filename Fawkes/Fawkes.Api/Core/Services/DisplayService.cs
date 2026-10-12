@@ -60,6 +60,7 @@ namespace Fawkes.Api.Core.Services
                 return new MatchDisplayData()
                 {
                     Theme = device.DisplayTheme,
+                    MinNoOfSets = match.MinExpectedNoOfSets,                    
                     Targets = match.Scoresheets.Select(s => new MatchDisplayData.MatchTargetDisplayData()
                     {
                         TargetNo = s.TargetNo,
@@ -67,7 +68,7 @@ namespace Fawkes.Api.Core.Services
                         TeamName = s.TeamName,
                         Shots = s[setNo].Shots,
                         CurrentSetScore = s[setNo].Score,
-                        SetScores = Enumerable.Range(1, setNo).Select(i  => s[i].Score).ToArray(),
+                        SetScores = Enumerable.Range(1, setNo).Select(i  => s[i].Score).Where(_ => _ != null).ToArray(),
                         SetPoints = s.SetPoints,
                         IsConfirmed = s[setNo].IsConfirmed
                     }).ToArray()

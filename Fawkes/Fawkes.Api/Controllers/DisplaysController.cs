@@ -93,6 +93,7 @@ namespace Fawkes.Api.Controllers
                     SetScores = t.SetScores,
                     Shots = t.Shots,
                     CurrentSetScore = t.CurrentSetScore,
+                    CurrentSetConfirmed = t.IsConfirmed,
                     SetPoints = t.SetPoints
                 }).ToArray();
             }
@@ -203,6 +204,11 @@ namespace Fawkes.Api.Controllers
             /// The current set score of the team in the match. This is the total score obtained by the team in the current set.
             /// </summary>
             public int? CurrentSetScore { get; set; }
+
+            /// <summary>
+            /// Indicates whether the current set score has been confirmed by the team. If true, the current set score is considered final and cannot be changed. If false, the current set score can still be modified.
+            /// </summary>
+            public bool CurrentSetConfirmed { get; set; }
 
             /// <summary>
             /// The total set points obtained by the team in the match. This is the total number of set points obtained by the team in the match so far.
