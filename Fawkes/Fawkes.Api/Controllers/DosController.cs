@@ -113,7 +113,22 @@ namespace Fawkes.Api.Controllers
                 return Unauthorized();
             }
 
-            await dosService.SetConfirmedSetScore(fixtureId, roundNo, targetNo, setNo, request?.Score, User.Identity.Name);
+            try
+            {
+                await dosService.SetConfirmedSetScore(fixtureId, roundNo, targetNo, setNo, request?.Score, User.Identity.Name);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
 
             return Ok();
 

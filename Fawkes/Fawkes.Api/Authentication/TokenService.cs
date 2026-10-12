@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
+using System.Collections.Concurrent;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -12,13 +13,11 @@ namespace Fawkes.Api.Authentication
     public class TokenService : ITokenService
     {
         private readonly IConfiguration _configuration;
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly Dictionary<string, (string UserId, DateTime ExpiresAt)> _refreshTokens = new();
+        private readonly ConcurrentDictionary<string, (string UserId, DateTime ExpiresAt)> _refreshTokens = new();
 
-        public TokenService(IConfiguration configuration, UserManager<IdentityUser> userManager)
+        public TokenService(IConfiguration configuration)
         {
             _configuration = configuration;
-            _userManager = userManager;
         }
 
         public string GenerateAccessTokenForDevice(string deviceCode)
@@ -84,7 +83,7 @@ namespace Fawkes.Api.Authentication
                 {
                     return Task.FromResult<string?>(tokenData.UserId);
                 }
-                _refreshTokens.Remove(refreshToken);
+                _refreshTokens.TryRemove(refreshToken, out _);
             }
             return Task.FromResult<string?>(null);
         }
@@ -96,7 +95,7 @@ namespace Fawkes.Api.Authentication
 
         public void RevokeRefreshToken(string refreshToken)
         {
-            _refreshTokens.Remove(refreshToken);
+            _refreshTokens.TryRemove(refreshToken, out _);
         }
     }
 }

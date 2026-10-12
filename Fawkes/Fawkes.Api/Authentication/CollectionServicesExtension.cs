@@ -39,7 +39,7 @@ namespace Fawkes.Api.Authentication
                   .AddDefaultTokenProviders();
 
                 services.AddHttpContextAccessor();
-                services.AddScoped<ITokenService, TokenService>();
+                services.AddSingleton<ITokenService, TokenService>();
                 services.AddScoped<SignInManager<IdentityUser>>();
                 services.AddScoped<EmailService>();
 
@@ -58,9 +58,16 @@ namespace Fawkes.Api.Authentication
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = configuration["Jwt:Issuer"],
-                        ValidAudience = configuration["Jwt:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not configured")))
+                        // User-Tokens (Jwt:*) und Display-Geräte-Tokens (JwtDevice:*) werden mit
+                        // getrennter Konfiguration signiert — beide müssen akzeptiert werden, sonst
+                        // bekommen Displays 401, sobald die Werte voneinander abweichen.
+                        ValidIssuers = new[] { configuration["Jwt:Issuer"], configuration["JwtDevice:Issuer"] }
+                            .Where(v => !string.IsNullOrEmpty(v)).Distinct().ToArray(),
+                        ValidAudiences = new[] { configuration["Jwt:Audience"], configuration["JwtDevice:Audience"] }
+                            .Where(v => !string.IsNullOrEmpty(v)).Distinct().ToArray(),
+                        IssuerSigningKeys = new[] { configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not configured"), configuration["JwtDevice:Key"] }
+                            .Where(v => !string.IsNullOrEmpty(v)).Distinct()
+                            .Select(k => (SecurityKey)new SymmetricSecurityKey(Encoding.UTF8.GetBytes(k!))).ToArray()
                     };
                 });
             }
