@@ -6,6 +6,7 @@
         public int CurrentSetNo { get; set; }
         public string TeamName { get; set; } = string.Empty;
         public string Shots { get; set; } = string.Empty;
+        public bool MatchComplete { get; set; }
         public int? CurrentSetScore { get; set; }
         public bool IsConfirmed { get; set; }
     }

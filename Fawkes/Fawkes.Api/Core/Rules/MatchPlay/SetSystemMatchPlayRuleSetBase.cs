@@ -5,7 +5,7 @@ namespace Fawkes.Api.Core.Rules.MatchPlay
     public class SetSystemMatchPlayRuleSetBase(int maxSets, bool shootOffRequiredOnDraw) : IMatchPlayRuleSet
     {
 
-
+        public int MaxEndNo => maxSets;
 
         public Match EvaluateMatch(params Scoresheet[] scoresheets)
         {

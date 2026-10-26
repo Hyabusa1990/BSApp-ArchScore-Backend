@@ -53,7 +53,9 @@ namespace Fawkes.Api.Core.Services
 
                 var match = matchPlayRules.EvaluateMatch(targets.Select(scoringRules.EvaluateScoresheet).ToArray());
 
-                var setNo = targets.Min(t => t.CurrentSetNo);
+                var setNo = Math.Min(targets.Min(t => t.CurrentSetNo), matchPlayRules.MaxEndNo);
+
+
 
 
 

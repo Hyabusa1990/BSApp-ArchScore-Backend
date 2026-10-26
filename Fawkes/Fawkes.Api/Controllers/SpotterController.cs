@@ -31,7 +31,8 @@ namespace Fawkes.Api.Controllers
                     TeamName = targetData.TeamName,
                     Shots = targetData.Shots,
                     CurrentSetScore = targetData.CurrentSetScore,
-                    IsConfirmed = targetData.IsConfirmed
+                    IsConfirmed = targetData.IsConfirmed,
+                    MatchComplete = targetData.MatchComplete
                 });
             }
             catch (KeyNotFoundException)
@@ -70,7 +71,8 @@ namespace Fawkes.Api.Controllers
                     TeamName = targetInfo.TeamName,
                     Shots = targetInfo.Shots,
                     CurrentSetScore = targetInfo.CurrentSetScore,
-                    IsConfirmed = targetInfo.IsConfirmed
+                    IsConfirmed = targetInfo.IsConfirmed,
+                    MatchComplete = targetInfo.MatchComplete
                 });
             }
             catch (KeyNotFoundException)
@@ -106,7 +108,8 @@ namespace Fawkes.Api.Controllers
                     TeamName = targetInfo.TeamName,
                     Shots = targetInfo.Shots,
                     CurrentSetScore = targetInfo.CurrentSetScore,
-                    IsConfirmed = targetInfo.IsConfirmed
+                    IsConfirmed = targetInfo.IsConfirmed,
+                    MatchComplete = targetInfo.MatchComplete
                 });
             }
             catch (KeyNotFoundException)
@@ -149,6 +152,11 @@ namespace Fawkes.Api.Controllers
             /// Indicates whether the current set score has been confirmed. This property is used to determine if the score for the current set has been finalized and cannot be changed. If true, the score is confirmed; if false, the score can still be modified.
             /// </summary>
             public bool IsConfirmed { get; set; }
+
+            /// <summary>
+            /// Indicates whether the match is complete. This property is used to determine if the match has concluded. If true, the match is complete; if false, the match is still ongoing.
+            /// </summary>
+            public bool MatchComplete { get; set; }
         }
 
         /// <summary>
