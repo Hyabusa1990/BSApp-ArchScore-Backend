@@ -12,6 +12,7 @@ namespace Fawkes.Api.Core.Model
         public int TargetNo { get; set; }
         public int RoundNo { get; set; }
         public string TeamName { get; set; } = string.Empty;
+        public int TeamId { get; set; }
 
         public string Shots { get; set; } = string.Empty;
         public int? ConfirmedSet01Score { get; set; }

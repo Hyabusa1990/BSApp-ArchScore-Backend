@@ -143,7 +143,6 @@ namespace Fawkes.Api.Core.Services
             var initialLeagueTable = await dataStore.GetInitialLeagueTableAsync(fixtureId);
             var scoresheets = (await dataStore.GetTargetDataAsync(fixtureId)).Select(scoringRuleSet.EvaluateScoresheet).ToArray();
             var matches = scoresheets.GroupBy(s => new { s.RoundNo, MatchNo = (s.TargetNo+1)/2 }).Select(m => matchRules.EvaluateMatch(m.ToArray())).ToArray();
-
             var currentLeagueTable = leagueRules.CalculateLeagueTable(initialLeagueTable, matches);
 
 

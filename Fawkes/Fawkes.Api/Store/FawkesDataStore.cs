@@ -443,6 +443,7 @@ namespace Fawkes.Api.Store
                 RoundNo = targetAssignment.RoundNo,
                 TargetNo = targetAssignment.TargetNo,
                 TeamName = targetAssignment.Team.Name,
+                TeamId = targetAssignment.TeamId,
                 Shots = targetAssignment.Shots,
                 ConfirmedSet01Score = targetAssignment.ConfirmedSet01Score,
                 ConfirmedSet02Score = targetAssignment.ConfirmedSet02Score,

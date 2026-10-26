@@ -32,7 +32,8 @@ namespace Fawkes.Api.Core.Rules.Scoring
             {
                 RoundNo = target.RoundNo,
                 TargetNo = target.TargetNo,
-                TeamName = target.TeamName
+                TeamName = target.TeamName,
+                TeamId = target.TeamId
             };
             var shots = (target.Shots ?? string.Empty).ToArray();
             var setScores = new[]

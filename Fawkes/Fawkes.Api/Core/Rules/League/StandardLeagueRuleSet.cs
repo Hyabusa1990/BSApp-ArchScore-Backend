@@ -20,19 +20,19 @@ namespace Fawkes.Api.Core.Rules.League
                 .ToList();
 
             var positions = initialTable.Positions.Select(position =>
-            {
-                var teamScoresheets = allScoresheetsWithOpponents.Where(s => s.TeamScoresheet.TeamId == position.TeamId).ToList();
-                var updatedPosition = new LeagueTablePosition()
-                    {
-                        TeamId = position.TeamId,
-                        TeamName = position.TeamName,
-                        SetPointsWon = position.SetPointsWon + teamScoresheets.Sum(s => s.TeamScoresheet.SetPoints),
-                        SetPointsLost = position.SetPointsLost + teamScoresheets.Sum(s => s.OpponentScoresheets.Sum(_ => _.SetPoints)),
-                        MatchPointsWon = position.MatchPointsWon + teamScoresheets.Sum(s => s.TeamScoresheet.MatchPoints ?? 0),
-                        MatchPointsLost = position.MatchPointsLost + teamScoresheets.Sum(s => s.OpponentScoresheets.Sum(_ => _.MatchPoints ?? 0)),
-                        TotalScore = position.TotalScore + teamScoresheets.Sum(_ => _.TeamScoresheet.TotalScore)
-                    };
-                    return updatedPosition;
+                {
+                    var teamScoresheets = allScoresheetsWithOpponents.Where(s => s.TeamScoresheet.TeamId == position.TeamId).ToList();
+                    var updatedPosition = new LeagueTablePosition()
+                        {
+                            TeamId = position.TeamId,
+                            TeamName = position.TeamName,
+                            SetPointsWon = position.SetPointsWon + teamScoresheets.Sum(s => s.TeamScoresheet.SetPoints),
+                            SetPointsLost = position.SetPointsLost + teamScoresheets.Sum(s => s.OpponentScoresheets.Sum(_ => _.SetPoints)),
+                            MatchPointsWon = position.MatchPointsWon + teamScoresheets.Sum(s => s.TeamScoresheet.MatchPoints ?? 0),
+                            MatchPointsLost = position.MatchPointsLost + teamScoresheets.Sum(s => s.OpponentScoresheets.Sum(_ => _.MatchPoints ?? 0)),
+                            TotalScore = position.TotalScore + teamScoresheets.Sum(_ => _.TeamScoresheet.TotalScore)
+                        };
+                        return updatedPosition;
                 })
                 .OrderByDescending(_ => _.MatchPointsWon)
                 .ThenByDescending(_ => _.SetPointsDifference)
