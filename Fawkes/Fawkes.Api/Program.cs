@@ -108,20 +108,22 @@ var versionText = string.IsNullOrWhiteSpace(buildSha) || buildSha == "dev"
 app.MapGet("/version", () => versionText);
 
 
+var startupLogger = app.Services.GetRequiredService<ILogger<Program>>();
+startupLogger.LogInformation("Starting Fawkes API {Version} in environment {Environment}", versionText, app.Environment.EnvironmentName);
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
         await services.GetRequiredService<IdentityDbContext>().Database.MigrateAsync();
-        Console.WriteLine("Migrations applied successfully: IdentityDbContext.");
+        startupLogger.LogInformation("Migrations applied successfully: {DbContext}", nameof(IdentityDbContext));
         await services.GetRequiredService<FawkesDbContext>().Database.MigrateAsync();
-        Console.WriteLine("Migrations applied successfully: FawkesDbContext.");
+        startupLogger.LogInformation("Migrations applied successfully: {DbContext}", nameof(FawkesDbContext));
     }
     catch (Exception ex)
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while applying migrations.");
+        startupLogger.LogError(ex, "An error occurred while applying migrations.");
         // Optionally stop startup if critical
         // throw;
     }

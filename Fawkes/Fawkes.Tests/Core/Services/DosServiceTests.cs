@@ -1,4 +1,6 @@
 using Fawkes.Core.Model;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
 using Fawkes.Core.Exceptions;
 using Fawkes.Core.Rules;
 using Fawkes.Core.Abstractions;
@@ -14,13 +16,15 @@ namespace Fawkes.Core.Services
 
         private IFawkesDataStore dataStore;
         private DosService dosService;
+        private FakeLogger<DosService> logger;
 
         [SetUp]
         public void Setup()
         {
             dataStore = Substitute.For<IFawkesDataStore>();
             dataStore.FixtureExistsAsync(Arg.Any<int>()).Returns(true);
-            dosService = new DosService(dataStore, new RuleSetFactory());
+            logger = new FakeLogger<DosService>();
+            dosService = new DosService(dataStore, new RuleSetFactory(), logger);
         }
 
         [Test]
@@ -70,6 +74,9 @@ namespace Fawkes.Core.Services
             await dosService.SetConfirmedSetScore(FixtureId, 1, 2, 3, 54, User);
 
             await dataStore.Received(1).SaveSetScoreAsync(FixtureId, 1, 2, 3, 54);
+
+            Assert.That(logger.LatestRecord.Level, Is.EqualTo(LogLevel.Information));
+            Assert.That(logger.LatestRecord.Message, Does.Contain($"set {3} on target {2}, round {1} of fixture {FixtureId} to 54"));
         }
     }
 }

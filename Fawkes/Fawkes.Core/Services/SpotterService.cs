@@ -2,6 +2,7 @@
 using Fawkes.Core.Model;
 using Fawkes.Core.Rules;
 using Fawkes.Core.Abstractions;
+using Microsoft.Extensions.Logging;
 
 namespace Fawkes.Core.Services
 {
@@ -13,7 +14,7 @@ namespace Fawkes.Core.Services
         Task<SpotterTargetData> ConfirmEndScoreAsync(Guid fixtureUniqueId, int targetNo);
     }
 
-    public class SpotterService(IFawkesDataStore dataStore, IRuleSetFactory ruleSetFactory) : ISpotterService
+    public class SpotterService(IFawkesDataStore dataStore, IRuleSetFactory ruleSetFactory, ILogger<SpotterService> logger) : ISpotterService
     {
         // Once every set is confirmed, CurrentSetNo points past the last set; stay on the last one instead.
         private static int GetCurrentSetNo(TargetData targetData, Scoresheet scoresheet)
@@ -102,6 +103,10 @@ namespace Fawkes.Core.Services
 
             await dataStore.SaveShotsAsync(fixture.Id, fixture.CurrentRoundNo, targetNo, scoresheet.AllShots);
 
+            // Called for every arrow, so only at debug level.
+            logger.LogDebug("Spotter entered shots '{Shots}' for set {SetNo} on target {TargetNo}, round {RoundNo} of fixture {FixtureId}",
+                shots, setNo, targetNo, fixture.CurrentRoundNo, fixture.Id);
+
 
             return new SpotterTargetData
             {
@@ -148,6 +153,15 @@ namespace Fawkes.Core.Services
             await dataStore.SaveConfirmedSetScoreAsync(fixture.Id, fixture.CurrentRoundNo, targetNo, setNo, scoresheet[setNo].Score);
             scoresheet[setNo].IsConfirmed = true;
 
+            logger.LogInformation("Spotter confirmed set {SetNo} of {TeamName} on target {TargetNo}, round {RoundNo} of fixture {FixtureId} with score {Score}",
+                setNo, targetData.TeamName, targetNo, fixture.CurrentRoundNo, fixture.Id, scoresheet[setNo].Score);
+
+            var matchComplete = await IsMatchCompleteAsync(fixture, targetNo, confirmedSetNo: setNo);
+            if (matchComplete)
+            {
+                logger.LogInformation("Match {MatchNo} in round {RoundNo} of fixture {FixtureId} is complete",
+                    (targetNo + 1) / 2, fixture.CurrentRoundNo, fixture.Id);
+            }
 
             return new SpotterTargetData
             {
@@ -157,7 +171,7 @@ namespace Fawkes.Core.Services
                 Shots = scoresheet[setNo].Shots,
                 CurrentSetScore = scoresheet[setNo].Score,
                 IsConfirmed = scoresheet[setNo].IsConfirmed,
-                MatchComplete = await IsMatchCompleteAsync(fixture, targetNo, confirmedSetNo: setNo)
+                MatchComplete = matchComplete
             };
         }
     }

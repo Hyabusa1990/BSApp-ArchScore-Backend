@@ -1,4 +1,6 @@
 using Fawkes.Core.Model;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
 using Fawkes.Core.Exceptions;
 using Fawkes.Core.Abstractions;
 using Fawkes.Core.Utils;
@@ -14,13 +16,15 @@ namespace Fawkes.Core.Services
 
         private IFawkesDataStore dataStore;
         private DeviceService deviceService;
+        private FakeLogger<DeviceService> logger;
 
         [SetUp]
         public void Setup()
         {
             dataStore = Substitute.For<IFawkesDataStore>();
             dataStore.FixtureExistsAsync(Arg.Any<int>()).Returns(true);
-            deviceService = new DeviceService(dataStore, new RandomService(42));
+            logger = new FakeLogger<DeviceService>();
+            deviceService = new DeviceService(dataStore, new RandomService(42), logger);
         }
 
         [Test]
@@ -95,6 +99,9 @@ namespace Fawkes.Core.Services
 
             Assert.That(result.FixtureId, Is.EqualTo(FixtureId));
             await dataStore.Received(1).UpdateDeviceAsync(device);
+
+            Assert.That(logger.LatestRecord.Level, Is.EqualTo(LogLevel.Information));
+            Assert.That(logger.LatestRecord.Message, Does.Contain($"assigned device 0 (123456) to fixture {FixtureId}"));
         }
 
         [Test]

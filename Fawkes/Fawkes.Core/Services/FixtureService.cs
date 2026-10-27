@@ -2,6 +2,7 @@
 using Fawkes.Core.Model;
 using Fawkes.Core.Rules;
 using Fawkes.Core.Abstractions;
+using Microsoft.Extensions.Logging;
 
 namespace Fawkes.Core.Services
 {
@@ -18,7 +19,7 @@ namespace Fawkes.Core.Services
         Task SetPhaseAsync(int fixtureId, int roundNo, string userName);
     }
 
-    public class FixtureService(IFawkesDataStore dataStore, IRuleSetFactory ruleSetFactory) : IFixtureService
+    public class FixtureService(IFawkesDataStore dataStore, IRuleSetFactory ruleSetFactory, ILogger<FixtureService> logger) : IFixtureService
     {
         // Npgsql akzeptiert für "timestamp with time zone" nur Kind=Utc. Datum ohne Zone
         // (Kind=Unspecified, z. B. "2026-10-10") wird als UTC interpretiert.
@@ -43,6 +44,8 @@ namespace Fawkes.Core.Services
 
             await dataStore.GrantFixtureAccessAsync(fixture.Id, userName, AccessLevel.Owner);
 
+            logger.LogInformation("User {UserName} created fixture {FixtureId} '{FixtureName}' ({LeagueName}) on {Date:yyyy-MM-dd} in {Location}",
+                userName, fixture.Id, fixtureName, leagueName, fixture.Date, location);
 
             return fixture;
         }
@@ -56,7 +59,11 @@ namespace Fawkes.Core.Services
         {
             await dataStore.EnsureWriteAccessAsync(id, userName);
 
-            return await dataStore.UpdateFixtureAsync(id, ToUtc(date), location, leagueName, fixtureName);
+            var fixture = await dataStore.UpdateFixtureAsync(id, ToUtc(date), location, leagueName, fixtureName);
+
+            logger.LogInformation("User {UserName} updated fixture {FixtureId}", userName, id);
+
+            return fixture;
         }
 
         public async Task DeleteFixtureAsync(int id, string userName)
@@ -64,6 +71,8 @@ namespace Fawkes.Core.Services
             await dataStore.EnsureOwnerAccessAsync(id, userName);
 
             await dataStore.DeleteFixtureAsync(id);
+
+            logger.LogInformation("User {UserName} deleted fixture {FixtureId}", userName, id);
         }
 
         public async Task<IEnumerable<FixtureUser>> GetUsersForFixtureAsync(int fixtureId, string userName)
@@ -79,9 +88,14 @@ namespace Fawkes.Core.Services
 
             // Owner nicht auf Write herabstufen (sonst hat die Veranstaltung keinen Owner mehr).
             if (await dataStore.CheckOwnerAccessToFixtureAsync(id, requestedUserName))
+            {
+                logger.LogDebug("User {RequestedUserName} is already owner of fixture {FixtureId}; access level unchanged", requestedUserName, id);
                 return;
+            }
 
             await dataStore.GrantFixtureAccessAsync(id, requestedUserName, AccessLevel.Write);
+
+            logger.LogInformation("User {UserName} granted write access on fixture {FixtureId} to {RequestedUserName}", requestingUserName, id, requestedUserName);
         }
 
         public async Task RemoveUserFromFixtureAsync(int id, string requestedUserName, string requestingUserName)
@@ -94,6 +108,8 @@ namespace Fawkes.Core.Services
             }
 
             await dataStore.GrantFixtureAccessAsync(id, requestedUserName, AccessLevel.None);
+
+            logger.LogInformation("User {UserName} removed {RequestedUserName} from fixture {FixtureId}", requestingUserName, requestedUserName, id);
         }
 
         public async Task SetPhaseAsync(int fixtureId, int roundNo, string userName)
@@ -104,6 +120,9 @@ namespace Fawkes.Core.Services
             await dataStore.EnsureWriteAccessAsync(fixtureId, userName);
 
             await dataStore.UpdateFixtureAsync(fixtureId, roundNo: roundNo);
+
+            logger.LogInformation("User {UserName} moved fixture {FixtureId} to round {RoundNo}", userName, fixtureId, roundNo);
+
             await UpdateLeagueTableAsync(fixtureId);
         }
 
@@ -129,6 +148,9 @@ namespace Fawkes.Core.Services
 
 
             await dataStore.UpdateLeagueTableAsync(fixtureId, currentLeagueTable);
+
+            logger.LogInformation("Recalculated league table of fixture {FixtureId} from {MatchCount} matches ({CompletedMatchCount} completed)",
+                fixtureId, matches.Length, matches.Count(m => m.Scoresheets.All(s => s.MatchPoints != null)));
 
 
 

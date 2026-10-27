@@ -1,4 +1,6 @@
 using Fawkes.Core.Model;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
 using Fawkes.Core.Exceptions;
 using Fawkes.Core.Rules;
 using Fawkes.Core.Abstractions;
@@ -16,12 +18,14 @@ namespace Fawkes.Core.Services
 
         private IFawkesDataStore dataStore;
         private SpotterService spotterService;
+        private FakeLogger<SpotterService> logger;
 
         [SetUp]
         public void Setup()
         {
             dataStore = Substitute.For<IFawkesDataStore>();
-            spotterService = new SpotterService(dataStore, new RuleSetFactory());
+            logger = new FakeLogger<SpotterService>();
+            spotterService = new SpotterService(dataStore, new RuleSetFactory(), logger);
         }
 
         private void SetupFixture(int currentRoundNo = RoundNo)
@@ -137,6 +141,10 @@ namespace Fawkes.Core.Services
             Assert.That(data.Shots, Is.EqualTo("++8"));
             Assert.That(data.CurrentSetScore, Is.EqualTo(28));
             await dataStore.Received(1).SaveShotsAsync(FixtureId, RoundNo, TargetNo, "999999++8".PadRight(30));
+
+            // Shot entries happen for every arrow, so they stay at debug level.
+            Assert.That(logger.Collector.GetSnapshot().Select(r => r.Level), Is.All.EqualTo(LogLevel.Debug));
+            Assert.That(logger.Collector.Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -239,6 +247,11 @@ namespace Fawkes.Core.Services
             Assert.That(data.IsConfirmed, Is.True);
             Assert.That(data.MatchComplete, Is.True);
             await dataStore.Received(1).SaveConfirmedSetScoreAsync(FixtureId, RoundNo, TargetNo, 3, 60);
+
+            var messages = logger.Collector.GetSnapshot().Where(r => r.Level == LogLevel.Information).Select(r => r.Message).ToList();
+            Assert.That(messages, Has.Count.EqualTo(2));
+            Assert.That(messages[0], Does.Contain($"confirmed set 3 of Team {TargetNo} on target {TargetNo}, round {RoundNo} of fixture {FixtureId} with score 60"));
+            Assert.That(messages[1], Does.Contain($"Match 2 in round {RoundNo} of fixture {FixtureId} is complete"));
         }
 
         [Test]

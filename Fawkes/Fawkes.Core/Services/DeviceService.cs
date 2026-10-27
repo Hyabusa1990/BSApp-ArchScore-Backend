@@ -1,6 +1,7 @@
 ﻿using Fawkes.Core.Exceptions;
 using Fawkes.Core.Model;
 using Fawkes.Core.Abstractions;
+using Microsoft.Extensions.Logging;
 using Fawkes.Core.Utils;
 
 namespace Fawkes.Core.Services
@@ -19,7 +20,7 @@ namespace Fawkes.Core.Services
     }
 
 
-    public class DeviceService(IFawkesDataStore fawkesDataStore, RandomService randomService) : IDeviceService
+    public class DeviceService(IFawkesDataStore fawkesDataStore, RandomService randomService, ILogger<DeviceService> logger) : IDeviceService
     {
         private static readonly string DEVICE_CODE_CHARS = "0123456789";
         private static readonly int DEVICE_CODE_LENGTH = 6;
@@ -36,6 +37,7 @@ namespace Fawkes.Core.Services
 
             var newDevice = await fawkesDataStore.CreateNewDevice(deviceCode);
 
+            logger.LogInformation("Registered new display device {DeviceId} with code {DeviceCode}", newDevice.Id, newDevice.Code);
             return newDevice;
         }
 
@@ -85,6 +87,7 @@ namespace Fawkes.Core.Services
             device.FixtureId = fixtureId;
 
             await fawkesDataStore.UpdateDeviceAsync(device);
+            logger.LogInformation("User {UserName} assigned device {DeviceId} ({DeviceCode}) to fixture {FixtureId}", userName, device.Id, device.Code, fixtureId);
 
             return device;
         }
@@ -108,6 +111,7 @@ namespace Fawkes.Core.Services
             device.FixtureId = null;
 
             await fawkesDataStore.UpdateDeviceAsync(device);
+            logger.LogInformation("User {UserName} removed device {DeviceId} from fixture {FixtureId}", userName, deviceId, fixtureId);
         }
 
         public async Task<Device> UpdateDeviceAsync(int fixtureId, int deviceId, string userName, DisplayType displayType, DisplayTheme displayTheme, int? matchNo)
@@ -132,6 +136,7 @@ namespace Fawkes.Core.Services
 
 
             await fawkesDataStore.UpdateDeviceAsync(device);
+            logger.LogInformation("User {UserName} set device {DeviceId} of fixture {FixtureId} to {DisplayType}/{DisplayTheme}, match {MatchNo}", userName, deviceId, fixtureId, displayType, displayTheme, matchNo);
 
             return device;
         }

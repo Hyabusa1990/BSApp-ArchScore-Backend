@@ -1,4 +1,6 @@
 using Fawkes.Core.Model;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
 using Fawkes.Core.Exceptions;
 using Fawkes.Core.Rules;
 using Fawkes.Core.Abstractions;
@@ -15,13 +17,15 @@ namespace Fawkes.Core.Services
 
         private IFawkesDataStore dataStore;
         private FixtureService fixtureService;
+        private FakeLogger<FixtureService> logger;
 
         [SetUp]
         public void Setup()
         {
             dataStore = Substitute.For<IFawkesDataStore>();
             dataStore.FixtureExistsAsync(Arg.Any<int>()).Returns(true);
-            fixtureService = new FixtureService(dataStore, new RuleSetFactory());
+            logger = new FakeLogger<FixtureService>();
+            fixtureService = new FixtureService(dataStore, new RuleSetFactory(), logger);
         }
 
         [Test]
@@ -37,6 +41,9 @@ namespace Fawkes.Core.Services
                 Arg.Is<DateTime>(d => d.Kind == DateTimeKind.Utc && d == new DateTime(2026, 10, 10)),
                 "Kassel", "Hessenliga", "1. Wettkampftag");
             await dataStore.Received(1).GrantFixtureAccessAsync(FixtureId, Owner, AccessLevel.Owner);
+
+            Assert.That(logger.LatestRecord.Level, Is.EqualTo(LogLevel.Information));
+            Assert.That(logger.LatestRecord.Message, Does.Contain($"User {Owner} created fixture {FixtureId}"));
         }
 
         [Test]
@@ -118,6 +125,9 @@ namespace Fawkes.Core.Services
         public void AddUserRequiresOwnerAccess()
         {
             Assert.ThrowsAsync<AccessDeniedException>(() => fixtureService.AddUserToFixtureAsync(FixtureId, Other, Other));
+
+            // Rejected requests are logged once by the API's exception handler, not by the service.
+            Assert.That(logger.Collector.Count, Is.EqualTo(0));
         }
 
         [Test]

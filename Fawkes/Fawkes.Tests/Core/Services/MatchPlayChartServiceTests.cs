@@ -1,4 +1,6 @@
 using Fawkes.Core.Model;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
 using Fawkes.Core.Exceptions;
 using Fawkes.Core.Abstractions;
 using NSubstitute;
@@ -13,12 +15,14 @@ namespace Fawkes.Core.Services
 
         private IFawkesDataStore dataStore;
         private MatchPlayChartService chartService;
+        private FakeLogger<MatchPlayChartService> logger;
 
         [SetUp]
         public void Setup()
         {
             dataStore = Substitute.For<IFawkesDataStore>();
-            chartService = new MatchPlayChartService(dataStore);
+            logger = new FakeLogger<MatchPlayChartService>();
+            chartService = new MatchPlayChartService(dataStore, logger);
 
             // Stored team ids are 100 + team number, e.g. "T3" gets id 103.
             dataStore.AddTeamToFixtureAsync(FixtureId, Arg.Any<Team>())
@@ -83,6 +87,8 @@ namespace Fawkes.Core.Services
             await dataStore.Received(56).AssignTeamToTargetAsync(FixtureId, Arg.Any<int>(), Arg.Any<int>(), Arg.Any<int>());
             await dataStore.Received(1).AssignTeamToTargetAsync(FixtureId, 1, 1, 105);
             await dataStore.Received(1).AssignTeamToTargetAsync(FixtureId, 7, 8, 108);
+
+            Assert.That(logger.LatestRecord.Message, Does.Contain("8 teams, 7 rounds, default chart"));
         }
 
         [Test]

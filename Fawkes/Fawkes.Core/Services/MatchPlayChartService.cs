@@ -1,6 +1,7 @@
 ﻿using Fawkes.Core.Exceptions;
 using Fawkes.Core.Model;
 using Fawkes.Core.Abstractions;
+using Microsoft.Extensions.Logging;
 
 namespace Fawkes.Core.Services
 {
@@ -11,7 +12,7 @@ namespace Fawkes.Core.Services
     }
 
 
-    public class MatchPlayChartService(IFawkesDataStore fawkesDataStore) : IMatchPlayChartService
+    public class MatchPlayChartService(IFawkesDataStore fawkesDataStore, ILogger<MatchPlayChartService> logger) : IMatchPlayChartService
     {
         private static readonly int[][] DEFAULT_CHART_8 =
         [
@@ -39,8 +40,11 @@ namespace Fawkes.Core.Services
                     throw new ConflictException($"Match play chart already exists for fixture {fixtureId}. Use hardOverride to force creation.", "MATCH_PLAY_CHART_EXISTS");
                 }
                 await fawkesDataStore.DeleteMatchPlayChartAsync(fixtureId);
+
+                logger.LogInformation("User {UserName} deleted the existing match play chart of fixture {FixtureId} (hard override)", userName, fixtureId);
             }
 
+            var usesDefaultChart = targetAssignments == null;
             targetAssignments = targetAssignments ?? GetDefaultMatchPlayChart(teams.Length);
 
             if (targetAssignments == null)
@@ -63,6 +67,9 @@ namespace Fawkes.Core.Services
 
                     await fawkesDataStore.AssignTeamToTargetAsync(fixtureId, roundNo, targetNo, teams[teamIndex].Id);
                 }
+
+            logger.LogInformation("User {UserName} created the match play chart of fixture {FixtureId}: {TeamCount} teams, {RoundCount} rounds, {ChartSource} chart",
+                userName, fixtureId, teams.Length, targetAssignments.Length, usesDefaultChart ? "default" : "custom");
         }
 
         private int[][]? GetDefaultMatchPlayChart(int noOfTeams)

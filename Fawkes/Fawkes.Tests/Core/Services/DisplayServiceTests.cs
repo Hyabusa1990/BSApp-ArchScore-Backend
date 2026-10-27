@@ -1,4 +1,6 @@
 using Fawkes.Core.Model;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
 using Fawkes.Core.Exceptions;
 using Fawkes.Core.Rules;
 using Fawkes.Core.Abstractions;
@@ -13,12 +15,14 @@ namespace Fawkes.Core.Services
 
         private IFawkesDataStore dataStore;
         private DisplayService displayService;
+        private FakeLogger<DisplayService> logger;
 
         [SetUp]
         public void Setup()
         {
             dataStore = Substitute.For<IFawkesDataStore>();
-            displayService = new DisplayService(dataStore, new RuleSetFactory());
+            logger = new FakeLogger<DisplayService>();
+            displayService = new DisplayService(dataStore, new RuleSetFactory(), logger);
         }
 
         private void SetupDevice(DisplayType displayType, int? fixtureId = 3)
@@ -133,6 +137,9 @@ namespace Fawkes.Core.Services
             Assert.That(targets[1].Shots, Is.EqualTo("999999"));
             Assert.That(targets[1].CurrentSetScore, Is.EqualTo(54));
             Assert.That(targets[1].SetPoints, Is.EqualTo(0));
+
+            // Displays poll every second; normal polling must not write to the information log.
+            Assert.That(logger.Collector.GetSnapshot().Where(r => r.Level >= LogLevel.Information), Is.Empty);
         }
     }
 }

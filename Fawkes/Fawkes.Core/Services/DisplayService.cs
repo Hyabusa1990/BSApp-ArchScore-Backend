@@ -1,6 +1,7 @@
 ﻿using Fawkes.Core.Model;
 using Fawkes.Core.Rules;
 using Fawkes.Core.Abstractions;
+using Microsoft.Extensions.Logging;
 
 namespace Fawkes.Core.Services
 {
@@ -9,7 +10,7 @@ namespace Fawkes.Core.Services
         Task<DisplayData?> GetDisplayDataAsync(string deviceCode);
     }
 
-    public class DisplayService(IFawkesDataStore dataStore, IRuleSetFactory ruleSetFactory) : IDisplayService
+    public class DisplayService(IFawkesDataStore dataStore, IRuleSetFactory ruleSetFactory, ILogger<DisplayService> logger) : IDisplayService
     {
         public async Task<DisplayData?> GetDisplayDataAsync(string deviceCode)
         {
@@ -24,6 +25,10 @@ namespace Fawkes.Core.Services
             // Devices whose fixture is gone show their code again, so they can be reassigned.
             if (fixture == null)
             {
+                // Displays poll every second, so nothing in here is logged above debug level.
+                if (device.FixtureId.HasValue)
+                    logger.LogDebug("Device {DeviceCode} is assigned to fixture {FixtureId}, which no longer exists; showing it as unassigned", device.Code, device.FixtureId);
+
                 return new UnassignedDisplayData()
                 {
                     Theme = device.DisplayTheme,
@@ -46,6 +51,9 @@ namespace Fawkes.Core.Services
                 // No teams on these targets yet (match play chart missing or match number beyond the chart): show nothing instead of failing.
                 if (targets.Length == 0)
                 {
+                    logger.LogDebug("Device {DeviceCode} shows match {MatchNo} of round {RoundNo} in fixture {FixtureId}, which has no teams yet",
+                        device.Code, device.MatchNo ?? 1, fixture.CurrentRoundNo, fixture.Id);
+
                     return new NoDisplayData()
                     {
                         Theme = device.DisplayTheme

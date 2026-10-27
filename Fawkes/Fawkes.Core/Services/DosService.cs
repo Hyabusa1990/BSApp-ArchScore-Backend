@@ -2,6 +2,7 @@
 using Fawkes.Core.Model;
 using Fawkes.Core.Rules;
 using Fawkes.Core.Abstractions;
+using Microsoft.Extensions.Logging;
 
 namespace Fawkes.Core.Services
 {
@@ -11,7 +12,7 @@ namespace Fawkes.Core.Services
         Task SetConfirmedSetScore(int fixtureId, int roundNo, int targetNo, int setNo, int? score, string userName);
     }
 
-    public class DosService(IFawkesDataStore dataStore, IRuleSetFactory ruleSetFactory) : IDosService
+    public class DosService(IFawkesDataStore dataStore, IRuleSetFactory ruleSetFactory, ILogger<DosService> logger) : IDosService
     {
         public async Task<IEnumerable<Match>> GetRoundMatchesAsync(int fixtureId, int roundNo, string userName)
         {
@@ -41,6 +42,9 @@ namespace Fawkes.Core.Services
             await dataStore.EnsureWriteAccessAsync(fixtureId, userName);
 
             await dataStore.SaveSetScoreAsync(fixtureId, roundNo, targetNo, setNo, score);
+
+            logger.LogInformation("User {UserName} set the confirmed score of set {SetNo} on target {TargetNo}, round {RoundNo} of fixture {FixtureId} to {Score}",
+                userName, setNo, targetNo, roundNo, fixtureId, score);
 
         }
 

@@ -8,7 +8,7 @@ namespace Fawkes.Api.Filters
     /// Translates the domain exceptions from Fawkes.Core into ProblemDetails responses.
     /// Any other exception is left to the default handler, which answers with a generic 500.
     /// </summary>
-    public class FawkesExceptionHandler(IProblemDetailsService problemDetailsService) : IExceptionHandler
+    public class FawkesExceptionHandler(IProblemDetailsService problemDetailsService, ILogger<FawkesExceptionHandler> logger) : IExceptionHandler
     {
         public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
         {
@@ -23,6 +23,10 @@ namespace Fawkes.Api.Filters
                 InvalidRequestException => (StatusCodes.Status400BadRequest, "Bad Request"),
                 _ => (StatusCodes.Status500InternalServerError, "Internal Server Error")
             };
+
+            // Expected client errors: logged once here at information level, without stack trace.
+            logger.LogInformation("{Method} {Path} answered with {StatusCode} {ErrorCode}: {Detail}",
+                httpContext.Request.Method, httpContext.Request.Path, status, fawkesException.Code, fawkesException.Message);
 
             httpContext.Response.StatusCode = status;
 

@@ -16,15 +16,18 @@ namespace Fawkes.Api.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ITokenService _tokenService;
+        private readonly ILogger<AuthController> _logger;
 
         public AuthController(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
-            ITokenService tokenService)
+            ITokenService tokenService,
+            ILogger<AuthController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _tokenService = tokenService;
+            _logger = logger;
         }
 
         // Same ProblemDetails shape as the central exception handler: status, title, detail and a machine-readable code.
@@ -46,17 +49,20 @@ namespace Fawkes.Api.Controllers
             var user = await _userManager.FindByEmailAsync(loginRequest.Email);
             if (user == null)
             {
+                _logger.LogWarning("Failed login for {Email}: unknown user", loginRequest.Email);
                 return ErrorResult(StatusCodes.Status401Unauthorized, "INVALID_CREDENTIALS", "Invalid email or password");
             }
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, loginRequest.Password, lockoutOnFailure: false);
             if (!result.Succeeded)
             {
+                _logger.LogWarning("Failed login for user {UserId}: wrong password", user.Id);
                 return ErrorResult(StatusCodes.Status401Unauthorized, "INVALID_CREDENTIALS", "Invalid email or password");
             }
 
             if (!user.EmailConfirmed)
             {
+                _logger.LogInformation("Login of user {UserId} refused: email not confirmed", user.Id);
                 return ErrorResult(StatusCodes.Status403Forbidden, "EMAIL_NOT_CONFIRMED", "Email not confirmed");
             }
 
@@ -67,6 +73,8 @@ namespace Fawkes.Api.Controllers
             {
                 tokenService.StoreRefreshToken(refreshToken, user.Id, DateTime.UtcNow.AddDays(7));
             }
+
+            _logger.LogInformation("User {UserId} ({Email}) logged in", user.Id, user.Email);
 
             return Ok(new TokenResponse
             {
@@ -96,8 +104,11 @@ namespace Fawkes.Api.Controllers
             var result = await _userManager.CreateAsync(user, registerRequest.Password);
             if (!result.Succeeded)
             {
+                _logger.LogInformation("Registration for {Email} rejected: {Errors}", registerRequest.Email, string.Join(", ", result.Errors.Select(e => e.Code)));
                 return ErrorResult(StatusCodes.Status400BadRequest, "REGISTRATION_FAILED", string.Join(", ", result.Errors.Select(e => e.Description)));
             }
+
+            _logger.LogInformation("Registered new user {UserId} ({Email})", user.Id, user.Email);
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
@@ -129,6 +140,8 @@ namespace Fawkes.Api.Controllers
                 return ErrorResult(StatusCodes.Status400BadRequest, "VERIFICATION_FAILED", "Email verification failed");
             }
 
+            _logger.LogInformation("User {UserId} confirmed their email address", user.Id);
+
             return Ok(new MessageResponse
             {
                 Code = "VERIFICATION_SUCCESS",
@@ -142,6 +155,8 @@ namespace Fawkes.Api.Controllers
             var userId = await _tokenService.ValidateRefreshTokenAsync(refreshRequest.RefreshToken);
             if (userId == null)
             {
+                // Refresh tokens are kept in memory, so every API restart invalidates them; not a security event by itself.
+                _logger.LogInformation("Token refresh rejected: unknown or expired refresh token");
                 return ErrorResult(StatusCodes.Status401Unauthorized, "INVALID_REFRESH_TOKEN", "Invalid refresh token");
             }
 
@@ -159,6 +174,8 @@ namespace Fawkes.Api.Controllers
                 tokenService.RevokeRefreshToken(refreshRequest.RefreshToken);
                 tokenService.StoreRefreshToken(newRefreshToken, user.Id, DateTime.UtcNow.AddDays(7));
             }
+
+            _logger.LogDebug("Refreshed tokens for user {UserId}", user.Id);
 
             return Ok(new TokenResponse
             {
@@ -179,6 +196,9 @@ namespace Fawkes.Api.Controllers
             }
 
             await _signInManager.SignOutAsync();
+
+            _logger.LogInformation("User {UserName} logged out", User.Identity?.Name);
+
             return Ok(new { message = "Logged out successfully" });
         }
 
@@ -228,8 +248,11 @@ namespace Fawkes.Api.Controllers
             var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
             if (!result.Succeeded)
             {
+                _logger.LogInformation("Password change of user {UserId} rejected: {Errors}", user.Id, string.Join(", ", result.Errors.Select(e => e.Code)));
                 return ErrorResult(StatusCodes.Status400BadRequest, "PASSWORD_CHANGE_FAILED", string.Join(", ", result.Errors.Select(e => e.Description)));
             }
+
+            _logger.LogInformation("User {UserId} changed their password", user.Id);
 
             return Ok(new MessageResponse
             {
