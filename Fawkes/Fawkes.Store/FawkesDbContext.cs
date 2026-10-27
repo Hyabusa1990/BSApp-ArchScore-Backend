@@ -1,0 +1,196 @@
+﻿using Microsoft.EntityFrameworkCore;
+using System.Net.NetworkInformation;
+using System.Reflection;
+
+namespace Fawkes.Store
+{
+    public class FawkesDbContext : DbContext
+    {
+        public FawkesDbContext(DbContextOptions<FawkesDbContext> options) : base(options)
+        {
+        }
+
+        public DbSet<Fixture> Fixtures { get; set; }
+
+        public DbSet<Device> Devices { get; set; }
+
+        public DbSet<FixturePermission> FixturePermissions { get; set; }
+
+        public DbSet<TargetAssignment> TargetAssignments { get; set; }
+
+        public DbSet<Team> Teams { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.HasDefaultSchema("Core");
+
+            modelBuilder.Entity<Fixture>()
+                .HasMany<Device>()
+                .WithOne(d => d.Fixture)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Fixture>()
+                .HasMany<FixturePermission>()
+                .WithOne(_ => _.Fixture)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
+            modelBuilder.Entity<Fixture>()
+                .HasMany<Team>()
+                .WithOne(_ => _.Fixture)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Fixture>()
+                .HasMany<TargetAssignment>()
+                .WithOne(_ => _.Fixture)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Team>()
+                .HasMany<TargetAssignment>()
+                .WithOne(_ => _.Team)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
+
+
+
+        }
+
+        public class Fixture
+        {
+            public int Id { get; set; }
+            public Guid UniqueId { get; set; }
+            public DateTime Date { get; set; }
+            public string? LeagueName { get; set; }
+            public string? FixtureName { get; set; }
+            public string? Location { get; set; }
+            public int CurrentRoundNo { get; set; }
+            public string RuleSetKey { get; set; } = string.Empty;
+
+        }
+
+        public class FixturePermission
+        {
+            public int Id { get; set; }
+            public int FixtureId { get; set; }
+            public required string User { get; set; }
+            public required AccessLevel AccessLevel { get; set; }
+            public required Fixture Fixture { get; set; }
+        }
+
+        public class Device
+        {
+            public int Id { get; set; }
+            public int? FixtureId { get; set; }
+            public required string Code { get; set; }
+            public DisplayType DisplayType { get; set; }
+            public DisplayTheme DisplayTheme { get; set; }
+            public int? MatchNo { get; set; }
+            public Fixture? Fixture { get; set; }
+        }
+
+        public class TargetAssignment
+        {
+            private static PropertyInfo[] setScoreProps = typeof(TargetAssignment).GetProperties().Where(p => p.Name.StartsWith("ConfirmedSet") && p.Name.EndsWith("Score")).OrderBy(p => p.Name).ToArray();
+
+
+            static TargetAssignment()
+            {
+                var props = new List<PropertyInfo>();
+
+                var propertyName = nameof(ConfirmedSet01Score).Replace("01", "__");
+
+                var i = 1;
+                while (true)
+                {
+                    var prop = typeof(TargetAssignment).GetProperty(propertyName.Replace("__", i.ToString("00")));
+                    if (prop == null)
+                        break;
+                    props.Add(prop);
+                    i++;
+                }
+            }
+
+
+
+
+            public int Id { get; set; }
+            public int FixtureId { get; set; }
+            public int TeamId { get; set; }
+            public int RoundNo { get; set; }
+            public int TargetNo { get; set; }
+
+            public string Shots { get; set; } = string.Empty;
+            public int? ConfirmedSet01Score { get; set; }
+            public int? ConfirmedSet02Score { get; set; }
+            public int? ConfirmedSet03Score { get; set; }
+            public int? ConfirmedSet04Score { get; set; }
+            public int? ConfirmedSet05Score { get; set; }
+
+
+            public Fixture Fixture { get; set; }
+            public Team Team { get; set; }
+
+
+            public void SetConfirmedScore(int setNo, int? score)
+            {
+                if (setNo < 1 || setNo > setScoreProps.Length)
+                    throw new ArgumentOutOfRangeException(nameof(setNo), $"Set number must be between 1 and {setScoreProps.Length}.");
+
+                setScoreProps[setNo-1].SetValue(this, score);
+            }
+        }
+
+
+        public class Team
+        {
+            public int Id { get; set; }
+            public int FixtureId { get; set; }
+            public required string Name { get; set; }
+
+            public int InitialRank { get; set; }
+            public int InitialMatchPointsWon { get; set; }
+            public int InitialMatchPointsLost { get; set; }
+            public int InitialSetPointsWon { get; set; }
+            public int InitialSetPointsLost { get; set; }
+            public int InitialTotalScore { get; set; }
+
+
+            public int Rank { get; set; }
+            public int MatchPointsWon { get; set; }
+            public int MatchPointsLost { get; set; }
+            public int SetPointsWon { get; set; }
+            public int SetPointsLost { get; set; }
+            public int TotalScore { get; set; }
+            public int RankDifference { get; set; }
+
+            public Fixture Fixture { get; set; }
+        }
+
+
+        public enum DisplayType
+        {
+            None = 0,
+            Match = 1,
+            Table = 2
+        }
+
+        public enum AccessLevel
+        {
+            None = 0,
+            Read = 1,
+            Write = 2,
+            Owner = 3
+        }
+
+        public enum DisplayTheme
+        {
+            Dark = 0,
+            Light = 1
+
+        }
+
+
+    }
+}

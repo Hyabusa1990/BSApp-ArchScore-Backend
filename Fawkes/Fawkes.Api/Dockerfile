@@ -1,14 +1,21 @@
+# Build context is the Fawkes/ folder (solution root), so all referenced projects are available:
+#   docker build -f Fawkes.Api/Dockerfile -t fawkes-api .
+
 # Use the official .NET SDK image for building the application
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
-WORKDIR /fawkes-api
+WORKDIR /src
 
 # Copy project files and restore dependencies
-COPY *.csproj .
-RUN dotnet restore
+COPY Fawkes.Core/Fawkes.Core.csproj Fawkes.Core/
+COPY Fawkes.Store/Fawkes.Store.csproj Fawkes.Store/
+COPY Fawkes.Api/Fawkes.Api.csproj Fawkes.Api/
+RUN dotnet restore Fawkes.Api/Fawkes.Api.csproj
 
-# Copy all files and publish the application
-COPY . .
-RUN dotnet publish -c Release -o /out
+# Copy the sources and publish the application
+COPY Fawkes.Core/ Fawkes.Core/
+COPY Fawkes.Store/ Fawkes.Store/
+COPY Fawkes.Api/ Fawkes.Api/
+RUN dotnet publish Fawkes.Api/Fawkes.Api.csproj -c Release -o /out --no-restore
 
 # Use the ASP.NET Core runtime image for running the application
 FROM mcr.microsoft.com/dotnet/aspnet:10.0

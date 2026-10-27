@@ -1,6 +1,6 @@
+using Fawkes.Store;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -17,12 +17,6 @@ namespace Fawkes.Api.Authentication
             /// </summary>
             public void AddFawkesAuthentication(IConfiguration configuration)
             {
-                services.AddDbContextPool<IdentityDbContext>(options =>
-                {
-                    options.UseNpgsql(configuration.GetConnectionString("FawkesConnection"));
-                });
-
-
                 services.AddIdentityCore<IdentityUser>(options =>
                 {
                     options.SignIn.RequireConfirmedAccount = false;

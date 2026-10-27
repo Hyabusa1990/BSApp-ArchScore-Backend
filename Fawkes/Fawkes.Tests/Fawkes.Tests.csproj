@@ -19,6 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Fawkes.Core\Fawkes.Core.csproj" />
+    <ProjectReference Include="..\Fawkes.Store\Fawkes.Store.csproj" />
     <ProjectReference Include="..\Fawkes.Api\Fawkes.Api.csproj" />
   </ItemGroup>
 

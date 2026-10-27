@@ -47,7 +47,7 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
-          context: ./Fawkes/Fawkes.Api
+          context: ./Fawkes
           file: ./Fawkes/Fawkes.Api/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}

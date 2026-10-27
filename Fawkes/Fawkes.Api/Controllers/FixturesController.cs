@@ -1,6 +1,6 @@
-﻿using Fawkes.Api.Core.Model;
-using Fawkes.Api.Core.Services;
-using Fawkes.Api.Store;
+﻿using Fawkes.Core.Model;
+using Fawkes.Core.Services;
+using Fawkes.Store;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

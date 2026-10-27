@@ -1,8 +1,7 @@
 using Fawkes.Api.Authentication;
-using Fawkes.Api.Core;
+using Fawkes.Core;
 using Fawkes.Api.Filters;
-using Fawkes.Api.Store;
-using Fawkes.Api.Utils;
+using Fawkes.Store;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +15,6 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddUtils();
 builder.Services.AddFawkesAuthentication(builder.Configuration);
 builder.Services.AddFawkesDataLayer(builder.Configuration);
 builder.Services.AddApplicationLogic();
