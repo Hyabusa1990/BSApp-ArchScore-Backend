@@ -1,4 +1,5 @@
 using Fawkes.Core.Model;
+using Fawkes.Core.Exceptions;
 using Fawkes.Core.Rules;
 using Fawkes.Core.Abstractions;
 using NSubstitute;
@@ -85,9 +86,9 @@ namespace Fawkes.Core.Services
         [Test]
         public void UnknownFixtureThrows()
         {
-            Assert.ThrowsAsync<KeyNotFoundException>(() => spotterService.GetTargetDataAsync(FixtureUniqueId, TargetNo));
-            Assert.ThrowsAsync<KeyNotFoundException>(() => spotterService.ProcessShotsAsync(FixtureUniqueId, TargetNo, "9"));
-            Assert.ThrowsAsync<KeyNotFoundException>(() => spotterService.ConfirmEndScoreAsync(FixtureUniqueId, TargetNo));
+            Assert.ThrowsAsync<NotFoundException>(() => spotterService.GetTargetDataAsync(FixtureUniqueId, TargetNo));
+            Assert.ThrowsAsync<NotFoundException>(() => spotterService.ProcessShotsAsync(FixtureUniqueId, TargetNo, "9"));
+            Assert.ThrowsAsync<NotFoundException>(() => spotterService.ConfirmEndScoreAsync(FixtureUniqueId, TargetNo));
         }
 
         [Test]
@@ -95,9 +96,9 @@ namespace Fawkes.Core.Services
         {
             SetupFixture(currentRoundNo: 0);
 
-            Assert.ThrowsAsync<InvalidOperationException>(() => spotterService.GetTargetDataAsync(FixtureUniqueId, TargetNo));
-            Assert.ThrowsAsync<InvalidOperationException>(() => spotterService.ProcessShotsAsync(FixtureUniqueId, TargetNo, "9"));
-            Assert.ThrowsAsync<InvalidOperationException>(() => spotterService.ConfirmEndScoreAsync(FixtureUniqueId, TargetNo));
+            Assert.ThrowsAsync<ConflictException>(() => spotterService.GetTargetDataAsync(FixtureUniqueId, TargetNo));
+            Assert.ThrowsAsync<ConflictException>(() => spotterService.ProcessShotsAsync(FixtureUniqueId, TargetNo, "9"));
+            Assert.ThrowsAsync<ConflictException>(() => spotterService.ConfirmEndScoreAsync(FixtureUniqueId, TargetNo));
         }
 
         [Test]
@@ -105,7 +106,7 @@ namespace Fawkes.Core.Services
         {
             SetupFixture();
 
-            Assert.ThrowsAsync<KeyNotFoundException>(() => spotterService.GetTargetDataAsync(FixtureUniqueId, TargetNo));
+            Assert.ThrowsAsync<NotFoundException>(() => spotterService.GetTargetDataAsync(FixtureUniqueId, TargetNo));
         }
 
         [Test]
@@ -158,7 +159,7 @@ namespace Fawkes.Core.Services
             SetupFixture();
             SetupFinishedTarget();
 
-            Assert.ThrowsAsync<InvalidOperationException>(() => spotterService.ProcessShotsAsync(FixtureUniqueId, TargetNo, "++++++"));
+            Assert.ThrowsAsync<ConflictException>(() => spotterService.ProcessShotsAsync(FixtureUniqueId, TargetNo, "++++++"));
             await dataStore.DidNotReceiveWithAnyArgs().SaveShotsAsync(default, default, default, default!);
         }
 
@@ -168,7 +169,7 @@ namespace Fawkes.Core.Services
             SetupFixture();
             SetupFinishedTarget();
 
-            Assert.ThrowsAsync<InvalidOperationException>(() => spotterService.ConfirmEndScoreAsync(FixtureUniqueId, TargetNo));
+            Assert.ThrowsAsync<ConflictException>(() => spotterService.ConfirmEndScoreAsync(FixtureUniqueId, TargetNo));
             await dataStore.DidNotReceiveWithAnyArgs().SaveConfirmedSetScoreAsync(default, default, default, default, default);
         }
 
@@ -178,7 +179,7 @@ namespace Fawkes.Core.Services
             SetupFixture();
             SetupTarget("999999", confirmedSet01Score: 54);
 
-            Assert.ThrowsAsync<InvalidOperationException>(() => spotterService.ConfirmEndScoreAsync(FixtureUniqueId, TargetNo));
+            Assert.ThrowsAsync<ConflictException>(() => spotterService.ConfirmEndScoreAsync(FixtureUniqueId, TargetNo));
         }
 
         [Test]

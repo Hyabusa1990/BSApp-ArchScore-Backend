@@ -1,4 +1,5 @@
-﻿using Fawkes.Core.Model;
+﻿using Fawkes.Core.Exceptions;
+using Fawkes.Core.Model;
 using Fawkes.Core.Abstractions;
 using Fawkes.Core.Rules;
 using Microsoft.EntityFrameworkCore;
@@ -65,7 +66,7 @@ namespace Fawkes.Store
             var dbFixture = await context.Fixtures.FirstOrDefaultAsync(f => f.UniqueId == fixtureUniqueId);
             if (dbFixture == null)
             {
-                throw new KeyNotFoundException($"Fixture with UniqueId {fixtureUniqueId} not found.");
+                throw new NotFoundException($"Fixture with UniqueId {fixtureUniqueId} not found.", "FIXTURE_NOT_FOUND");
             }
             return ConvertFixture(dbFixture);
         }
@@ -168,7 +169,7 @@ namespace Fawkes.Store
             var fixture = await context.Fixtures.FindAsync(id);
 
             if (fixture == null)
-                throw new KeyNotFoundException($"Fixture with id {id} not found.");
+                throw new NotFoundException($"Fixture with id {id} not found.", "FIXTURE_NOT_FOUND");
 
             var existingPermission = await context.FixturePermissions
                 .FirstOrDefaultAsync(fp => fp.FixtureId == id && fp.User == userName);
@@ -215,7 +216,7 @@ namespace Fawkes.Store
             var fixture = await context.Fixtures.FindAsync(id);
 
             if (fixture == null)
-                throw new KeyNotFoundException($"Fixture with id {id} not found.");
+                throw new NotFoundException($"Fixture with id {id} not found.", "FIXTURE_NOT_FOUND");
 
             fixture.Date = date ?? fixture.Date;
             fixture.Location = location ?? fixture.Location;
@@ -233,7 +234,7 @@ namespace Fawkes.Store
             var fixture = await context.Fixtures.FindAsync(id);
 
             if (fixture == null)
-                throw new KeyNotFoundException($"Fixture with id {id} not found.");
+                throw new NotFoundException($"Fixture with id {id} not found.", "FIXTURE_NOT_FOUND");
 
             context.Fixtures.Remove(fixture);
 
@@ -292,7 +293,7 @@ namespace Fawkes.Store
             var device = await context.Devices.FindAsync(deviceId);
             if (device == null)
             {
-                throw new KeyNotFoundException($"Device with id {deviceId} not found.");
+                throw new NotFoundException($"Device with id {deviceId} not found.", "DEVICE_NOT_FOUND");
             }
             return ConvertDevice(device);
         }
@@ -302,7 +303,7 @@ namespace Fawkes.Store
             var existingDevice = await context.Devices.FindAsync(device.Id);
             if (existingDevice == null)
             {
-                throw new KeyNotFoundException($"Device with id {device.Id} not found.");
+                throw new NotFoundException($"Device with id {device.Id} not found.", "DEVICE_NOT_FOUND");
             }
 
             existingDevice.FixtureId = device.FixtureId;
@@ -424,7 +425,7 @@ namespace Fawkes.Store
                 .FirstOrDefaultAsync(ta => ta.FixtureId == fixtureId && ta.RoundNo == currentRoundNo && ta.TargetNo == targetNo);
 
             if (targetAssignment == null)
-                throw new InvalidOperationException($"TargetAssignment not found for FixtureId={fixtureId}, RoundNo={currentRoundNo}, TargetNo={targetNo}");
+                throw new NotFoundException($"TargetAssignment not found for FixtureId={fixtureId}, RoundNo={currentRoundNo}, TargetNo={targetNo}", "TARGET_NOT_FOUND");
 
             targetAssignment.Shots = shots;
 
@@ -437,7 +438,7 @@ namespace Fawkes.Store
                 .FirstOrDefaultAsync(ta => ta.FixtureId == fixtureId && ta.RoundNo == currentRoundNo && ta.TargetNo == targetNo);
 
             if (targetAssignment == null)
-                throw new InvalidOperationException($"TargetAssignment not found for FixtureId={fixtureId}, RoundNo={currentRoundNo}, TargetNo={targetNo}");
+                throw new NotFoundException($"TargetAssignment not found for FixtureId={fixtureId}, RoundNo={currentRoundNo}, TargetNo={targetNo}", "TARGET_NOT_FOUND");
 
             targetAssignment.SetConfirmedScore(currentSetNo, score);
 
@@ -540,7 +541,7 @@ namespace Fawkes.Store
             var target = await context.TargetAssignments.FirstOrDefaultAsync(_ => _.Fixture.Id == fixtureId && _.RoundNo == roundNo && _.TargetNo == targetNo);
 
             if (target == null)
-                throw new KeyNotFoundException();
+                throw new NotFoundException($"Target {targetNo} in round {roundNo} of fixture {fixtureId} not found.", "TARGET_NOT_FOUND");
 
             target.SetConfirmedScore(setNo, score);
 

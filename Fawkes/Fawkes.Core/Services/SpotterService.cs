@@ -1,4 +1,5 @@
-﻿using Fawkes.Core.Model;
+﻿using Fawkes.Core.Exceptions;
+using Fawkes.Core.Model;
 using Fawkes.Core.Rules;
 using Fawkes.Core.Abstractions;
 
@@ -49,13 +50,13 @@ namespace Fawkes.Core.Services
         {
             var fixture = await dataStore.GetFixtureByUniqueIdAsync(fixtureUniqueId);
             if (fixture == null)
-                throw new KeyNotFoundException($"Fixture with UniqueId {fixtureUniqueId} not found.");
+                throw new NotFoundException($"Fixture with UniqueId {fixtureUniqueId} not found.", "FIXTURE_NOT_FOUND");
             if (fixture.CurrentRoundNo == 0)
-                throw new InvalidOperationException($"Fixture with UniqueId {fixtureUniqueId} has not started any rounds yet.");
+                throw new ConflictException($"Fixture with UniqueId {fixtureUniqueId} has not started any rounds yet.", "ROUND_NOT_STARTED");
 
             var targetData = await dataStore.GetTargetDataAsync(fixture.Id, fixture.CurrentRoundNo, targetNo);
             if (targetData == null)
-                throw new KeyNotFoundException($"Target assignment for TargetNo {targetNo} in Fixture {fixtureUniqueId} and round number {fixture.CurrentRoundNo} not found.");
+                throw new NotFoundException($"Target assignment for TargetNo {targetNo} in Fixture {fixtureUniqueId} and round number {fixture.CurrentRoundNo} not found.", "TARGET_NOT_FOUND");
 
             var ruleSet = ruleSetFactory.GetScoringRuleSet(fixture.RuleSetKey);
 
@@ -79,13 +80,13 @@ namespace Fawkes.Core.Services
         {
             var fixture = await dataStore.GetFixtureByUniqueIdAsync(fixtureUniqueId);
             if (fixture == null)
-                throw new KeyNotFoundException($"Fixture with UniqueId {fixtureUniqueId} not found.");
+                throw new NotFoundException($"Fixture with UniqueId {fixtureUniqueId} not found.", "FIXTURE_NOT_FOUND");
             if (fixture.CurrentRoundNo == 0)
-                throw new InvalidOperationException($"Fixture with UniqueId {fixtureUniqueId} has not started any rounds yet.");
+                throw new ConflictException($"Fixture with UniqueId {fixtureUniqueId} has not started any rounds yet.", "ROUND_NOT_STARTED");
 
             var targetData = await dataStore.GetTargetDataAsync(fixture.Id, fixture.CurrentRoundNo, targetNo);
             if (targetData == null)
-                throw new KeyNotFoundException($"Target assignment for TargetNo {targetNo} in Fixture {fixtureUniqueId} and round number {fixture.CurrentRoundNo} not found.");
+                throw new NotFoundException($"Target assignment for TargetNo {targetNo} in Fixture {fixtureUniqueId} and round number {fixture.CurrentRoundNo} not found.", "TARGET_NOT_FOUND");
 
             var ruleSet = ruleSetFactory.GetScoringRuleSet(fixture.RuleSetKey);
 
@@ -93,7 +94,7 @@ namespace Fawkes.Core.Services
             var setNo = GetCurrentSetNo(targetData, scoresheet);
 
             if (scoresheet[setNo].IsConfirmed)
-                throw new InvalidOperationException($"All sets for TargetNo {targetNo} in Fixture {fixtureUniqueId} and round number {fixture.CurrentRoundNo} have already been confirmed.");
+                throw new ConflictException($"All sets for TargetNo {targetNo} in Fixture {fixtureUniqueId} and round number {fixture.CurrentRoundNo} have already been confirmed.", "ALL_SETS_CONFIRMED");
 
             scoresheet[setNo].Shots = shots;
             scoresheet[setNo].Score = ruleSet.EvaluateScore(shots);
@@ -120,13 +121,13 @@ namespace Fawkes.Core.Services
         {
             var fixture = await dataStore.GetFixtureByUniqueIdAsync(fixtureUniqueId);
             if (fixture == null)
-                throw new KeyNotFoundException($"Fixture with UniqueId {fixtureUniqueId} not found.");
+                throw new NotFoundException($"Fixture with UniqueId {fixtureUniqueId} not found.", "FIXTURE_NOT_FOUND");
             if (fixture.CurrentRoundNo == 0)
-                throw new InvalidOperationException($"Fixture with UniqueId {fixtureUniqueId} has not started any rounds yet.");
+                throw new ConflictException($"Fixture with UniqueId {fixtureUniqueId} has not started any rounds yet.", "ROUND_NOT_STARTED");
 
             var targetData = await dataStore.GetTargetDataAsync(fixture.Id, fixture.CurrentRoundNo, targetNo);
             if (targetData == null)
-                throw new KeyNotFoundException($"Target assignment for TargetNo {targetNo} in Fixture {fixtureUniqueId} and round number {fixture.CurrentRoundNo} not found.");
+                throw new NotFoundException($"Target assignment for TargetNo {targetNo} in Fixture {fixtureUniqueId} and round number {fixture.CurrentRoundNo} not found.", "TARGET_NOT_FOUND");
 
             var ruleSet = ruleSetFactory.GetScoringRuleSet(fixture.RuleSetKey);
 
@@ -134,10 +135,10 @@ namespace Fawkes.Core.Services
             var setNo = GetCurrentSetNo(targetData, scoresheet);
 
             if (scoresheet[setNo].Score == null)
-                throw new InvalidOperationException($"Cannot confirm score for TargetNo {targetNo} in Fixture {fixtureUniqueId} and round number {fixture.CurrentRoundNo} because the score is not yet complete.");
+                throw new ConflictException($"Cannot confirm score for TargetNo {targetNo} in Fixture {fixtureUniqueId} and round number {fixture.CurrentRoundNo} because the score is not yet complete.", "SET_INCOMPLETE");
 
             if (scoresheet[setNo].IsConfirmed)
-                throw new InvalidOperationException($"Score for TargetNo {targetNo} in Fixture {fixtureUniqueId} and round number {fixture.CurrentRoundNo} has already been confirmed.");
+                throw new ConflictException($"Score for TargetNo {targetNo} in Fixture {fixtureUniqueId} and round number {fixture.CurrentRoundNo} has already been confirmed.", "SET_ALREADY_CONFIRMED");
 
 
 

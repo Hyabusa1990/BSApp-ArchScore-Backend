@@ -36,25 +36,10 @@ namespace Fawkes.Api.Controllers
             }
 
 
-            try
-            {
 
-                var fixture = await fixtureService.GetFixtureAsync(id, User.Identity.Name);
+            var fixture = await fixtureService.GetFixtureAsync(id, User.Identity.Name);
 
-                if (fixture == null)
-                {
-                    return NotFound();
-                }
-                return ConvertToRepsonse(fixture);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Unauthorized();
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+            return ConvertToRepsonse(fixture);
 
         }
 
@@ -106,7 +91,7 @@ namespace Fawkes.Api.Controllers
 
             var fixture = await fixtureService.CreateFixtureAsync(request.Date, request.Location, request.LeagueName, request.FixtureName, User.Identity.Name);
 
-            return ConvertToRepsonse(fixture);
+            return Created($"/fixtures/{fixture.Id}", ConvertToRepsonse(fixture));
         }
 
         /// <summary>
@@ -124,19 +109,8 @@ namespace Fawkes.Api.Controllers
                 return Unauthorized();
             }
 
-            try
-            {
-                var fixture = await fixtureService.UpdateFixtureAsync(id, request.Date, request.Location, request.LeagueName, request.FixtureName, User.Identity.Name);
-                return ConvertToRepsonse(fixture);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Unauthorized();
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+            var fixture = await fixtureService.UpdateFixtureAsync(id, request.Date, request.Location, request.LeagueName, request.FixtureName, User.Identity.Name);
+            return ConvertToRepsonse(fixture);
 
         }
 
@@ -154,19 +128,8 @@ namespace Fawkes.Api.Controllers
                 return Unauthorized();
             }
 
-            try
-            {
-                await fixtureService.DeleteFixtureAsync(id, User?.Identity?.Name ?? string.Empty);
-                return NoContent();
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Unauthorized();
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+            await fixtureService.DeleteFixtureAsync(id, User?.Identity?.Name ?? string.Empty);
+            return NoContent();
         }
 
 
@@ -178,23 +141,12 @@ namespace Fawkes.Api.Controllers
                 return Unauthorized();
             }
 
-            try
+            var users = await fixtureService.GetUsersForFixtureAsync(id, User.Identity.Name);
+            return users.Select(u => new GetUserResponse
             {
-                var users = await fixtureService.GetUsersForFixtureAsync(id, User.Identity.Name);
-                return users.Select(u => new GetUserResponse
-                {
-                    UserName = u.UserName,
-                    IsOwner = u.AccessLevel == AccessLevel.Owner
-                }).ToList();
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Unauthorized();
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+                UserName = u.UserName,
+                IsOwner = u.AccessLevel == AccessLevel.Owner
+            }).ToList();
         }
 
         [HttpPost("{id}/users/add")]
@@ -205,19 +157,8 @@ namespace Fawkes.Api.Controllers
                 return Unauthorized();
             }
 
-            try
-            {
-                await fixtureService.AddUserToFixtureAsync(id, request.UserName, User.Identity.Name);
-                return NoContent();
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Unauthorized();
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+            await fixtureService.AddUserToFixtureAsync(id, request.UserName, User.Identity.Name);
+            return NoContent();
         }
 
         [HttpDelete("{id}/users/{userName}")]
@@ -228,23 +169,8 @@ namespace Fawkes.Api.Controllers
                 return Unauthorized();
             }
 
-            try
-            {
-                await fixtureService.RemoveUserFromFixtureAsync(id, userName, User.Identity.Name);
-                return NoContent();
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Unauthorized();
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+            await fixtureService.RemoveUserFromFixtureAsync(id, userName, User.Identity.Name);
+            return NoContent();
         }
 
         

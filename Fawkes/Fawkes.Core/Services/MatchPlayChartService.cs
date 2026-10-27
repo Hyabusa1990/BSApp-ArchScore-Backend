@@ -1,4 +1,5 @@
-﻿using Fawkes.Core.Model;
+﻿using Fawkes.Core.Exceptions;
+using Fawkes.Core.Model;
 using Fawkes.Core.Abstractions;
 
 namespace Fawkes.Core.Services
@@ -29,21 +30,13 @@ namespace Fawkes.Core.Services
 
         public async Task CreateMatchPlayChartAsync(int fixtureId, Team[] teams, int[][]? targetAssignments, bool hardOverride, string userName)
         {
-            if (!await fawkesDataStore.CheckWriteAccessToFixtureAsync(fixtureId, userName))
-            {
-                throw new UnauthorizedAccessException($"User {userName} does not have write access to fixture {fixtureId}.");
-            }
-
-            if (!await fawkesDataStore.FixtureExistsAsync(fixtureId))
-            {
-                throw new InvalidOperationException($"Fixture {fixtureId} does not exist.");
-            }
+            await fawkesDataStore.EnsureWriteAccessAsync(fixtureId, userName);
 
             if (await fawkesDataStore.MatchPlayChartExistsAsync(fixtureId))
             {
                 if (!hardOverride)
                 {
-                    throw new InvalidOperationException($"Match play chart already exists for fixture {fixtureId}. Use hardOverride to force creation.");
+                    throw new ConflictException($"Match play chart already exists for fixture {fixtureId}. Use hardOverride to force creation.", "MATCH_PLAY_CHART_EXISTS");
                 }
                 await fawkesDataStore.DeleteMatchPlayChartAsync(fixtureId);
             }
@@ -52,7 +45,7 @@ namespace Fawkes.Core.Services
 
             if (targetAssignments == null)
             {
-                throw new InvalidOperationException($"No default match play chart available for {teams.Length} teams.");
+                throw new InvalidRequestException($"No default match play chart available for {teams.Length} teams.", "NO_DEFAULT_MATCH_PLAY_CHART");
             }
 
             foreach(var team in teams)

@@ -19,7 +19,10 @@ namespace Fawkes.Core.Services
                 return null;
 
 
-            if (!device.FixtureId.HasValue)
+            var fixture = device.FixtureId.HasValue ? await dataStore.GetFixtureAsync(device.FixtureId.Value) : null;
+
+            // Devices whose fixture is gone show their code again, so they can be reassigned.
+            if (fixture == null)
             {
                 return new UnassignedDisplayData()
                 {
@@ -28,22 +31,26 @@ namespace Fawkes.Core.Services
                 };
             }
 
-            var fixture = await dataStore.GetFixtureAsync(device.FixtureId.Value);
-
-            if (fixture == null)
-                throw new KeyNotFoundException($"Fixture with ID {device.FixtureId.Value} not found.");
-
 
             if (device.DisplayType == DisplayType.None)
             {
                 return new NoDisplayData()
                 {
-
+                    Theme = device.DisplayTheme
                 };
             }
             else if (device.DisplayType == DisplayType.Match)
             {
-                var targets = await dataStore.GetTargetDataAsync(fixture.Id, fixture.CurrentRoundNo, (int?)(device.MatchNo ?? 1));
+                var targets = (await dataStore.GetTargetDataAsync(fixture.Id, fixture.CurrentRoundNo, (int?)(device.MatchNo ?? 1))).ToArray();
+
+                // No teams on these targets yet (match play chart missing or match number beyond the chart): show nothing instead of failing.
+                if (targets.Length == 0)
+                {
+                    return new NoDisplayData()
+                    {
+                        Theme = device.DisplayTheme
+                    };
+                }
 
                 
                 var scoringRules = ruleSetFactory.GetScoringRuleSet(fixture.RuleSetKey);

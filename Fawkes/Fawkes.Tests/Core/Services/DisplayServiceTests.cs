@@ -1,4 +1,5 @@
 using Fawkes.Core.Model;
+using Fawkes.Core.Exceptions;
 using Fawkes.Core.Rules;
 using Fawkes.Core.Abstractions;
 using NSubstitute;
@@ -55,11 +56,27 @@ namespace Fawkes.Core.Services
         }
 
         [Test]
-        public void MissingFixtureThrows()
+        public async Task DeviceOfDeletedFixtureShowsItsCodeAgain()
         {
             SetupDevice(DisplayType.Match);
 
-            Assert.ThrowsAsync<KeyNotFoundException>(() => displayService.GetDisplayDataAsync(DeviceCode));
+            var data = await displayService.GetDisplayDataAsync(DeviceCode);
+
+            Assert.That(data, Is.TypeOf<UnassignedDisplayData>());
+            Assert.That(((UnassignedDisplayData)data!).DeviceCode, Is.EqualTo(DeviceCode));
+        }
+
+        [Test]
+        public async Task MatchDisplayWithoutTargetsShowsNothing()
+        {
+            SetupDevice(DisplayType.Match);
+            SetupFixture();
+            dataStore.GetTargetDataAsync(3, (int?)1, (int?)1).Returns(Array.Empty<TargetData>());
+
+            var data = await displayService.GetDisplayDataAsync(DeviceCode);
+
+            Assert.That(data, Is.TypeOf<NoDisplayData>());
+            Assert.That(data!.Theme, Is.EqualTo(DisplayTheme.Light));
         }
 
         [Test]

@@ -1,4 +1,5 @@
 using Fawkes.Core.Model;
+using Fawkes.Core.Exceptions;
 using Fawkes.Core.Rules;
 using Fawkes.Core.Abstractions;
 using NSubstitute;
@@ -19,6 +20,7 @@ namespace Fawkes.Core.Services
         public void Setup()
         {
             dataStore = Substitute.For<IFawkesDataStore>();
+            dataStore.FixtureExistsAsync(Arg.Any<int>()).Returns(true);
             fixtureService = new FixtureService(dataStore, new RuleSetFactory());
         }
 
@@ -40,7 +42,7 @@ namespace Fawkes.Core.Services
         [Test]
         public void GetFixtureRequiresReadAccess()
         {
-            Assert.ThrowsAsync<UnauthorizedAccessException>(() => fixtureService.GetFixtureAsync(FixtureId, Other));
+            Assert.ThrowsAsync<AccessDeniedException>(() => fixtureService.GetFixtureAsync(FixtureId, Other));
         }
 
         [Test]
@@ -54,9 +56,26 @@ namespace Fawkes.Core.Services
         }
 
         [Test]
+        public void GetFixtureFailsWhenFixtureDisappeared()
+        {
+            dataStore.CheckReadAccessToFixtureAsync(FixtureId, Owner).Returns(true);
+
+            Assert.ThrowsAsync<NotFoundException>(() => fixtureService.GetFixtureAsync(FixtureId, Owner));
+        }
+
+        [Test]
+        public async Task SetPhaseRejectsNegativeRoundNo()
+        {
+            dataStore.CheckWriteAccessToFixtureAsync(FixtureId, Owner).Returns(true);
+
+            Assert.ThrowsAsync<InvalidRequestException>(() => fixtureService.SetPhaseAsync(FixtureId, -1, Owner));
+            await dataStore.DidNotReceiveWithAnyArgs().UpdateFixtureAsync(default);
+        }
+
+        [Test]
         public void UpdateFixtureRequiresWriteAccess()
         {
-            Assert.ThrowsAsync<UnauthorizedAccessException>(() => fixtureService.UpdateFixtureAsync(FixtureId, DateTime.UtcNow, "Kassel", "Hessenliga", "1. Wettkampftag", Other));
+            Assert.ThrowsAsync<AccessDeniedException>(() => fixtureService.UpdateFixtureAsync(FixtureId, DateTime.UtcNow, "Kassel", "Hessenliga", "1. Wettkampftag", Other));
         }
 
         [Test]
@@ -76,7 +95,7 @@ namespace Fawkes.Core.Services
         {
             dataStore.CheckWriteAccessToFixtureAsync(FixtureId, Other).Returns(true);
 
-            Assert.ThrowsAsync<UnauthorizedAccessException>(() => fixtureService.DeleteFixtureAsync(FixtureId, Other));
+            Assert.ThrowsAsync<AccessDeniedException>(() => fixtureService.DeleteFixtureAsync(FixtureId, Other));
         }
 
         [Test]
@@ -92,13 +111,13 @@ namespace Fawkes.Core.Services
         [Test]
         public void GetUsersRequiresReadAccess()
         {
-            Assert.ThrowsAsync<UnauthorizedAccessException>(() => fixtureService.GetUsersForFixtureAsync(FixtureId, Other));
+            Assert.ThrowsAsync<AccessDeniedException>(() => fixtureService.GetUsersForFixtureAsync(FixtureId, Other));
         }
 
         [Test]
         public void AddUserRequiresOwnerAccess()
         {
-            Assert.ThrowsAsync<UnauthorizedAccessException>(() => fixtureService.AddUserToFixtureAsync(FixtureId, Other, Other));
+            Assert.ThrowsAsync<AccessDeniedException>(() => fixtureService.AddUserToFixtureAsync(FixtureId, Other, Other));
         }
 
         [Test]
@@ -124,7 +143,7 @@ namespace Fawkes.Core.Services
         [Test]
         public void RemoveUserRequiresOwnerAccess()
         {
-            Assert.ThrowsAsync<UnauthorizedAccessException>(() => fixtureService.RemoveUserFromFixtureAsync(FixtureId, Owner, Other));
+            Assert.ThrowsAsync<AccessDeniedException>(() => fixtureService.RemoveUserFromFixtureAsync(FixtureId, Owner, Other));
         }
 
         [Test]
@@ -132,7 +151,7 @@ namespace Fawkes.Core.Services
         {
             dataStore.CheckOwnerAccessToFixtureAsync(FixtureId, Owner).Returns(true);
 
-            Assert.ThrowsAsync<InvalidOperationException>(() => fixtureService.RemoveUserFromFixtureAsync(FixtureId, Owner, Owner));
+            Assert.ThrowsAsync<ConflictException>(() => fixtureService.RemoveUserFromFixtureAsync(FixtureId, Owner, Owner));
         }
 
         [Test]
@@ -148,7 +167,7 @@ namespace Fawkes.Core.Services
         [Test]
         public void SetPhaseRequiresWriteAccess()
         {
-            Assert.ThrowsAsync<UnauthorizedAccessException>(() => fixtureService.SetPhaseAsync(FixtureId, 2, Other));
+            Assert.ThrowsAsync<AccessDeniedException>(() => fixtureService.SetPhaseAsync(FixtureId, 2, Other));
         }
 
         [Test]
@@ -185,7 +204,7 @@ namespace Fawkes.Core.Services
         {
             dataStore.CheckWriteAccessToFixtureAsync(FixtureId, Owner).Returns(true);
 
-            Assert.ThrowsAsync<KeyNotFoundException>(() => fixtureService.SetPhaseAsync(FixtureId, 2, Owner));
+            Assert.ThrowsAsync<NotFoundException>(() => fixtureService.SetPhaseAsync(FixtureId, 2, Owner));
         }
     }
 }

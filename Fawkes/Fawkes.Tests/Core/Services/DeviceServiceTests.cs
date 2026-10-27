@@ -1,4 +1,5 @@
 using Fawkes.Core.Model;
+using Fawkes.Core.Exceptions;
 using Fawkes.Core.Abstractions;
 using Fawkes.Core.Utils;
 using NSubstitute;
@@ -18,6 +19,7 @@ namespace Fawkes.Core.Services
         public void Setup()
         {
             dataStore = Substitute.For<IFawkesDataStore>();
+            dataStore.FixtureExistsAsync(Arg.Any<int>()).Returns(true);
             deviceService = new DeviceService(dataStore, new RandomService(42));
         }
 
@@ -37,7 +39,7 @@ namespace Fawkes.Core.Services
         [Test]
         public void GetDevicesForFixtureRequiresReadAccess()
         {
-            Assert.ThrowsAsync<UnauthorizedAccessException>(() => deviceService.GetDevicesForFixtureAsync(FixtureId, User));
+            Assert.ThrowsAsync<AccessDeniedException>(() => deviceService.GetDevicesForFixtureAsync(FixtureId, User));
         }
 
         [Test]
@@ -56,13 +58,13 @@ namespace Fawkes.Core.Services
             dataStore.CheckReadAccessToFixtureAsync(FixtureId, User).Returns(true);
             dataStore.GetDeviceByIdAsync(7).Returns(new Device() { Id = 7, Code = "777777", FixtureId = 99 });
 
-            Assert.ThrowsAsync<KeyNotFoundException>(() => deviceService.GetDeviceForFixtureAsync(FixtureId, 7, User));
+            Assert.ThrowsAsync<NotFoundException>(() => deviceService.GetDeviceForFixtureAsync(FixtureId, 7, User));
         }
 
         [Test]
         public void AssignDeviceRequiresWriteAccess()
         {
-            Assert.ThrowsAsync<UnauthorizedAccessException>(() => deviceService.AssignDeviceToFixtureAsync(FixtureId, "123456", User));
+            Assert.ThrowsAsync<AccessDeniedException>(() => deviceService.AssignDeviceToFixtureAsync(FixtureId, "123456", User));
         }
 
         [Test]
@@ -70,7 +72,7 @@ namespace Fawkes.Core.Services
         {
             dataStore.CheckWriteAccessToFixtureAsync(FixtureId, User).Returns(true);
 
-            Assert.ThrowsAsync<KeyNotFoundException>(() => deviceService.AssignDeviceToFixtureAsync(FixtureId, "123456", User));
+            Assert.ThrowsAsync<NotFoundException>(() => deviceService.AssignDeviceToFixtureAsync(FixtureId, "123456", User));
         }
 
         [Test]
@@ -79,7 +81,7 @@ namespace Fawkes.Core.Services
             dataStore.CheckWriteAccessToFixtureAsync(FixtureId, User).Returns(true);
             dataStore.GetDeviceByCodeAsync("123456").Returns(new Device() { Code = "123456", FixtureId = 99 });
 
-            Assert.ThrowsAsync<InvalidOperationException>(() => deviceService.AssignDeviceToFixtureAsync(FixtureId, "123456", User));
+            Assert.ThrowsAsync<ConflictException>(() => deviceService.AssignDeviceToFixtureAsync(FixtureId, "123456", User));
         }
 
         [Test]
@@ -101,7 +103,7 @@ namespace Fawkes.Core.Services
             dataStore.CheckWriteAccessToFixtureAsync(FixtureId, User).Returns(true);
             dataStore.GetDeviceByIdAsync(7).Returns(new Device() { Id = 7, Code = "777777", FixtureId = 99 });
 
-            Assert.ThrowsAsync<InvalidOperationException>(() => deviceService.RemoveDeviceFromFixtureAsync(FixtureId, 7, User));
+            Assert.ThrowsAsync<NotFoundException>(() => deviceService.RemoveDeviceFromFixtureAsync(FixtureId, 7, User));
         }
 
         [Test]

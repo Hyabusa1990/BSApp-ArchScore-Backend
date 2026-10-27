@@ -1,4 +1,5 @@
 using Fawkes.Core.Model;
+using Fawkes.Core.Exceptions;
 using Fawkes.Core.Abstractions;
 using NSubstitute;
 
@@ -35,15 +36,18 @@ namespace Fawkes.Core.Services
         [Test]
         public void CreateChartRequiresWriteAccess()
         {
-            Assert.ThrowsAsync<UnauthorizedAccessException>(() => chartService.CreateMatchPlayChartAsync(FixtureId, CreateTeams(8), null, false, User));
+            dataStore.FixtureExistsAsync(FixtureId).Returns(true);
+
+            Assert.ThrowsAsync<AccessDeniedException>(() => chartService.CreateMatchPlayChartAsync(FixtureId, CreateTeams(8), null, false, User));
         }
 
         [Test]
         public void CreateChartFailsForMissingFixture()
         {
-            dataStore.CheckWriteAccessToFixtureAsync(FixtureId, User).Returns(true);
+            // The data store reports no access for fixtures that do not exist.
+            dataStore.FixtureExistsAsync(FixtureId).Returns(false);
 
-            Assert.ThrowsAsync<InvalidOperationException>(() => chartService.CreateMatchPlayChartAsync(FixtureId, CreateTeams(8), null, false, User));
+            Assert.ThrowsAsync<NotFoundException>(() => chartService.CreateMatchPlayChartAsync(FixtureId, CreateTeams(8), null, false, User));
         }
 
         [Test]
@@ -52,7 +56,7 @@ namespace Fawkes.Core.Services
             SetupWritableFixture();
             dataStore.MatchPlayChartExistsAsync(FixtureId).Returns(true);
 
-            Assert.ThrowsAsync<InvalidOperationException>(() => chartService.CreateMatchPlayChartAsync(FixtureId, CreateTeams(8), null, false, User));
+            Assert.ThrowsAsync<ConflictException>(() => chartService.CreateMatchPlayChartAsync(FixtureId, CreateTeams(8), null, false, User));
             await dataStore.DidNotReceive().DeleteMatchPlayChartAsync(FixtureId);
         }
 
@@ -97,7 +101,7 @@ namespace Fawkes.Core.Services
         {
             SetupWritableFixture();
 
-            Assert.ThrowsAsync<InvalidOperationException>(() => chartService.CreateMatchPlayChartAsync(FixtureId, CreateTeams(5), null, false, User));
+            Assert.ThrowsAsync<InvalidRequestException>(() => chartService.CreateMatchPlayChartAsync(FixtureId, CreateTeams(5), null, false, User));
             await dataStore.DidNotReceiveWithAnyArgs().AddTeamToFixtureAsync(default, default!);
         }
 

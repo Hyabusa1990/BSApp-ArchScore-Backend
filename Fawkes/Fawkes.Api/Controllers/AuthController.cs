@@ -27,24 +27,37 @@ namespace Fawkes.Api.Controllers
             _tokenService = tokenService;
         }
 
+        // Same ProblemDetails shape as the central exception handler: status, title, detail and a machine-readable code.
+        private ObjectResult ErrorResult(int statusCode, string code, string detail)
+        {
+            var problemDetails = ProblemDetailsFactory.CreateProblemDetails(HttpContext, statusCode, detail: detail);
+            problemDetails.Extensions["code"] = code;
+
+            return new ObjectResult(problemDetails)
+            {
+                StatusCode = statusCode,
+                ContentTypes = { "application/problem+json" }
+            };
+        }
+
         [HttpPost("login")]
         public async Task<ActionResult<TokenResponse>> PostLoginAsync(LoginRequest loginRequest)
         {
             var user = await _userManager.FindByEmailAsync(loginRequest.Email);
             if (user == null)
             {
-                return Unauthorized(new { message = "Invalid email or password" });
+                return ErrorResult(StatusCodes.Status401Unauthorized, "INVALID_CREDENTIALS", "Invalid email or password");
             }
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, loginRequest.Password, lockoutOnFailure: false);
             if (!result.Succeeded)
             {
-                return Unauthorized(new { message = "Invalid email or password" });
+                return ErrorResult(StatusCodes.Status401Unauthorized, "INVALID_CREDENTIALS", "Invalid email or password");
             }
 
             if (!user.EmailConfirmed)
             {
-                return Unauthorized(new { message = "Email not confirmed" });
+                return ErrorResult(StatusCodes.Status403Forbidden, "EMAIL_NOT_CONFIRMED", "Email not confirmed");
             }
 
             var accessToken = _tokenService.GenerateAccessToken(user);
@@ -69,11 +82,7 @@ namespace Fawkes.Api.Controllers
             var existingUser = await _userManager.FindByEmailAsync(registerRequest.Email);
             if (existingUser != null)
             {
-                return BadRequest(new MessageResponse
-                {
-                    Code = "EMAIL_EXISTS",
-                    Message = "A user with this email already exists"
-                });
+                return ErrorResult(StatusCodes.Status409Conflict, "EMAIL_EXISTS", "A user with this email already exists");
             }
 
             var user = new IdentityUser
@@ -87,11 +96,7 @@ namespace Fawkes.Api.Controllers
             var result = await _userManager.CreateAsync(user, registerRequest.Password);
             if (!result.Succeeded)
             {
-                return BadRequest(new MessageResponse
-                {
-                    Code = "REGISTRATION_FAILED",
-                    Message = string.Join(", ", result.Errors.Select(e => e.Description))
-                });
+                return ErrorResult(StatusCodes.Status400BadRequest, "REGISTRATION_FAILED", string.Join(", ", result.Errors.Select(e => e.Description)));
             }
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -109,31 +114,19 @@ namespace Fawkes.Api.Controllers
             var email = Request.Query["email"].ToString();
             if (string.IsNullOrEmpty(email))
             {
-                return BadRequest(new MessageResponse
-                {
-                    Code = "INVALID_REQUEST",
-                    Message = "Email is required"
-                });
+                return ErrorResult(StatusCodes.Status400BadRequest, "INVALID_REQUEST", "Email is required");
             }
 
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
-                return NotFound(new MessageResponse
-                {
-                    Code = "USER_NOT_FOUND",
-                    Message = "User not found"
-                });
+                return ErrorResult(StatusCodes.Status404NotFound, "USER_NOT_FOUND", "User not found");
             }
 
             var result = await _userManager.ConfirmEmailAsync(user, token);
             if (!result.Succeeded)
             {
-                return BadRequest(new MessageResponse
-                {
-                    Code = "VERIFICATION_FAILED",
-                    Message = "Email verification failed"
-                });
+                return ErrorResult(StatusCodes.Status400BadRequest, "VERIFICATION_FAILED", "Email verification failed");
             }
 
             return Ok(new MessageResponse
@@ -149,13 +142,13 @@ namespace Fawkes.Api.Controllers
             var userId = await _tokenService.ValidateRefreshTokenAsync(refreshRequest.RefreshToken);
             if (userId == null)
             {
-                return Unauthorized(new { message = "Invalid refresh token" });
+                return ErrorResult(StatusCodes.Status401Unauthorized, "INVALID_REFRESH_TOKEN", "Invalid refresh token");
             }
 
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return Unauthorized(new { message = "User not found" });
+                return ErrorResult(StatusCodes.Status401Unauthorized, "INVALID_REFRESH_TOKEN", "The user of this refresh token no longer exists");
             }
 
             var accessToken = _tokenService.GenerateAccessToken(user);
@@ -223,31 +216,19 @@ namespace Fawkes.Api.Controllers
 
             if (string.IsNullOrEmpty(userId))
             {
-                return Unauthorized(new MessageResponse
-                {
-                    Code = "UNAUTHORIZED",
-                    Message = "User not authenticated"
-                });
+                return ErrorResult(StatusCodes.Status401Unauthorized, "UNAUTHORIZED", "User not authenticated");
             }
 
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return NotFound(new MessageResponse
-                {
-                    Code = "USER_NOT_FOUND",
-                    Message = "User not found"
-                });
+                return ErrorResult(StatusCodes.Status404NotFound, "USER_NOT_FOUND", "User not found");
             }
 
             var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
             if (!result.Succeeded)
             {
-                return BadRequest(new MessageResponse
-                {
-                    Code = "PASSWORD_CHANGE_FAILED",
-                    Message = string.Join(", ", result.Errors.Select(e => e.Description))
-                });
+                return ErrorResult(StatusCodes.Status400BadRequest, "PASSWORD_CHANGE_FAILED", string.Join(", ", result.Errors.Select(e => e.Description)));
             }
 
             return Ok(new MessageResponse

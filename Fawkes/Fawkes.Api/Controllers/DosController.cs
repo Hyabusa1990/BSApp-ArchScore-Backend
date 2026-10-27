@@ -27,12 +27,6 @@ namespace Fawkes.Api.Controllers
             }
 
             var fixture = await fixtureService.GetFixtureAsync(fixtureId, User.Identity.Name);
-
-            if (fixture == null)
-            {
-                return NotFound();
-            }
-
             return Ok(new GetPhaseResponse
             {
                 FixtureId = fixture.Id,
@@ -56,20 +50,9 @@ namespace Fawkes.Api.Controllers
                 return Unauthorized();
             }
 
-            try
-            {
-                await fixtureService.SetPhaseAsync(fixtureId, request.RoundNo, User.Identity.Name);
-            }
-            catch (InvalidOperationException)
-            {
-                return BadRequest("Invalid phase transition.");
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+            await fixtureService.SetPhaseAsync(fixtureId, request.RoundNo, User.Identity.Name);
 
-            return Ok();
+            return NoContent();
         }
 
 
@@ -113,24 +96,9 @@ namespace Fawkes.Api.Controllers
                 return Unauthorized();
             }
 
-            try
-            {
-                await dosService.SetConfirmedSetScore(fixtureId, roundNo, targetNo, setNo, request?.Score, User.Identity.Name);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Unauthorized();
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
-            catch (ArgumentOutOfRangeException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            await dosService.SetConfirmedSetScore(fixtureId, roundNo, targetNo, setNo, request?.Score, User.Identity.Name);
 
-            return Ok();
+            return NoContent();
 
         }
 

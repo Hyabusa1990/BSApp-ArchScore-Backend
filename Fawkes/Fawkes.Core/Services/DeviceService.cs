@@ -1,4 +1,5 @@
-﻿using Fawkes.Core.Model;
+﻿using Fawkes.Core.Exceptions;
+using Fawkes.Core.Model;
 using Fawkes.Core.Abstractions;
 using Fawkes.Core.Utils;
 
@@ -50,44 +51,35 @@ namespace Fawkes.Core.Services
 
         public async Task<IEnumerable<Device>> GetDevicesForFixtureAsync(int fixtureId, string userName)
         {
-            if (!await fawkesDataStore.CheckReadAccessToFixtureAsync(fixtureId, userName))
-            {
-                throw new UnauthorizedAccessException($"User '{userName}' does not have read access to fixture '{fixtureId}'.");
-            }
+            await fawkesDataStore.EnsureReadAccessAsync(fixtureId, userName);
             return await fawkesDataStore.GetDevicesForFixtureAsync(fixtureId);
         }
 
         public async Task<Device> GetDeviceForFixtureAsync(int fixtureId, int deviceId, string userName)
         {
-            if (!await fawkesDataStore.CheckReadAccessToFixtureAsync(fixtureId, userName))
-            {
-                throw new UnauthorizedAccessException($"User '{userName}' does not have read access to fixture '{fixtureId}'.");
-            }
+            await fawkesDataStore.EnsureReadAccessAsync(fixtureId, userName);
             var device = await fawkesDataStore.GetDeviceByIdAsync(deviceId);
             if (device == null || device.FixtureId != fixtureId)
             {
-                throw new KeyNotFoundException($"Device with ID '{deviceId}' not found for fixture '{fixtureId}'.");
+                throw new NotFoundException($"Device with ID '{deviceId}' not found for fixture '{fixtureId}'.");
             }
             return device;
         }
 
         public async Task<Device> AssignDeviceToFixtureAsync(int fixtureId, string deviceCode, string userName)
         {
-            if (!await fawkesDataStore.CheckWriteAccessToFixtureAsync(fixtureId, userName))
-            {
-                throw new UnauthorizedAccessException($"User '{userName}' does not have write access to fixture '{fixtureId}'.");
-            }
+            await fawkesDataStore.EnsureWriteAccessAsync(fixtureId, userName);
 
             var device = await fawkesDataStore.GetDeviceByCodeAsync(deviceCode);
 
             if (device == null)
             {
-                throw new KeyNotFoundException($"Device with code '{deviceCode}' not found.");
+                throw new NotFoundException($"Device with code '{deviceCode}' not found.");
             }
 
             if (device.FixtureId != null && device.FixtureId.Value != fixtureId)
             {
-                throw new InvalidOperationException($"Device with code '{deviceCode}' is already assigned to fixture '{device.FixtureId}'.");
+                throw new ConflictException($"Device with code '{deviceCode}' is already assigned to fixture '{device.FixtureId}'.", "DEVICE_ASSIGNED_ELSEWHERE");
             }
 
             device.FixtureId = fixtureId;
@@ -99,21 +91,18 @@ namespace Fawkes.Core.Services
 
         public async Task RemoveDeviceFromFixtureAsync(int fixtureId, int deviceId, string userName)
         {
-            if (!await fawkesDataStore.CheckWriteAccessToFixtureAsync(fixtureId, userName))
-            {
-                throw new UnauthorizedAccessException($"User '{userName}' does not have write access to fixture '{fixtureId}'.");
-            }
+            await fawkesDataStore.EnsureWriteAccessAsync(fixtureId, userName);
 
             var device = await fawkesDataStore.GetDeviceByIdAsync(deviceId);
 
             if (device == null)
             {
-                throw new KeyNotFoundException($"Device with ID '{deviceId}' not found.");
+                throw new NotFoundException($"Device with ID '{deviceId}' not found.");
             }
 
             if (device.FixtureId != fixtureId)
             {
-                throw new InvalidOperationException($"Device with ID '{deviceId}' is not assigned to fixture '{fixtureId}'.");
+                throw new NotFoundException($"Device with ID '{deviceId}' is not assigned to fixture '{fixtureId}'.");
             }
 
             device.FixtureId = null;
@@ -123,21 +112,18 @@ namespace Fawkes.Core.Services
 
         public async Task<Device> UpdateDeviceAsync(int fixtureId, int deviceId, string userName, DisplayType displayType, DisplayTheme displayTheme, int? matchNo)
         {
-            if (!await fawkesDataStore.CheckWriteAccessToFixtureAsync(fixtureId, userName))
-            {
-                throw new UnauthorizedAccessException($"User '{userName}' does not have write access to fixture '{fixtureId}'.");
-            }
+            await fawkesDataStore.EnsureWriteAccessAsync(fixtureId, userName);
 
             var device = await fawkesDataStore.GetDeviceByIdAsync(deviceId);
 
             if (device == null)
             {
-                throw new KeyNotFoundException($"Device with ID '{deviceId}' not found.");
+                throw new NotFoundException($"Device with ID '{deviceId}' not found.");
             }
 
             if (device.FixtureId != fixtureId)
             {
-                throw new InvalidOperationException($"Device with ID '{deviceId}' is not assigned to fixture '{fixtureId}'.");
+                throw new NotFoundException($"Device with ID '{deviceId}' is not assigned to fixture '{fixtureId}'.");
             }
 
             device.DisplayType = displayType;

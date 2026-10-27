@@ -1,4 +1,5 @@
 using Fawkes.Core.Model;
+using Fawkes.Core.Exceptions;
 using Fawkes.Core.Rules;
 using Fawkes.Core.Abstractions;
 using NSubstitute;
@@ -18,13 +19,14 @@ namespace Fawkes.Core.Services
         public void Setup()
         {
             dataStore = Substitute.For<IFawkesDataStore>();
+            dataStore.FixtureExistsAsync(Arg.Any<int>()).Returns(true);
             dosService = new DosService(dataStore, new RuleSetFactory());
         }
 
         [Test]
         public void GetRoundMatchesRequiresReadAccess()
         {
-            Assert.ThrowsAsync<UnauthorizedAccessException>(() => dosService.GetRoundMatchesAsync(FixtureId, 1, User));
+            Assert.ThrowsAsync<AccessDeniedException>(() => dosService.GetRoundMatchesAsync(FixtureId, 1, User));
         }
 
         [Test]
@@ -32,7 +34,7 @@ namespace Fawkes.Core.Services
         {
             dataStore.CheckReadAccessToFixtureAsync(FixtureId, User).Returns(true);
 
-            Assert.ThrowsAsync<KeyNotFoundException>(() => dosService.GetRoundMatchesAsync(FixtureId, 1, User));
+            Assert.ThrowsAsync<NotFoundException>(() => dosService.GetRoundMatchesAsync(FixtureId, 1, User));
         }
 
         [Test]
@@ -56,7 +58,7 @@ namespace Fawkes.Core.Services
         {
             dataStore.CheckReadAccessToFixtureAsync(FixtureId, User).Returns(true);
 
-            Assert.ThrowsAsync<UnauthorizedAccessException>(() => dosService.SetConfirmedSetScore(FixtureId, 1, 2, 3, 54, User));
+            Assert.ThrowsAsync<AccessDeniedException>(() => dosService.SetConfirmedSetScore(FixtureId, 1, 2, 3, 54, User));
             await dataStore.DidNotReceiveWithAnyArgs().SaveSetScoreAsync(default, default, default, default, default);
         }
 

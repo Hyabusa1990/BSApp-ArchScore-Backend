@@ -1,4 +1,5 @@
-﻿using Fawkes.Core.Model;
+﻿using Fawkes.Core.Exceptions;
+using Fawkes.Core.Model;
 using Fawkes.Core.Rules;
 using Fawkes.Core.Abstractions;
 
@@ -8,7 +9,7 @@ namespace Fawkes.Core.Services
     {
         Task<Fixture> CreateFixtureAsync(DateTime date, string location, string leagueName, string fixtureName, string userName);
         Task DeleteFixtureAsync(int id, string userName);
-        Task<Fixture?> GetFixtureAsync(int id, string userName);
+        Task<Fixture> GetFixtureAsync(int id, string userName);
         Task<IEnumerable<Fixture>> GetFixturesForUserAsync(string userName);
         Task<Fixture> UpdateFixtureAsync(int id, DateTime date, string location, string leagueName, string fixtureName, string userName);
         Task<IEnumerable<FixtureUser>> GetUsersForFixtureAsync(int fixtureId, string userName);
@@ -29,13 +30,12 @@ namespace Fawkes.Core.Services
         };
 
 
-        public async Task<Fixture?> GetFixtureAsync(int id, string user)
+        public async Task<Fixture> GetFixtureAsync(int id, string user)
         {
-            if (await dataStore.CheckReadAccessToFixtureAsync(id, user))
-            {
-                return await dataStore.GetFixtureAsync(id);
-            }
-            throw new UnauthorizedAccessException();
+            await dataStore.EnsureReadAccessAsync(id, user);
+
+            return await dataStore.GetFixtureAsync(id)
+                ?? throw new NotFoundException($"Fixture {id} not found.", "FIXTURE_NOT_FOUND");
         }
         public async Task<Fixture> CreateFixtureAsync(DateTime date, string location, string leagueName, string fixtureName, string userName)
         {
@@ -54,71 +54,57 @@ namespace Fawkes.Core.Services
 
         public async Task<Fixture> UpdateFixtureAsync(int id, DateTime date, string location, string leagueName, string fixtureName, string userName)
         {
-            if (await dataStore.CheckWriteAccessToFixtureAsync(id, userName))
-            {
-                return await dataStore.UpdateFixtureAsync(id, ToUtc(date), location, leagueName, fixtureName);
-            }
-            throw new UnauthorizedAccessException();
+            await dataStore.EnsureWriteAccessAsync(id, userName);
+
+            return await dataStore.UpdateFixtureAsync(id, ToUtc(date), location, leagueName, fixtureName);
         }
 
         public async Task DeleteFixtureAsync(int id, string userName)
         {
-            if (await dataStore.CheckOwnerAccessToFixtureAsync(id, userName))
-            {
-                await dataStore.DeleteFixtureAsync(id);
-                return;
-            }
-            throw new UnauthorizedAccessException();
+            await dataStore.EnsureOwnerAccessAsync(id, userName);
+
+            await dataStore.DeleteFixtureAsync(id);
         }
 
         public async Task<IEnumerable<FixtureUser>> GetUsersForFixtureAsync(int fixtureId, string userName)
         {
-            if (await dataStore.CheckReadAccessToFixtureAsync(fixtureId, userName))
-            {
-                return await dataStore.GetUsersForFixtureAsync(fixtureId);
-            }
-            throw new UnauthorizedAccessException();
+            await dataStore.EnsureReadAccessAsync(fixtureId, userName);
 
+            return await dataStore.GetUsersForFixtureAsync(fixtureId);
         }
 
         public async Task AddUserToFixtureAsync(int id, string requestedUserName, string requestingUserName)
         {
-            if (await dataStore.CheckOwnerAccessToFixtureAsync(id, requestingUserName))
-            {
-                // Owner nicht auf Write herabstufen (sonst hat die Veranstaltung keinen Owner mehr).
-                if (await dataStore.CheckOwnerAccessToFixtureAsync(id, requestedUserName))
-                    return;
+            await dataStore.EnsureOwnerAccessAsync(id, requestingUserName);
 
-                await dataStore.GrantFixtureAccessAsync(id, requestedUserName, AccessLevel.Write);
+            // Owner nicht auf Write herabstufen (sonst hat die Veranstaltung keinen Owner mehr).
+            if (await dataStore.CheckOwnerAccessToFixtureAsync(id, requestedUserName))
                 return;
-            }
-            throw new UnauthorizedAccessException();
+
+            await dataStore.GrantFixtureAccessAsync(id, requestedUserName, AccessLevel.Write);
         }
 
         public async Task RemoveUserFromFixtureAsync(int id, string requestedUserName, string requestingUserName)
         {
-            if (await dataStore.CheckOwnerAccessToFixtureAsync(id, requestingUserName))
-            {
-                if (requestedUserName == requestingUserName)
-                {
-                    throw new InvalidOperationException("Owners cannot remove themselves from a fixture.");
-                }
+            await dataStore.EnsureOwnerAccessAsync(id, requestingUserName);
 
-                await dataStore.GrantFixtureAccessAsync(id, requestedUserName, AccessLevel.None);
-                return;
+            if (requestedUserName == requestingUserName)
+            {
+                throw new ConflictException("Owners cannot remove themselves from a fixture.", "OWNER_CANNOT_REMOVE_SELF");
             }
-            throw new UnauthorizedAccessException();
+
+            await dataStore.GrantFixtureAccessAsync(id, requestedUserName, AccessLevel.None);
         }
 
         public async Task SetPhaseAsync(int fixtureId, int roundNo, string userName)
         {
-            if (await dataStore.CheckWriteAccessToFixtureAsync(fixtureId, userName))
-            {
-                await dataStore.UpdateFixtureAsync(fixtureId, roundNo: roundNo);
-                await UpdateLeagueTableAsync(fixtureId);
-                return;
-            }
-            throw new UnauthorizedAccessException();
+            if (roundNo < 0)
+                throw new InvalidRequestException($"Round number must not be negative (was {roundNo}).", "INVALID_ROUND_NO");
+
+            await dataStore.EnsureWriteAccessAsync(fixtureId, userName);
+
+            await dataStore.UpdateFixtureAsync(fixtureId, roundNo: roundNo);
+            await UpdateLeagueTableAsync(fixtureId);
         }
 
         private async Task UpdateLeagueTableAsync(int fixtureId)
@@ -126,7 +112,7 @@ namespace Fawkes.Core.Services
             var fixture = await dataStore.GetFixtureAsync(fixtureId);
             if (fixture == null)
             {
-                throw new KeyNotFoundException($"Fixture {fixtureId} does not exist.");
+                throw new NotFoundException($"Fixture {fixtureId} not found.", "FIXTURE_NOT_FOUND");
             }
 
             var scoringRuleSet = ruleSetFactory.GetScoringRuleSet(fixture.RuleSetKey);

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Fawkes.Core.Exceptions;
+using Microsoft.EntityFrameworkCore;
 using System.Net.NetworkInformation;
 using System.Reflection;
 
@@ -136,7 +137,7 @@ namespace Fawkes.Store
             public void SetConfirmedScore(int setNo, int? score)
             {
                 if (setNo < 1 || setNo > setScoreProps.Length)
-                    throw new ArgumentOutOfRangeException(nameof(setNo), $"Set number must be between 1 and {setScoreProps.Length}.");
+                    throw new InvalidRequestException($"Set number must be between 1 and {setScoreProps.Length}.", "INVALID_SET_NO");
 
                 setScoreProps[setNo-1].SetValue(this, score);
             }

@@ -1,4 +1,5 @@
-﻿using Fawkes.Core.Model;
+﻿using Fawkes.Core.Exceptions;
+using Fawkes.Core.Model;
 using Fawkes.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,19 +28,8 @@ namespace Fawkes.Api.Controllers
                 return Unauthorized();
             }
 
-            try
-            {
-                var devices = await deviceService.GetDevicesForFixtureAsync(fixtureId, User.Identity.Name);
-                return Ok(devices);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Unauthorized();
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+            var devices = await deviceService.GetDevicesForFixtureAsync(fixtureId, User.Identity.Name);
+            return Ok(devices);
         }
 
         /// <summary>
@@ -57,19 +47,8 @@ namespace Fawkes.Api.Controllers
                 return Unauthorized();
             }
 
-            try
-            {
-                var device = await deviceService.GetDeviceForFixtureAsync(fixtureId, deviceId, User.Identity.Name);
-                return ConvertDevice(device);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Unauthorized();
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+            var device = await deviceService.GetDeviceForFixtureAsync(fixtureId, deviceId, User.Identity.Name);
+            return ConvertDevice(device);
         }
 
         private GetDeviceResponse ConvertDevice(Device device)
@@ -122,22 +101,8 @@ namespace Fawkes.Api.Controllers
                 return Unauthorized();
             }
 
-            try
-            {
-                var result = await deviceService.AssignDeviceToFixtureAsync(fixtureId, request.DeviceCode, User.Identity.Name);
-                return ConvertDevice(result);
-            }
-            catch (UnauthorizedAccessException) {
-                return Unauthorized();
-            }
-            catch(KeyNotFoundException)
-            { 
-                return NotFound();
-            }
-            catch(InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }   
+            var result = await deviceService.AssignDeviceToFixtureAsync(fixtureId, request.DeviceCode, User.Identity.Name);
+            return ConvertDevice(result);   
 
 
         }
@@ -158,23 +123,8 @@ namespace Fawkes.Api.Controllers
                 return Unauthorized();
             }
 
-            try
-            {
-                await deviceService.RemoveDeviceFromFixtureAsync(fixtureId, deviceId, User.Identity.Name);
-                return Ok();
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Unauthorized();
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await deviceService.RemoveDeviceFromFixtureAsync(fixtureId, deviceId, User.Identity.Name);
+            return NoContent();
         }
 
 
@@ -193,23 +143,8 @@ namespace Fawkes.Api.Controllers
             {
                 return Unauthorized();
             }
-            try
-            {
-                var updatedDevice = await deviceService.UpdateDeviceAsync(fixtureId, deviceId, User.Identity.Name, ConvertDisplayType(request.DisplayType), ConvertDisplayTheme(request.DisplayTheme), request.MatchNo);
-                return ConvertDevice(updatedDevice);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Unauthorized();
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var updatedDevice = await deviceService.UpdateDeviceAsync(fixtureId, deviceId, User.Identity.Name, ConvertDisplayType(request.DisplayType), ConvertDisplayTheme(request.DisplayTheme), request.MatchNo);
+            return ConvertDevice(updatedDevice);
         }
 
         private Core.Model.DisplayTheme ConvertDisplayTheme(DisplayTheme displayTheme)
@@ -221,7 +156,7 @@ namespace Fawkes.Api.Controllers
                 case DisplayTheme.Dark:
                     return Core.Model.DisplayTheme.Dark;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(displayTheme), displayTheme, null);
+                    throw new InvalidRequestException($"Unknown display theme '{displayTheme}'.", "INVALID_DISPLAY_THEME");
             }
         }
 
@@ -236,7 +171,7 @@ namespace Fawkes.Api.Controllers
                 case DisplayType.LeagueTable:
                     return Core.Model.DisplayType.Table;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(displayType), displayType, null);
+                    throw new InvalidRequestException($"Unknown display type '{displayType}'.", "INVALID_DISPLAY_TYPE");
             }   
         }
 

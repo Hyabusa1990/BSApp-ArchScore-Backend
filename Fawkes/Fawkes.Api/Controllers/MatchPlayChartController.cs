@@ -27,33 +27,18 @@ namespace Fawkes.Api.Controllers
                 return Unauthorized();
             }
 
-            try
+            var teams = request.Teams.Select(t => new Core.Model.Team
             {
-                var teams = request.Teams.Select(t => new Core.Model.Team
-                {
-                    Name = t.Name,
-                    InitialRank = t.Rank,
-                    SetPointsWon = t.SetPointsWon,
-                    SetPointsLost = t.SetPointsLost,
-                    MatchPointsWon = t.MatchPointsWon,
-                    MatchPointsLost = t.MatchPointsLost
-                }).ToArray();
+                Name = t.Name,
+                InitialRank = t.Rank,
+                SetPointsWon = t.SetPointsWon,
+                SetPointsLost = t.SetPointsLost,
+                MatchPointsWon = t.MatchPointsWon,
+                MatchPointsLost = t.MatchPointsLost
+            }).ToArray();
 
-                await matchPlayChartService.CreateMatchPlayChartAsync(fixtureId, teams, request.TargetAssignments, request.HardOverride ?? false, User.Identity.Name);
-                return Ok();
-            }
-            catch(UnauthorizedAccessException)
-            {
-                return Forbid();
-            }
-            catch(KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            await matchPlayChartService.CreateMatchPlayChartAsync(fixtureId, teams, request.TargetAssignments, request.HardOverride ?? false, User.Identity.Name);
+            return Created();
         }
 
 

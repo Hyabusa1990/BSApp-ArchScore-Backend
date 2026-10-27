@@ -18,30 +18,19 @@ namespace Fawkes.Api.Controllers
         public async Task<ActionResult<GetSpotterTargetInfo>> GetSpotterTargetInfoAsync(Guid fixtureUniqueId, int targetNo)
         {
 
-            try
-            {
-                var targetData = await spotterService.GetTargetDataAsync(fixtureUniqueId, targetNo);
+            var targetData = await spotterService.GetTargetDataAsync(fixtureUniqueId, targetNo);
 
 
-                return Ok(new GetSpotterTargetInfo
-                {
-                    TargetNo = targetData.TargetNo,
-                    CurrentSetNo = targetData.CurrentSetNo,
-                    TeamName = targetData.TeamName,
-                    Shots = targetData.Shots,
-                    CurrentSetScore = targetData.CurrentSetScore,
-                    IsConfirmed = targetData.IsConfirmed,
-                    MatchComplete = targetData.MatchComplete
-                });
-            }
-            catch (KeyNotFoundException)
+            return Ok(new GetSpotterTargetInfo
             {
-                return NotFound();
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+                TargetNo = targetData.TargetNo,
+                CurrentSetNo = targetData.CurrentSetNo,
+                TeamName = targetData.TeamName,
+                Shots = targetData.Shots,
+                CurrentSetScore = targetData.CurrentSetScore,
+                IsConfirmed = targetData.IsConfirmed,
+                MatchComplete = targetData.MatchComplete
+            });
 
 
         }
@@ -58,30 +47,19 @@ namespace Fawkes.Api.Controllers
         [HttpPut("fixtures/{fixtureUniqueId}/targets/{targetNo}/spotter/shots")]
         public async Task<ActionResult<GetSpotterTargetInfo>> UpdateTargetAsync(Guid fixtureUniqueId, int targetNo, SubmitShotsRequest request)
         {
-            try
-            {
-                var targetInfo = await spotterService.ProcessShotsAsync(fixtureUniqueId, targetNo, request.Shots);
+            var targetInfo = await spotterService.ProcessShotsAsync(fixtureUniqueId, targetNo, request.Shots);
 
 
-                return Ok(new GetSpotterTargetInfo
-                {
-                    TargetNo = targetInfo.TargetNo,
-                    CurrentSetNo = targetInfo.CurrentSetNo,
-                    TeamName = targetInfo.TeamName,
-                    Shots = targetInfo.Shots,
-                    CurrentSetScore = targetInfo.CurrentSetScore,
-                    IsConfirmed = targetInfo.IsConfirmed,
-                    MatchComplete = targetInfo.MatchComplete
-                });
-            }
-            catch (KeyNotFoundException)
+            return Ok(new GetSpotterTargetInfo
             {
-                return NotFound();
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+                TargetNo = targetInfo.TargetNo,
+                CurrentSetNo = targetInfo.CurrentSetNo,
+                TeamName = targetInfo.TeamName,
+                Shots = targetInfo.Shots,
+                CurrentSetScore = targetInfo.CurrentSetScore,
+                IsConfirmed = targetInfo.IsConfirmed,
+                MatchComplete = targetInfo.MatchComplete
+            });
         }
 
 
@@ -95,30 +73,19 @@ namespace Fawkes.Api.Controllers
         [HttpPut("fixtures/{fixtureUniqueId}/targets/{targetNo}/spotter/shots/confirm")]
         public async Task<ActionResult<GetSpotterTargetInfo>> ConfirmCurrentSetScoreAsync(Guid fixtureUniqueId, int targetNo)
         {
-            try
-            {
-                var targetInfo = await spotterService.ConfirmEndScoreAsync(fixtureUniqueId, targetNo);
+            var targetInfo = await spotterService.ConfirmEndScoreAsync(fixtureUniqueId, targetNo);
 
 
-                return Ok(new GetSpotterTargetInfo
-                {
-                    TargetNo = targetInfo.TargetNo,
-                    CurrentSetNo = targetInfo.CurrentSetNo,
-                    TeamName = targetInfo.TeamName,
-                    Shots = targetInfo.Shots,
-                    CurrentSetScore = targetInfo.CurrentSetScore,
-                    IsConfirmed = targetInfo.IsConfirmed,
-                    MatchComplete = targetInfo.MatchComplete
-                });
-            }
-            catch (KeyNotFoundException)
+            return Ok(new GetSpotterTargetInfo
             {
-                return NotFound();
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+                TargetNo = targetInfo.TargetNo,
+                CurrentSetNo = targetInfo.CurrentSetNo,
+                TeamName = targetInfo.TeamName,
+                Shots = targetInfo.Shots,
+                CurrentSetScore = targetInfo.CurrentSetScore,
+                IsConfirmed = targetInfo.IsConfirmed,
+                MatchComplete = targetInfo.MatchComplete
+            });
         }
 
 
