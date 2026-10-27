@@ -130,6 +130,17 @@ namespace Fawkes.Core.Services
                 throw new NotFoundException($"Device with ID '{deviceId}' is not assigned to fixture '{fixtureId}'.");
             }
 
+            if (displayType == DisplayType.Match)
+            {
+                if (matchNo == null)
+                    throw new InvalidRequestException("A match display needs a match number.", "MATCH_NO_REQUIRED");
+
+                // Before the match play chart exists the number of matches is unknown, so only the lower bound applies.
+                var matchCount = await fawkesDataStore.GetMatchCountAsync(fixtureId);
+                if (matchNo < 1 || (matchCount > 0 && matchNo > matchCount))
+                    throw new InvalidRequestException($"Match number must be between 1 and {matchCount} (was {matchNo}).", "INVALID_MATCH_NO");
+            }
+
             device.DisplayType = displayType;
             device.DisplayTheme = displayTheme;
             device.MatchNo = matchNo;

@@ -35,5 +35,11 @@ namespace Fawkes.Core.Abstractions
         Task<LeagueTable> GetLeagueTableAsync(int fixtureId);
         Task UpdateLeagueTableAsync(int fixtureId, LeagueTable leagueTable);
         Task SaveSetScoreAsync(int fixtureId, int roundNo, int targetNo, int setNo, int? score);
+
+        /// <summary>Highest round number with target assignments; 0 while no match play chart exists.</summary>
+        Task<int> GetRoundCountAsync(int fixtureId);
+
+        /// <summary>Number of matches per round (pairs of targets); 0 while no match play chart exists.</summary>
+        Task<int> GetMatchCountAsync(int fixtureId);
     }
 }

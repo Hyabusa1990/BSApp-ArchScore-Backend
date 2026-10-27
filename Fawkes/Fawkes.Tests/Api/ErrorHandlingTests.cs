@@ -238,6 +238,31 @@ namespace Fawkes.Api
         }
 
         [Test]
+        public async Task GetPhaseIncludesRoundCount()
+        {
+            Authenticate();
+            fixtureService.GetFixtureAsync(1, User).Returns(new Fixture() { Id = 1, CurrentRoundNo = 2 });
+            fixtureService.GetRoundCountAsync(1, User).Returns(7);
+
+            var phase = await client.GetFromJsonAsync<JsonElement>("/fixtures/1/phase");
+
+            Assert.That(phase.GetProperty("roundNo").GetInt32(), Is.EqualTo(2));
+            Assert.That(phase.GetProperty("roundCount").GetInt32(), Is.EqualTo(7));
+        }
+
+        [Test]
+        public async Task GetRoundOutsideMatchPlayChartIs404()
+        {
+            Authenticate();
+            dosService.GetRoundMatchesAsync(1, 99, User).ThrowsAsync(new NotFoundException("Round 99 of fixture 1 not found.", "ROUND_NOT_FOUND"));
+
+            var response = await client.GetAsync("/fixtures/1/rounds/99");
+
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+            Assert.That((await ReadProblemAsync(response)).GetProperty("code").GetString(), Is.EqualTo("ROUND_NOT_FOUND"));
+        }
+
+        [Test]
         public async Task UpdateSetScoreIs204()
         {
             Authenticate();

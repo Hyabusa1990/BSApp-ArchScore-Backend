@@ -27,10 +27,12 @@ namespace Fawkes.Api.Controllers
             }
 
             var fixture = await fixtureService.GetFixtureAsync(fixtureId, User.Identity.Name);
+            var roundCount = await fixtureService.GetRoundCountAsync(fixtureId, User.Identity.Name);
             return Ok(new GetPhaseResponse
             {
                 FixtureId = fixture.Id,
-                RoundNo = fixture.CurrentRoundNo
+                RoundNo = fixture.CurrentRoundNo,
+                RoundCount = roundCount
             });
         }
 
@@ -72,11 +74,13 @@ namespace Fawkes.Api.Controllers
             }
 
             var matches = await dosService.GetRoundMatchesAsync(fixtureId, roundNo, User.Identity.Name);
+            var roundCount = await fixtureService.GetRoundCountAsync(fixtureId, User.Identity.Name);
 
             return new GetRoundResponse()
             {
                 FixtureId = fixtureId,
                 RoundNo = roundNo,
+                RoundCount = roundCount,
                 Targets = matches.SelectMany(_ => _.Scoresheets).Select(_ => new TargetInformation() 
                 { 
                     TargetNo = _.TargetNo,
@@ -110,6 +114,11 @@ namespace Fawkes.Api.Controllers
             /// The id of the fixture.
             /// </summary>
             public required int FixtureId { get; set; }
+
+            /// <summary>
+            /// The number of rounds in the match play chart (0 while no chart exists). Valid round numbers are 1 to RoundCount.
+            /// </summary>
+            public required int RoundCount { get; set; }
         }
 
 
@@ -144,6 +153,11 @@ namespace Fawkes.Api.Controllers
             /// The number of the round. This identifies which round's details are being retrieved.
             /// </summary>
             public required int RoundNo { get; set; }
+
+            /// <summary>
+            /// The number of rounds in the match play chart. Valid round numbers are 1 to RoundCount.
+            /// </summary>
+            public required int RoundCount { get; set; }
 
             /// <summary>
             /// The targets in the round. Each target contains information about the team, total set points, and set scores.

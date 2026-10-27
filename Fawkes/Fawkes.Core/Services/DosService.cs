@@ -22,6 +22,9 @@ namespace Fawkes.Core.Services
             if (fixture == null)
                 throw new NotFoundException($"Fixture {fixtureId} not found.", "FIXTURE_NOT_FOUND");
 
+            var roundCount = await dataStore.GetRoundCountAsync(fixtureId);
+            if (roundNo < 1 || roundNo > roundCount)
+                throw new NotFoundException($"Round {roundNo} of fixture {fixtureId} not found; the fixture has {roundCount} rounds.", "ROUND_NOT_FOUND");
 
             var targets = await dataStore.GetTargetDataAsync(fixtureId, roundNo);
 
@@ -40,6 +43,13 @@ namespace Fawkes.Core.Services
         public async Task SetConfirmedSetScore(int fixtureId, int roundNo, int targetNo, int setNo, int? score, string userName)
         {
             await dataStore.EnsureWriteAccessAsync(fixtureId, userName);
+
+            var fixture = await dataStore.GetFixtureAsync(fixtureId)
+                ?? throw new NotFoundException($"Fixture {fixtureId} not found.", "FIXTURE_NOT_FOUND");
+
+            var maxSetScore = ruleSetFactory.GetScoringRuleSet(fixture.RuleSetKey).MaxSetScore;
+            if (score < 0 || score > maxSetScore)
+                throw new InvalidRequestException($"Set score must be between 0 and {maxSetScore} (was {score}).", "INVALID_SCORE");
 
             await dataStore.SaveSetScoreAsync(fixtureId, roundNo, targetNo, setNo, score);
 

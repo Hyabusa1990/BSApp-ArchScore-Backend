@@ -16,6 +16,7 @@ namespace Fawkes.Core.Services
         private const string Other = "other@example.org";
 
         private IFawkesDataStore dataStore;
+        private IUserDirectory userDirectory;
         private FixtureService fixtureService;
         private FakeLogger<FixtureService> logger;
 
@@ -24,8 +25,10 @@ namespace Fawkes.Core.Services
         {
             dataStore = Substitute.For<IFawkesDataStore>();
             dataStore.FixtureExistsAsync(Arg.Any<int>()).Returns(true);
+            userDirectory = Substitute.For<IUserDirectory>();
+            userDirectory.UserExistsAsync(Arg.Any<string>()).Returns(true);
             logger = new FakeLogger<FixtureService>();
-            fixtureService = new FixtureService(dataStore, new RuleSetFactory(), logger);
+            fixtureService = new FixtureService(dataStore, new RuleSetFactory(), userDirectory, logger);
         }
 
         [Test]
@@ -168,6 +171,7 @@ namespace Fawkes.Core.Services
         public async Task RemoveUserRevokesAccess()
         {
             dataStore.CheckOwnerAccessToFixtureAsync(FixtureId, Owner).Returns(true);
+            dataStore.CheckReadAccessToFixtureAsync(FixtureId, Other).Returns(true);
 
             await fixtureService.RemoveUserFromFixtureAsync(FixtureId, Other, Owner);
 
@@ -184,6 +188,7 @@ namespace Fawkes.Core.Services
         public async Task SetPhaseUpdatesRoundAndLeagueTable()
         {
             dataStore.CheckWriteAccessToFixtureAsync(FixtureId, Owner).Returns(true);
+            dataStore.GetRoundCountAsync(FixtureId).Returns(3);
             dataStore.GetFixtureAsync(FixtureId).Returns(new Fixture() { Id = FixtureId, RuleSetKey = RuleSetKeys.Default });
             dataStore.GetInitialLeagueTableAsync(FixtureId).Returns(new LeagueTable()
             {
@@ -213,8 +218,85 @@ namespace Fawkes.Core.Services
         public void SetPhaseFailsForMissingFixture()
         {
             dataStore.CheckWriteAccessToFixtureAsync(FixtureId, Owner).Returns(true);
+            dataStore.GetRoundCountAsync(FixtureId).Returns(3);
 
             Assert.ThrowsAsync<NotFoundException>(() => fixtureService.SetPhaseAsync(FixtureId, 2, Owner));
+        }
+
+        [Test]
+        public async Task SetPhaseRejectsRoundBeyondMatchPlayChart()
+        {
+            dataStore.CheckWriteAccessToFixtureAsync(FixtureId, Owner).Returns(true);
+            dataStore.GetRoundCountAsync(FixtureId).Returns(3);
+
+            var exception = Assert.ThrowsAsync<InvalidRequestException>(() => fixtureService.SetPhaseAsync(FixtureId, 4, Owner));
+
+            Assert.That(exception!.Code, Is.EqualTo("INVALID_ROUND_NO"));
+            await dataStore.DidNotReceiveWithAnyArgs().UpdateFixtureAsync(default);
+        }
+
+        [Test]
+        public async Task SetPhaseToCurrentRoundChangesNothing()
+        {
+            dataStore.CheckWriteAccessToFixtureAsync(FixtureId, Owner).Returns(true);
+            dataStore.GetRoundCountAsync(FixtureId).Returns(3);
+            dataStore.GetFixtureAsync(FixtureId).Returns(new Fixture() { Id = FixtureId, CurrentRoundNo = 2, RuleSetKey = RuleSetKeys.Default });
+
+            await fixtureService.SetPhaseAsync(FixtureId, 2, Owner);
+
+            await dataStore.DidNotReceiveWithAnyArgs().UpdateFixtureAsync(default);
+            await dataStore.DidNotReceiveWithAnyArgs().UpdateLeagueTableAsync(default, default!);
+        }
+
+        [Test]
+        public async Task SetPhaseAllowsGoingBackToRoundZero()
+        {
+            dataStore.CheckWriteAccessToFixtureAsync(FixtureId, Owner).Returns(true);
+            dataStore.GetFixtureAsync(FixtureId).Returns(new Fixture() { Id = FixtureId, CurrentRoundNo = 2, RuleSetKey = RuleSetKeys.Default });
+            dataStore.GetInitialLeagueTableAsync(FixtureId).Returns(new LeagueTable() { Positions = [] });
+            dataStore.GetTargetDataAsync(FixtureId, null, null).Returns(Array.Empty<TargetData>());
+
+            await fixtureService.SetPhaseAsync(FixtureId, 0, Owner);
+
+            await dataStore.Received(1).UpdateFixtureAsync(FixtureId, null, null, null, null, 0);
+        }
+
+        [Test]
+        public void GetRoundCountRequiresReadAccess()
+        {
+            Assert.ThrowsAsync<AccessDeniedException>(() => fixtureService.GetRoundCountAsync(FixtureId, Other));
+        }
+
+        [Test]
+        public async Task GetRoundCountReturnsNumberOfRounds()
+        {
+            dataStore.CheckReadAccessToFixtureAsync(FixtureId, Owner).Returns(true);
+            dataStore.GetRoundCountAsync(FixtureId).Returns(5);
+
+            Assert.That(await fixtureService.GetRoundCountAsync(FixtureId, Owner), Is.EqualTo(5));
+        }
+
+        [Test]
+        public async Task AddUnknownUserFails()
+        {
+            dataStore.CheckOwnerAccessToFixtureAsync(FixtureId, Owner).Returns(true);
+            userDirectory.UserExistsAsync("nobody@example.org").Returns(false);
+
+            var exception = Assert.ThrowsAsync<NotFoundException>(() => fixtureService.AddUserToFixtureAsync(FixtureId, "nobody@example.org", Owner));
+
+            Assert.That(exception!.Code, Is.EqualTo("USER_NOT_FOUND"));
+            await dataStore.DidNotReceiveWithAnyArgs().GrantFixtureAccessAsync(default, default!, default);
+        }
+
+        [Test]
+        public async Task RemoveUserWithoutAccessFails()
+        {
+            dataStore.CheckOwnerAccessToFixtureAsync(FixtureId, Owner).Returns(true);
+
+            var exception = Assert.ThrowsAsync<NotFoundException>(() => fixtureService.RemoveUserFromFixtureAsync(FixtureId, "nobody@example.org", Owner));
+
+            Assert.That(exception!.Code, Is.EqualTo("USER_NOT_FOUND"));
+            await dataStore.DidNotReceiveWithAnyArgs().GrantFixtureAccessAsync(default, default!, default);
         }
     }
 }

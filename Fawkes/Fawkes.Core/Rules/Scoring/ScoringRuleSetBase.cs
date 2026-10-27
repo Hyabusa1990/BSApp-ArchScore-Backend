@@ -4,7 +4,7 @@ namespace Fawkes.Core.Rules.Scoring
 {
     public class ScoringRuleSetBase(int noOfSets, int noOfShotsPerSet, int noOfShootOffShotsForShootOff, bool xIsEleven = false) : IScoringRuleSet
     {
-
+        public int MaxSetScore => noOfShotsPerSet * (xIsEleven ? 11 : 10);
 
         public virtual int? EvaluateScore(string shots)
         {

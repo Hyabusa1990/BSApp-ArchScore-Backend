@@ -17,9 +17,10 @@ namespace Fawkes.Core.Services
         Task AddUserToFixtureAsync(int id, string requestedUserName, string requestingUserName);
         Task RemoveUserFromFixtureAsync(int id, string requestedUserName, string requestingUserName);
         Task SetPhaseAsync(int fixtureId, int roundNo, string userName);
+        Task<int> GetRoundCountAsync(int fixtureId, string userName);
     }
 
-    public class FixtureService(IFawkesDataStore dataStore, IRuleSetFactory ruleSetFactory, ILogger<FixtureService> logger) : IFixtureService
+    public class FixtureService(IFawkesDataStore dataStore, IRuleSetFactory ruleSetFactory, IUserDirectory userDirectory, ILogger<FixtureService> logger) : IFixtureService
     {
         // Npgsql akzeptiert für "timestamp with time zone" nur Kind=Utc. Datum ohne Zone
         // (Kind=Unspecified, z. B. "2026-10-10") wird als UTC interpretiert.
@@ -86,6 +87,9 @@ namespace Fawkes.Core.Services
         {
             await dataStore.EnsureOwnerAccessAsync(id, requestingUserName);
 
+            if (!await userDirectory.UserExistsAsync(requestedUserName))
+                throw new NotFoundException($"User {requestedUserName} not found.", "USER_NOT_FOUND");
+
             // Owner nicht auf Write herabstufen (sonst hat die Veranstaltung keinen Owner mehr).
             if (await dataStore.CheckOwnerAccessToFixtureAsync(id, requestedUserName))
             {
@@ -107,32 +111,49 @@ namespace Fawkes.Core.Services
                 throw new ConflictException("Owners cannot remove themselves from a fixture.", "OWNER_CANNOT_REMOVE_SELF");
             }
 
+            if (!await dataStore.CheckReadAccessToFixtureAsync(id, requestedUserName))
+                throw new NotFoundException($"User {requestedUserName} has no access to fixture {id}.", "USER_NOT_FOUND");
+
             await dataStore.GrantFixtureAccessAsync(id, requestedUserName, AccessLevel.None);
 
             logger.LogInformation("User {UserName} removed {RequestedUserName} from fixture {FixtureId}", requestingUserName, requestedUserName, id);
         }
 
+        public async Task<int> GetRoundCountAsync(int fixtureId, string userName)
+        {
+            await dataStore.EnsureReadAccessAsync(fixtureId, userName);
+
+            return await dataStore.GetRoundCountAsync(fixtureId);
+        }
+
         public async Task SetPhaseAsync(int fixtureId, int roundNo, string userName)
         {
-            if (roundNo < 0)
-                throw new InvalidRequestException($"Round number must not be negative (was {roundNo}).", "INVALID_ROUND_NO");
-
             await dataStore.EnsureWriteAccessAsync(fixtureId, userName);
+
+            // Round 0 means "not started"; otherwise the round must exist in the match play chart.
+            var roundCount = await dataStore.GetRoundCountAsync(fixtureId);
+            if (roundNo < 0 || roundNo > roundCount)
+                throw new InvalidRequestException($"Round number must be between 0 and {roundCount} (was {roundNo}).", "INVALID_ROUND_NO");
+
+            var fixture = await dataStore.GetFixtureAsync(fixtureId)
+                ?? throw new NotFoundException($"Fixture {fixtureId} not found.", "FIXTURE_NOT_FOUND");
+
+            if (fixture.CurrentRoundNo == roundNo)
+            {
+                logger.LogDebug("Fixture {FixtureId} is already in round {RoundNo}; nothing to change", fixtureId, roundNo);
+                return;
+            }
 
             await dataStore.UpdateFixtureAsync(fixtureId, roundNo: roundNo);
 
-            logger.LogInformation("User {UserName} moved fixture {FixtureId} to round {RoundNo}", userName, fixtureId, roundNo);
+            logger.LogInformation("User {UserName} moved fixture {FixtureId} from round {PreviousRoundNo} to round {RoundNo}", userName, fixtureId, fixture.CurrentRoundNo, roundNo);
 
-            await UpdateLeagueTableAsync(fixtureId);
+            await UpdateLeagueTableAsync(fixture);
         }
 
-        private async Task UpdateLeagueTableAsync(int fixtureId)
+        private async Task UpdateLeagueTableAsync(Fixture fixture)
         {
-            var fixture = await dataStore.GetFixtureAsync(fixtureId);
-            if (fixture == null)
-            {
-                throw new NotFoundException($"Fixture {fixtureId} not found.", "FIXTURE_NOT_FOUND");
-            }
+            var fixtureId = fixture.Id;
 
             var scoringRuleSet = ruleSetFactory.GetScoringRuleSet(fixture.RuleSetKey);
             var matchRules = ruleSetFactory.GetMatchPlayRuleSet(fixture.RuleSetKey);

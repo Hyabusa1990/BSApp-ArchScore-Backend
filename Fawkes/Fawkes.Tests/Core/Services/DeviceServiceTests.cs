@@ -140,5 +140,60 @@ namespace Fawkes.Core.Services
             Assert.That(result.MatchNo, Is.EqualTo(3));
             await dataStore.Received(1).UpdateDeviceAsync(device);
         }
+
+        [Test]
+        public async Task UpdateDeviceRequiresMatchNoForMatchDisplay()
+        {
+            var device = new Device() { Id = 7, Code = "777777", FixtureId = FixtureId };
+            dataStore.CheckWriteAccessToFixtureAsync(FixtureId, User).Returns(true);
+            dataStore.GetDeviceByIdAsync(7).Returns(device);
+
+            var exception = Assert.ThrowsAsync<InvalidRequestException>(() => deviceService.UpdateDeviceAsync(FixtureId, 7, User, DisplayType.Match, DisplayTheme.Light, null));
+
+            Assert.That(exception!.Code, Is.EqualTo("MATCH_NO_REQUIRED"));
+            await dataStore.DidNotReceiveWithAnyArgs().UpdateDeviceAsync(default!);
+        }
+
+        [TestCase(0)]
+        [TestCase(5)]
+        [TestCase(99)]
+        public async Task UpdateDeviceRejectsMatchNoOutsideMatchPlayChart(int matchNo)
+        {
+            var device = new Device() { Id = 7, Code = "777777", FixtureId = FixtureId };
+            dataStore.CheckWriteAccessToFixtureAsync(FixtureId, User).Returns(true);
+            dataStore.GetDeviceByIdAsync(7).Returns(device);
+            dataStore.GetMatchCountAsync(FixtureId).Returns(4);
+
+            var exception = Assert.ThrowsAsync<InvalidRequestException>(() => deviceService.UpdateDeviceAsync(FixtureId, 7, User, DisplayType.Match, DisplayTheme.Light, matchNo));
+
+            Assert.That(exception!.Code, Is.EqualTo("INVALID_MATCH_NO"));
+            await dataStore.DidNotReceiveWithAnyArgs().UpdateDeviceAsync(default!);
+        }
+
+        [Test]
+        public async Task UpdateDeviceAcceptsLastMatch()
+        {
+            var device = new Device() { Id = 7, Code = "777777", FixtureId = FixtureId };
+            dataStore.CheckWriteAccessToFixtureAsync(FixtureId, User).Returns(true);
+            dataStore.GetDeviceByIdAsync(7).Returns(device);
+            dataStore.GetMatchCountAsync(FixtureId).Returns(4);
+
+            var result = await deviceService.UpdateDeviceAsync(FixtureId, 7, User, DisplayType.Match, DisplayTheme.Dark, 4);
+
+            Assert.That(result.MatchNo, Is.EqualTo(4));
+            await dataStore.Received(1).UpdateDeviceAsync(device);
+        }
+
+        [Test]
+        public async Task UpdateDeviceAllowsTableWithoutMatchNo()
+        {
+            var device = new Device() { Id = 7, Code = "777777", FixtureId = FixtureId };
+            dataStore.CheckWriteAccessToFixtureAsync(FixtureId, User).Returns(true);
+            dataStore.GetDeviceByIdAsync(7).Returns(device);
+
+            await deviceService.UpdateDeviceAsync(FixtureId, 7, User, DisplayType.Table, DisplayTheme.Dark, null);
+
+            await dataStore.Received(1).UpdateDeviceAsync(device);
+        }
     }
 }

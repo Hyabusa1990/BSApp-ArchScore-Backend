@@ -46,6 +46,7 @@ namespace Fawkes.Core.Services
         {
             dataStore.CheckReadAccessToFixtureAsync(FixtureId, User).Returns(true);
             dataStore.GetFixtureAsync(FixtureId).Returns(new Fixture() { Id = FixtureId, RuleSetKey = RuleSetKeys.Default });
+            dataStore.GetRoundCountAsync(FixtureId).Returns(3);
             dataStore.GetTargetDataAsync(FixtureId, (int?)1, null).Returns(Enumerable.Range(1, 4)
                 .Select(targetNo => new TargetData() { RoundNo = 1, TargetNo = targetNo, TeamName = $"Team {targetNo}" })
                 .ToArray());
@@ -70,6 +71,7 @@ namespace Fawkes.Core.Services
         public async Task SetConfirmedSetScoreSavesScore()
         {
             dataStore.CheckWriteAccessToFixtureAsync(FixtureId, User).Returns(true);
+            dataStore.GetFixtureAsync(FixtureId).Returns(new Fixture() { Id = FixtureId, RuleSetKey = RuleSetKeys.Default });
 
             await dosService.SetConfirmedSetScore(FixtureId, 1, 2, 3, 54, User);
 
@@ -77,6 +79,47 @@ namespace Fawkes.Core.Services
 
             Assert.That(logger.LatestRecord.Level, Is.EqualTo(LogLevel.Information));
             Assert.That(logger.LatestRecord.Message, Does.Contain($"set {3} on target {2}, round {1} of fixture {FixtureId} to 54"));
+        }
+
+        [TestCase(0)]
+        [TestCase(4)]
+        [TestCase(-1)]
+        public void GetRoundMatchesFailsForRoundOutsideMatchPlayChart(int roundNo)
+        {
+            dataStore.CheckReadAccessToFixtureAsync(FixtureId, User).Returns(true);
+            dataStore.GetFixtureAsync(FixtureId).Returns(new Fixture() { Id = FixtureId, RuleSetKey = RuleSetKeys.Default });
+            dataStore.GetRoundCountAsync(FixtureId).Returns(3);
+
+            var exception = Assert.ThrowsAsync<NotFoundException>(() => dosService.GetRoundMatchesAsync(FixtureId, roundNo, User));
+
+            Assert.That(exception!.Code, Is.EqualTo("ROUND_NOT_FOUND"));
+        }
+
+        [TestCase(-1)]
+        [TestCase(61)]
+        [TestCase(999)]
+        public async Task SetConfirmedSetScoreRejectsScoreOutOfRange(int score)
+        {
+            dataStore.CheckWriteAccessToFixtureAsync(FixtureId, User).Returns(true);
+            dataStore.GetFixtureAsync(FixtureId).Returns(new Fixture() { Id = FixtureId, RuleSetKey = RuleSetKeys.Default });
+
+            var exception = Assert.ThrowsAsync<InvalidRequestException>(() => dosService.SetConfirmedSetScore(FixtureId, 1, 2, 3, score, User));
+
+            Assert.That(exception!.Code, Is.EqualTo("INVALID_SCORE"));
+            await dataStore.DidNotReceiveWithAnyArgs().SaveSetScoreAsync(default, default, default, default, default);
+        }
+
+        [TestCase(0)]
+        [TestCase(60)]
+        [TestCase(null)]
+        public async Task SetConfirmedSetScoreAcceptsScoreInRange(int? score)
+        {
+            dataStore.CheckWriteAccessToFixtureAsync(FixtureId, User).Returns(true);
+            dataStore.GetFixtureAsync(FixtureId).Returns(new Fixture() { Id = FixtureId, RuleSetKey = RuleSetKeys.Default });
+
+            await dosService.SetConfirmedSetScore(FixtureId, 1, 2, 3, score, User);
+
+            await dataStore.Received(1).SaveSetScoreAsync(FixtureId, 1, 2, 3, score);
         }
     }
 }

@@ -1,3 +1,4 @@
+using Fawkes.Core.Abstractions;
 using Fawkes.Store;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -34,6 +35,7 @@ namespace Fawkes.Api.Authentication
                 services.AddHttpContextAccessor();
                 services.AddSingleton<ITokenService, TokenService>();
                 services.AddScoped<SignInManager<IdentityUser>>();
+                services.AddScoped<IUserDirectory, IdentityUserDirectory>();
 
                 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 

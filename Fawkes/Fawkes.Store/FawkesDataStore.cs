@@ -76,6 +76,17 @@ namespace Fawkes.Store
             return await context.Fixtures.AnyAsync(f => f.Id == fixtureId);
         }
 
+        public async Task<int> GetRoundCountAsync(int fixtureId)
+        {
+            return await context.TargetAssignments.Where(ta => ta.FixtureId == fixtureId).MaxAsync(ta => (int?)ta.RoundNo) ?? 0;
+        }
+
+        public async Task<int> GetMatchCountAsync(int fixtureId)
+        {
+            var maxTargetNo = await context.TargetAssignments.Where(ta => ta.FixtureId == fixtureId).MaxAsync(ta => (int?)ta.TargetNo) ?? 0;
+            return (maxTargetNo + 1) / 2;
+        }
+
         public async Task<Fixture> CreateFixtureAsync(DateTime date, string location, string leagueName, string fixtureName)
         {
 
