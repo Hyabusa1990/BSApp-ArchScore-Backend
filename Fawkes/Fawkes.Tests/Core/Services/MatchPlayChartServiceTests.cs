@@ -112,6 +112,19 @@ namespace Fawkes.Core.Services
         }
 
         [Test]
+        public async Task RejectedHardOverrideKeepsExistingChart()
+        {
+            SetupWritableFixture();
+            dataStore.MatchPlayChartExistsAsync(FixtureId).Returns(true);
+
+            // No default chart exists for 5 teams and no custom assignments are given.
+            Assert.ThrowsAsync<InvalidRequestException>(() => chartService.CreateMatchPlayChartAsync(FixtureId, CreateTeams(5), null, true, User));
+
+            await dataStore.DidNotReceive().DeleteMatchPlayChartAsync(FixtureId);
+            await dataStore.DidNotReceiveWithAnyArgs().AddTeamToFixtureAsync(default, default!);
+        }
+
+        [Test]
         public async Task CreateChartUsesGivenTargetAssignments()
         {
             SetupWritableFixture();

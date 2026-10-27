@@ -33,6 +33,16 @@ namespace Fawkes.Core.Services
         {
             await fawkesDataStore.EnsureWriteAccessAsync(fixtureId, userName);
 
+            // Validate the request completely before anything is deleted, so a rejected
+            // hard override leaves the existing chart untouched.
+            var usesDefaultChart = targetAssignments == null;
+            targetAssignments = targetAssignments ?? GetDefaultMatchPlayChart(teams.Length);
+
+            if (targetAssignments == null)
+            {
+                throw new InvalidRequestException($"No default match play chart available for {teams.Length} teams.", "NO_DEFAULT_MATCH_PLAY_CHART");
+            }
+
             if (await fawkesDataStore.MatchPlayChartExistsAsync(fixtureId))
             {
                 if (!hardOverride)
@@ -42,14 +52,6 @@ namespace Fawkes.Core.Services
                 await fawkesDataStore.DeleteMatchPlayChartAsync(fixtureId);
 
                 logger.LogInformation("User {UserName} deleted the existing match play chart of fixture {FixtureId} (hard override)", userName, fixtureId);
-            }
-
-            var usesDefaultChart = targetAssignments == null;
-            targetAssignments = targetAssignments ?? GetDefaultMatchPlayChart(teams.Length);
-
-            if (targetAssignments == null)
-            {
-                throw new InvalidRequestException($"No default match play chart available for {teams.Length} teams.", "NO_DEFAULT_MATCH_PLAY_CHART");
             }
 
             foreach(var team in teams)
