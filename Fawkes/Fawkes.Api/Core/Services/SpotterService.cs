@@ -14,6 +14,9 @@ namespace Fawkes.Api.Core.Services
 
     public class SpotterService(IFawkesDataStore dataStore, IRuleSetFactory ruleSetFactory) : ISpotterService
     {
+        // Once every set is confirmed, CurrentSetNo points past the last set; stay on the last one instead.
+        private static int GetCurrentSetNo(TargetData targetData, Scoresheet scoresheet)
+            => Math.Min(targetData.CurrentSetNo, scoresheet.Sets.Count());
 
 
         public async Task<SpotterTargetData> GetTargetDataAsync(Guid fixtureUniqueId, int targetNo)
@@ -31,16 +34,17 @@ namespace Fawkes.Api.Core.Services
             var ruleSet = ruleSetFactory.GetScoringRuleSet(fixture.RuleSetKey);
 
             var scoresheet = ruleSet.EvaluateScoresheet(targetData);
+            var setNo = GetCurrentSetNo(targetData, scoresheet);
 
 
             return new SpotterTargetData
             {
                 TargetNo = targetNo,
-                CurrentSetNo = targetData.CurrentSetNo,
+                CurrentSetNo = setNo,
                 TeamName = targetData.TeamName,
-                Shots = scoresheet[targetData.CurrentSetNo].Shots,
-                CurrentSetScore = scoresheet[targetData.CurrentSetNo].Score,
-                IsConfirmed = scoresheet[targetData.CurrentSetNo].IsConfirmed
+                Shots = scoresheet[setNo].Shots,
+                CurrentSetScore = scoresheet[setNo].Score,
+                IsConfirmed = scoresheet[setNo].IsConfirmed
             };
         }
 
@@ -59,8 +63,13 @@ namespace Fawkes.Api.Core.Services
             var ruleSet = ruleSetFactory.GetScoringRuleSet(fixture.RuleSetKey);
 
             var scoresheet = ruleSet.EvaluateScoresheet(targetData);
+            var setNo = GetCurrentSetNo(targetData, scoresheet);
 
-            scoresheet[targetData.CurrentSetNo].Shots = shots;
+            if (scoresheet[setNo].IsConfirmed)
+                throw new InvalidOperationException($"All sets for TargetNo {targetNo} in Fixture {fixtureUniqueId} and round number {fixture.CurrentRoundNo} have already been confirmed.");
+
+            scoresheet[setNo].Shots = shots;
+            scoresheet[setNo].Score = ruleSet.EvaluateScore(shots);
 
 
             await dataStore.SaveShotsAsync(fixture.Id, fixture.CurrentRoundNo, targetNo, scoresheet.AllShots);
@@ -69,11 +78,11 @@ namespace Fawkes.Api.Core.Services
             return new SpotterTargetData
             {
                 TargetNo = targetNo,
-                CurrentSetNo = targetData.CurrentSetNo,
+                CurrentSetNo = setNo,
                 TeamName = targetData.TeamName,
-                Shots = scoresheet[targetData.CurrentSetNo].Shots,
-                CurrentSetScore = scoresheet[targetData.CurrentSetNo].Score,
-                IsConfirmed = scoresheet[targetData.CurrentSetNo].IsConfirmed
+                Shots = scoresheet[setNo].Shots,
+                CurrentSetScore = scoresheet[setNo].Score,
+                IsConfirmed = scoresheet[setNo].IsConfirmed
             };
         }
 
@@ -93,11 +102,12 @@ namespace Fawkes.Api.Core.Services
             var ruleSet = ruleSetFactory.GetScoringRuleSet(fixture.RuleSetKey);
 
             var scoresheet = ruleSet.EvaluateScoresheet(targetData);
+            var setNo = GetCurrentSetNo(targetData, scoresheet);
 
-            if (scoresheet[targetData.CurrentSetNo].Score == null)
+            if (scoresheet[setNo].Score == null)
                 throw new InvalidOperationException($"Cannot confirm score for TargetNo {targetNo} in Fixture {fixtureUniqueId} and round number {fixture.CurrentRoundNo} because the score is not yet complete.");
 
-            if (scoresheet[targetData.CurrentSetNo].IsConfirmed)
+            if (scoresheet[setNo].IsConfirmed)
                 throw new InvalidOperationException($"Score for TargetNo {targetNo} in Fixture {fixtureUniqueId} and round number {fixture.CurrentRoundNo} has already been confirmed.");
 
 
@@ -105,17 +115,17 @@ namespace Fawkes.Api.Core.Services
 
 
 
-            await dataStore.SaveConfirmedSetScoreAsync(fixture.Id, fixture.CurrentRoundNo, targetNo, targetData.CurrentSetNo, scoresheet[targetData.CurrentSetNo].Score);
+            await dataStore.SaveConfirmedSetScoreAsync(fixture.Id, fixture.CurrentRoundNo, targetNo, setNo, scoresheet[setNo].Score);
 
 
             return new SpotterTargetData
             {
                 TargetNo = targetNo,
-                CurrentSetNo = targetData.CurrentSetNo,
+                CurrentSetNo = setNo,
                 TeamName = targetData.TeamName,
-                Shots = scoresheet[targetData.CurrentSetNo].Shots,
-                CurrentSetScore = scoresheet[targetData.CurrentSetNo].Score,
-                IsConfirmed = scoresheet[targetData.CurrentSetNo].IsConfirmed
+                Shots = scoresheet[setNo].Shots,
+                CurrentSetScore = scoresheet[setNo].Score,
+                IsConfirmed = scoresheet[setNo].IsConfirmed
             };
         }
     }

@@ -41,7 +41,7 @@ namespace Fawkes.Api.Core.Services
 
         public async Task SetConfirmedSetScore(int fixtureId, int roundNo, int targetNo, int setNo, int? score, string userName)
         {
-            if (!(await dataStore.CheckReadAccessToFixtureAsync(fixtureId, userName)))
+            if (!(await dataStore.CheckWriteAccessToFixtureAsync(fixtureId, userName)))
                 throw new UnauthorizedAccessException();
 
             await dataStore.SaveSetScoreAsync(fixtureId, roundNo, targetNo, setNo, score);
