@@ -6,6 +6,13 @@ namespace Fawkes.Core.Rules.League
     {
         public LeagueTable CalculateLeagueTable(LeagueTable initialTable, params Match[] matches)
         {
+            // Only rounds in which every match is complete count; a round still in progress
+            // must not move teams in the table based on partial results.
+            matches = matches
+                .GroupBy(m => m.RoundNo)
+                .Where(round => round.All(m => m.IsComplete))
+                .SelectMany(round => round)
+                .ToArray();
 
             var evaluateRankDifference = initialTable.Positions.Any(_ => _.MatchPointsWon > 0);
 

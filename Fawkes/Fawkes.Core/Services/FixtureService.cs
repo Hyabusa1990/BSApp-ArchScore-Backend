@@ -149,8 +149,11 @@ namespace Fawkes.Core.Services
 
             await dataStore.UpdateLeagueTableAsync(fixtureId, currentLeagueTable);
 
-            logger.LogInformation("Recalculated league table of fixture {FixtureId} from {MatchCount} matches ({CompletedMatchCount} completed)",
-                fixtureId, matches.Length, matches.Count(m => m.Scoresheets.All(s => s.MatchPoints != null)));
+            var rounds = matches.GroupBy(m => m.RoundNo).OrderBy(r => r.Key).ToArray();
+            logger.LogInformation("Recalculated league table of fixture {FixtureId}: counted rounds [{CountedRounds}], left out incomplete rounds [{IncompleteRounds}]",
+                fixtureId,
+                string.Join(", ", rounds.Where(r => r.All(m => m.IsComplete)).Select(r => r.Key)),
+                string.Join(", ", rounds.Where(r => !r.All(m => m.IsComplete)).Select(r => r.Key)));
 
 
 

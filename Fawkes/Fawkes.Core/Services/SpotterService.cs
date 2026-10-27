@@ -43,7 +43,7 @@ namespace Fawkes.Core.Services
             }
 
             var match = matchPlayRules.EvaluateMatch(scoresheets);
-            return match.Scoresheets.All(s => s.MatchPoints != null);
+            return match.IsComplete;
         }
 
 
