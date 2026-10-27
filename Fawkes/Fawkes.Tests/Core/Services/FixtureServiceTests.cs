@@ -28,7 +28,7 @@ namespace Fawkes.Core.Services
             userDirectory = Substitute.For<IUserDirectory>();
             userDirectory.UserExistsAsync(Arg.Any<string>()).Returns(true);
             logger = new FakeLogger<FixtureService>();
-            fixtureService = new FixtureService(dataStore, new RuleSetFactory(), userDirectory, logger);
+            fixtureService = new FixtureService(dataStore, new LeagueTableService(dataStore, new RuleSetFactory(), new FakeLogger<LeagueTableService>()), userDirectory, logger);
         }
 
         [Test]

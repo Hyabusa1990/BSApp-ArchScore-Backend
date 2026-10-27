@@ -19,6 +19,7 @@ namespace Fawkes.Core
                 services.AddTransient<IDeviceService, DeviceService>();
                 services.AddTransient<IDisplayService, DisplayService>();
                 services.AddTransient<IFixtureService, FixtureService>();
+                services.AddTransient<ILeagueTableService, LeagueTableService>();
                 services.AddTransient<IMatchPlayChartService, MatchPlayChartService>();
                 services.AddTransient<IDosService, DosService>();
                 services.AddTransient<ISpotterService, SpotterService>();

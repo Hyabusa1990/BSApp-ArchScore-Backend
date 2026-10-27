@@ -12,7 +12,7 @@ namespace Fawkes.Core.Services
     }
 
 
-    public class MatchPlayChartService(IFawkesDataStore fawkesDataStore, ILogger<MatchPlayChartService> logger) : IMatchPlayChartService
+    public class MatchPlayChartService(IFawkesDataStore fawkesDataStore, ILeagueTableService leagueTableService, ILogger<MatchPlayChartService> logger) : IMatchPlayChartService
     {
         private static readonly int[][] DEFAULT_CHART_8 =
         [
@@ -72,6 +72,11 @@ namespace Fawkes.Core.Services
 
             logger.LogInformation("User {UserName} created the match play chart of fixture {FixtureId}: {TeamCount} teams, {RoundCount} rounds, {ChartSource} chart",
                 userName, fixtureId, teams.Length, targetAssignments.Length, usesDefaultChart ? "default" : "custom");
+
+            // Store the table right away, otherwise displays show every team with rank 0 until the first round change.
+            var fixture = await fawkesDataStore.GetFixtureAsync(fixtureId)
+                ?? throw new NotFoundException($"Fixture {fixtureId} not found.", "FIXTURE_NOT_FOUND");
+            await leagueTableService.RecalculateAsync(fixture);
         }
 
         private int[][]? GetDefaultMatchPlayChart(int noOfTeams)

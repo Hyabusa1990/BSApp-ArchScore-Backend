@@ -1,6 +1,5 @@
 ﻿using Fawkes.Core.Exceptions;
 using Fawkes.Core.Model;
-using Fawkes.Core.Rules;
 using Fawkes.Core.Abstractions;
 using Microsoft.Extensions.Logging;
 
@@ -20,7 +19,7 @@ namespace Fawkes.Core.Services
         Task<int> GetRoundCountAsync(int fixtureId, string userName);
     }
 
-    public class FixtureService(IFawkesDataStore dataStore, IRuleSetFactory ruleSetFactory, IUserDirectory userDirectory, ILogger<FixtureService> logger) : IFixtureService
+    public class FixtureService(IFawkesDataStore dataStore, ILeagueTableService leagueTableService, IUserDirectory userDirectory, ILogger<FixtureService> logger) : IFixtureService
     {
         // Npgsql akzeptiert für "timestamp with time zone" nur Kind=Utc. Datum ohne Zone
         // (Kind=Unspecified, z. B. "2026-10-10") wird als UTC interpretiert.
@@ -148,42 +147,7 @@ namespace Fawkes.Core.Services
 
             logger.LogInformation("User {UserName} moved fixture {FixtureId} from round {PreviousRoundNo} to round {RoundNo}", userName, fixtureId, fixture.CurrentRoundNo, roundNo);
 
-            await UpdateLeagueTableAsync(fixture);
-        }
-
-        private async Task UpdateLeagueTableAsync(Fixture fixture)
-        {
-            var fixtureId = fixture.Id;
-
-            var scoringRuleSet = ruleSetFactory.GetScoringRuleSet(fixture.RuleSetKey);
-            var matchRules = ruleSetFactory.GetMatchPlayRuleSet(fixture.RuleSetKey);
-            var leagueRules = ruleSetFactory.GetLeagueRuleSet(fixture.RuleSetKey);
-
-
-
-
-            var initialLeagueTable = await dataStore.GetInitialLeagueTableAsync(fixtureId);
-            var scoresheets = (await dataStore.GetTargetDataAsync(fixtureId)).Select(scoringRuleSet.EvaluateScoresheet).ToArray();
-            var matches = scoresheets.GroupBy(s => new { s.RoundNo, MatchNo = (s.TargetNo+1)/2 }).Select(m => matchRules.EvaluateMatch(m.ToArray())).ToArray();
-            var currentLeagueTable = leagueRules.CalculateLeagueTable(initialLeagueTable, matches);
-
-
-            await dataStore.UpdateLeagueTableAsync(fixtureId, currentLeagueTable);
-
-            var rounds = matches.GroupBy(m => m.RoundNo).OrderBy(r => r.Key).ToArray();
-            logger.LogInformation("Recalculated league table of fixture {FixtureId}: counted rounds [{CountedRounds}], left out incomplete rounds [{IncompleteRounds}]",
-                fixtureId,
-                string.Join(", ", rounds.Where(r => r.All(m => m.IsComplete)).Select(r => r.Key)),
-                string.Join(", ", rounds.Where(r => !r.All(m => m.IsComplete)).Select(r => r.Key)));
-
-
-
-
-
-
-
-
-
+            await leagueTableService.RecalculateAsync(fixture);
         }
     }
 

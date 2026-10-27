@@ -14,6 +14,7 @@ namespace Fawkes.Core.Services
         private const string User = "owner@example.org";
 
         private IFawkesDataStore dataStore;
+        private ILeagueTableService leagueTableService;
         private MatchPlayChartService chartService;
         private FakeLogger<MatchPlayChartService> logger;
 
@@ -22,7 +23,8 @@ namespace Fawkes.Core.Services
         {
             dataStore = Substitute.For<IFawkesDataStore>();
             logger = new FakeLogger<MatchPlayChartService>();
-            chartService = new MatchPlayChartService(dataStore, logger);
+            leagueTableService = Substitute.For<ILeagueTableService>();
+            chartService = new MatchPlayChartService(dataStore, leagueTableService, logger);
 
             // Stored team ids are 100 + team number, e.g. "T3" gets id 103.
             dataStore.AddTeamToFixtureAsync(FixtureId, Arg.Any<Team>())
@@ -33,6 +35,7 @@ namespace Fawkes.Core.Services
         {
             dataStore.CheckWriteAccessToFixtureAsync(FixtureId, User).Returns(true);
             dataStore.FixtureExistsAsync(FixtureId).Returns(true);
+            dataStore.GetFixtureAsync(FixtureId).Returns(new Fixture() { Id = FixtureId });
         }
 
         private static Team[] CreateTeams(int count) => Enumerable.Range(1, count).Select(i => new Team() { Name = $"T{i}" }).ToArray();
@@ -136,6 +139,26 @@ namespace Fawkes.Core.Services
             await dataStore.Received(1).AssignTeamToTargetAsync(FixtureId, 1, 2, 101);
             await dataStore.Received(1).AssignTeamToTargetAsync(FixtureId, 2, 1, 101);
             await dataStore.Received(1).AssignTeamToTargetAsync(FixtureId, 2, 2, 102);
+        }
+
+        [Test]
+        public async Task CreateChartCalculatesInitialLeagueTable()
+        {
+            SetupWritableFixture();
+
+            await chartService.CreateMatchPlayChartAsync(FixtureId, CreateTeams(8), null, false, User);
+
+            await leagueTableService.Received(1).RecalculateAsync(Arg.Is<Fixture>(f => f.Id == FixtureId));
+        }
+
+        [Test]
+        public async Task RejectedChartDoesNotTouchLeagueTable()
+        {
+            SetupWritableFixture();
+
+            Assert.ThrowsAsync<InvalidRequestException>(() => chartService.CreateMatchPlayChartAsync(FixtureId, CreateTeams(5), null, false, User));
+
+            await leagueTableService.DidNotReceiveWithAnyArgs().RecalculateAsync(default!);
         }
     }
 }
