@@ -44,7 +44,8 @@ namespace Fawkes.Core.Rules.Scoring
                 target.ConfirmedSet04Score,
                 target.ConfirmedSet05Score
             };
-            for (int setNo = 1; setNo <= noOfSets && shots.Length > 0; setNo++)
+            // Every set is evaluated, even without shots: the DOS can confirm a score for a set the spotter never recorded.
+            for (int setNo = 1; setNo <= noOfSets; setNo++)
             {
                 result[setNo].Shots = new string(shots.Take(noOfShotsPerSet).ToArray());
                 result[setNo].Score = setScores[setNo - 1] ?? EvaluateScore(result[setNo].Shots);

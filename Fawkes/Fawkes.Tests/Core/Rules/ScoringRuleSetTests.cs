@@ -1,4 +1,5 @@
 using Fawkes.Core.Model;
+using Fawkes.Core.Rules.MatchPlay;
 using Fawkes.Core.Rules.Scoring;
 
 namespace Fawkes.Core.Rules
@@ -102,6 +103,55 @@ namespace Fawkes.Core.Rules
 
             Assert.That(scoresheet.Sets.All(s => s.Score == null), Is.True);
             Assert.That(scoresheet.TotalScore, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void EvaluateScoresheetUsesConfirmedScoresWithoutShots()
+        {
+            var scoresheet = scoringRules.EvaluateScoresheet(new TargetData()
+            {
+                Shots = string.Empty,
+                ConfirmedSet01Score = 55,
+                ConfirmedSet02Score = 52
+            });
+
+            Assert.That(scoresheet[1].Score, Is.EqualTo(55));
+            Assert.That(scoresheet[1].IsConfirmed, Is.True);
+            Assert.That(scoresheet[2].Score, Is.EqualTo(52));
+            Assert.That(scoresheet[2].IsConfirmed, Is.True);
+            Assert.That(scoresheet[3].Score, Is.Null);
+            Assert.That(scoresheet[3].IsConfirmed, Is.False);
+            Assert.That(scoresheet.TotalScore, Is.EqualTo(107));
+        }
+
+        [Test]
+        public void EvaluateScoresheetUsesConfirmedScoreForSetBeyondRecordedShots()
+        {
+            // Shots only cover set 1; the DOS entered set 2 by hand.
+            var scoresheet = scoringRules.EvaluateScoresheet(new TargetData()
+            {
+                Shots = "999999",
+                ConfirmedSet01Score = 54,
+                ConfirmedSet02Score = 48
+            });
+
+            Assert.That(scoresheet[2].Score, Is.EqualTo(48));
+            Assert.That(scoresheet[2].IsConfirmed, Is.True);
+            Assert.That(scoresheet[2].Shots, Is.Empty);
+            Assert.That(scoresheet.TotalScore, Is.EqualTo(102));
+        }
+
+        [Test]
+        public void MatchIsDecidedByConfirmedScoresWithoutShots()
+        {
+            var matchRules = new SetSystemMatchPlayRuleSetBase(5, false);
+            var winner = new TargetData() { TargetNo = 1, ConfirmedSet01Score = 55, ConfirmedSet02Score = 55, ConfirmedSet03Score = 55 };
+            var loser = new TargetData() { TargetNo = 2, ConfirmedSet01Score = 50, ConfirmedSet02Score = 50, ConfirmedSet03Score = 50 };
+
+            var match = matchRules.EvaluateMatch(scoringRules.EvaluateScoresheet(winner), scoringRules.EvaluateScoresheet(loser));
+
+            Assert.That(match.IsComplete, Is.True);
+            Assert.That(match.Scoresheets.Select(s => s.MatchPoints), Is.EqualTo(new int?[] { 2, 0 }));
         }
     }
 }
