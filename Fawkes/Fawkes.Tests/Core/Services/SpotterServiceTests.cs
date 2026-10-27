@@ -46,6 +46,26 @@ namespace Fawkes.Core.Services
             });
         }
 
+        private static TargetData CreateTarget(int targetNo, string shots, params int[] confirmedScores) => new TargetData()
+        {
+            RoundNo = RoundNo,
+            TargetNo = targetNo,
+            TeamName = $"Team {targetNo}",
+            Shots = shots,
+            ConfirmedSet01Score = confirmedScores.Length > 0 ? confirmedScores[0] : null,
+            ConfirmedSet02Score = confirmedScores.Length > 1 ? confirmedScores[1] : null,
+            ConfirmedSet03Score = confirmedScores.Length > 2 ? confirmedScores[2] : null,
+            ConfirmedSet04Score = confirmedScores.Length > 3 ? confirmedScores[3] : null,
+            ConfirmedSet05Score = confirmedScores.Length > 4 ? confirmedScores[4] : null
+        };
+
+        // Target 3 plays against target 4 (match 2); the spotter's target is also returned as single target.
+        private void SetupMatch(TargetData spotterTarget, TargetData opponentTarget)
+        {
+            dataStore.GetTargetDataAsync(FixtureId, RoundNo, TargetNo).Returns(spotterTarget);
+            dataStore.GetTargetDataAsync(FixtureId, (int?)RoundNo, (int?)2).Returns(new[] { spotterTarget, opponentTarget });
+        }
+
         private void SetupFinishedTarget()
         {
             dataStore.GetTargetDataAsync(FixtureId, RoundNo, TargetNo).Returns(new TargetData()
@@ -171,7 +191,65 @@ namespace Fawkes.Core.Services
 
             Assert.That(data.CurrentSetNo, Is.EqualTo(2));
             Assert.That(data.CurrentSetScore, Is.EqualTo(48));
+            Assert.That(data.IsConfirmed, Is.True);
             await dataStore.Received(1).SaveConfirmedSetScoreAsync(FixtureId, RoundNo, TargetNo, 2, 48);
+        }
+
+        [Test]
+        public async Task MatchIsNotCompleteWhileUndecided()
+        {
+            SetupFixture();
+            SetupMatch(CreateTarget(TargetNo, "++++++999", 60), CreateTarget(4, "999999888", 54));
+
+            Assert.That((await spotterService.GetTargetDataAsync(FixtureUniqueId, TargetNo)).MatchComplete, Is.False);
+            Assert.That((await spotterService.ProcessShotsAsync(FixtureUniqueId, TargetNo, "+++")).MatchComplete, Is.False);
+        }
+
+        [Test]
+        public async Task MatchIsCompleteOnceOneTeamHasMoreThanFiveSetPoints()
+        {
+            SetupFixture();
+            SetupMatch(CreateTarget(TargetNo, "++++++++++++++++++", 60, 60, 60), CreateTarget(4, "999999999999999999", 54, 54, 54));
+
+            var data = await spotterService.GetTargetDataAsync(FixtureUniqueId, TargetNo);
+
+            Assert.That(data.MatchComplete, Is.True);
+        }
+
+        [Test]
+        public async Task MatchIsCompleteAfterDrawOverFiveSets()
+        {
+            SetupFixture();
+            SetupMatch(CreateTarget(TargetNo, "++++++999999++++++99999988888+", 60, 54, 60, 54, 50),
+                       CreateTarget(4, "999999++++++999999++++++8888+8", 54, 60, 54, 60, 50));
+
+            Assert.That((await spotterService.GetTargetDataAsync(FixtureUniqueId, TargetNo)).MatchComplete, Is.True);
+        }
+
+        [Test]
+        public async Task ConfirmingTheDecidingSetCompletesTheMatch()
+        {
+            SetupFixture();
+            SetupMatch(CreateTarget(TargetNo, "++++++++++++++++++", 60, 60), CreateTarget(4, "999999999999999999", 54, 54, 54));
+
+            var data = await spotterService.ConfirmEndScoreAsync(FixtureUniqueId, TargetNo);
+
+            Assert.That(data.CurrentSetNo, Is.EqualTo(3));
+            Assert.That(data.IsConfirmed, Is.True);
+            Assert.That(data.MatchComplete, Is.True);
+            await dataStore.Received(1).SaveConfirmedSetScoreAsync(FixtureId, RoundNo, TargetNo, 3, 60);
+        }
+
+        [Test]
+        public async Task ConfirmingWhileOpponentIsBehindLeavesMatchOpen()
+        {
+            SetupFixture();
+            SetupMatch(CreateTarget(TargetNo, "++++++++++++++++++", 60, 60), CreateTarget(4, "999999999999", 54, 54));
+
+            var data = await spotterService.ConfirmEndScoreAsync(FixtureUniqueId, TargetNo);
+
+            Assert.That(data.IsConfirmed, Is.True);
+            Assert.That(data.MatchComplete, Is.False);
         }
     }
 }

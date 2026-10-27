@@ -18,6 +18,32 @@ namespace Fawkes.Core.Services
         private static int GetCurrentSetNo(TargetData targetData, Scoresheet scoresheet)
             => Math.Min(targetData.CurrentSetNo, scoresheet.Sets.Count());
 
+        // A match is decided by both targets of the pair (1+2, 3+4, ...), so the opponent's scores are needed too.
+        // confirmedSetNo marks a set of this target as confirmed that is not yet reflected in the loaded data.
+        private async Task<bool> IsMatchCompleteAsync(Fixture fixture, int targetNo, int? confirmedSetNo = null)
+        {
+            var scoringRules = ruleSetFactory.GetScoringRuleSet(fixture.RuleSetKey);
+            var matchPlayRules = ruleSetFactory.GetMatchPlayRuleSet(fixture.RuleSetKey);
+
+            var matchNo = (targetNo + 1) / 2;
+            var scoresheets = (await dataStore.GetTargetDataAsync(fixture.Id, (int?)fixture.CurrentRoundNo, (int?)matchNo))
+                .Select(scoringRules.EvaluateScoresheet)
+                .ToArray();
+
+            if (scoresheets.Length == 0)
+                return false;
+
+            if (confirmedSetNo.HasValue)
+            {
+                var ownScoresheet = scoresheets.FirstOrDefault(s => s.TargetNo == targetNo);
+                if (ownScoresheet != null)
+                    ownScoresheet[confirmedSetNo.Value].IsConfirmed = true;
+            }
+
+            var match = matchPlayRules.EvaluateMatch(scoresheets);
+            return match.Scoresheets.All(s => s.MatchPoints != null);
+        }
+
 
         public async Task<SpotterTargetData> GetTargetDataAsync(Guid fixtureUniqueId, int targetNo)
         {
@@ -44,7 +70,8 @@ namespace Fawkes.Core.Services
                 TeamName = targetData.TeamName,
                 Shots = scoresheet[setNo].Shots,
                 CurrentSetScore = scoresheet[setNo].Score,
-                IsConfirmed = scoresheet[setNo].IsConfirmed
+                IsConfirmed = scoresheet[setNo].IsConfirmed,
+                MatchComplete = await IsMatchCompleteAsync(fixture, targetNo)
             };
         }
 
@@ -82,7 +109,9 @@ namespace Fawkes.Core.Services
                 TeamName = targetData.TeamName,
                 Shots = scoresheet[setNo].Shots,
                 CurrentSetScore = scoresheet[setNo].Score,
-                IsConfirmed = scoresheet[setNo].IsConfirmed
+                IsConfirmed = scoresheet[setNo].IsConfirmed,
+                // Unconfirmed shots never decide a match, so the stored state is sufficient here.
+                MatchComplete = await IsMatchCompleteAsync(fixture, targetNo)
             };
         }
 
@@ -116,6 +145,7 @@ namespace Fawkes.Core.Services
 
 
             await dataStore.SaveConfirmedSetScoreAsync(fixture.Id, fixture.CurrentRoundNo, targetNo, setNo, scoresheet[setNo].Score);
+            scoresheet[setNo].IsConfirmed = true;
 
 
             return new SpotterTargetData
@@ -125,7 +155,8 @@ namespace Fawkes.Core.Services
                 TeamName = targetData.TeamName,
                 Shots = scoresheet[setNo].Shots,
                 CurrentSetScore = scoresheet[setNo].Score,
-                IsConfirmed = scoresheet[setNo].IsConfirmed
+                IsConfirmed = scoresheet[setNo].IsConfirmed,
+                MatchComplete = await IsMatchCompleteAsync(fixture, targetNo, confirmedSetNo: setNo)
             };
         }
     }
