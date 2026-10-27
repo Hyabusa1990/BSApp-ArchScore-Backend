@@ -1,5 +1,4 @@
 ﻿using Fawkes.Api.Authentication;
-using Fawkes.Api.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +20,6 @@ namespace Fawkes.Api.Controllers
         public AuthController(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
-            EmailService emailService,
             ITokenService tokenService)
         {
             _userManager = userManager;

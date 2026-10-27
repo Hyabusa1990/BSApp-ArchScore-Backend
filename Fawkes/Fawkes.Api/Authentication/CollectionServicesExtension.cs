@@ -1,4 +1,3 @@
-using Fawkes.Api.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +40,6 @@ namespace Fawkes.Api.Authentication
                 services.AddHttpContextAccessor();
                 services.AddSingleton<ITokenService, TokenService>();
                 services.AddScoped<SignInManager<IdentityUser>>();
-                services.AddScoped<EmailService>();
 
                 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 

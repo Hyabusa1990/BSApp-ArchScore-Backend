@@ -10,7 +10,6 @@
             /// <param name="services"></param>
             public void AddUtils()
             {
-                services.AddSingleton<EmailService>();
                 services.AddSingleton<RandomService>();
             }
         }
