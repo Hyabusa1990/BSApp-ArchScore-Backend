@@ -32,7 +32,16 @@
 <Tagestabelle als Markdown-Tabelle: Rang | Mannschaft | Matchpunkte | Satzpunkte>
 
 <Gesamttabelle, falls Vortabelle vorhanden: Rang | Mannschaft | Matchpunkte | Satzpunkte>
+
+## Die nächsten Wettkampftage
+
+<Einladung an Zuschauer, 1–2 Sätze.>
+
+- **<Wochentag>, <TT. Monat JJJJ>, ab <HH:MM> Uhr** – <Ausrichter>, <Halle>, <Straße>, <PLZ Ort>
+- …
 ```
+
+Wochentag aus dem Datum berechnen, nicht schätzen. Uhrzeit = Beginn laut bulibow.
 
 Zwischenüberschriften im Fließtext nur bei mehr als ~600 Wörtern.
 
@@ -61,6 +70,9 @@ Ergebnisse immer als Satzpunkte schreiben („gewann 6:4“), Ringe nur ergänze
 - Ausrichter: „Ein großes Dankeschön geht an den PBC Bürstadt, der ein hervorragender Gastgeber
   war“, „die Gastgeber sorgten für einen reibungslosen Ablauf“, „bot den Mannschaften
   beste Bedingungen“ (nur allgemein – keine erfundenen Details)
+- Einladung: „Zuschauer sind herzlich willkommen – erleben Sie spannenden Bogensport aus
+  nächster Nähe und feuern Sie die Mannschaften an!“, „Die Ausrichter freuen sich über jeden
+  Besucher in der Halle.“ (keine Versprechen zu Eintritt, Verpflegung o. Ä. ohne Quelle)
 - Aufstieg/Abstieg: „steht auf dem Aufstiegsplatz“, „rangiert auf dem einzigen sicheren
   Abstiegsplatz“, „muss je nach Absteigern aus der höheren Liga ebenfalls noch zittern“
 - Tabelle: „übernimmt die Tabellenspitze“, „verteidigt Platz eins“, „bleibt mit nur einem

@@ -27,6 +27,14 @@ Ein großes Dankeschön geht an den PBC Bürstadt, der nicht nur sportlich über
 | 7 | SVW Erzhausen | 4:10 | 19:37 |
 | 8 | BS Frankfurt | 4:10 | 18:36 |
 
+## Die nächsten Wettkampftage
+
+Zuschauer sind an allen Wettkampftagen herzlich willkommen – erleben Sie spannenden Bogensport aus nächster Nähe und feuern Sie die Mannschaften an! Die Ausrichter freuen sich über jeden Besucher in der Halle.
+
+- **Samstag, 5. Dezember 2026, ab 09:30 Uhr** – BSC Oberauroff, Sporthalle am Taubenberg, Seelbacher Straße, 65510 Idstein
+- **Samstag, 9. Januar 2027, ab 15:00 Uhr** – SG Neu-Isenburg, Halle im Sportpark, Alicestraße 113, 63263 Neu-Isenburg
+- **Sonntag, 7. Februar 2027, ab 15:00 Uhr** – BSC Korbach, Großsporthalle auf der Hauer, Karpatenstraße 20, 34497 Korbach
+
 ---
 
 ## Faktenprüfung für die Redaktion (nicht veröffentlichen)
@@ -46,10 +54,11 @@ Quelle: bulibow, Fixture 195 (Hessenliga Blankbogen 2026/2027, 1. Wettkampftag, 
 | Frankfurt – Eichenzell 6:2 (R5), Gießen – Frankfurt 4:6 (R7) | Runden 5 und 7 |
 | Ausrichter PBC Bürstadt, Bogenhalle PBC Bürstadt | Fixture-Info |
 | Aufstiegsplatz Bürstadt, sicherer Abstiegsplatz BS Frankfurt (Platz 8); weitere Absteiger offen | Tabelle + Ligamodus (1 Auf-, 1 sicherer Absteiger) |
-| Nächster Wettkampftag: Sa., 05.12.2026, BSC Oberauroff, Idstein; 3 Wettkampftage verbleiben | Ligakalender |
+| Kommende Wettkampftage: 05.12.2026 09:30 Idstein (BSC Oberauroff), 09.01.2027 15:00 Neu-Isenburg (SG Neu-Isenburg), 07.02.2027 15:00 Korbach (BSC Korbach), inkl. Hallenadressen | Ligakalender bulibow |
 
 Offene Punkte:
 - **Teamname:** Die Mannschaft heißt in bulibow inzwischen „Homburger SG“ (vorher „Homburger SG 2“). Bitte prüfen, welche Schreibweise auf der Webseite gelten soll.
+- **Einladung:** Ohne Angaben zu Eintritt oder Verpflegung, da die Daten dazu nichts enthalten.
 - **Ausrichter:** Der Dank ist bewusst allgemein gehalten. Konkrete Details (Helfer, Verpflegung) bitte ergänzen, falls bekannt.
 - **Platzierung bei Punktgleichheit:** Die Reihenfolge der vier Teams mit 4:10 Punkten stammt aus der bulibow-Tabelle. Eichenzell steht trotz schwächerem Ringschnitt vor Korbach, vermutlich wegen des direkten Vergleichs (6:0 in Runde 2). Die Begründung ist im Artikel bewusst weggelassen.
 - **Kein Wert von 60 Ringen:** Im Blankbogen ist das nicht ungewöhnlich und wird daher nicht erwähnt.

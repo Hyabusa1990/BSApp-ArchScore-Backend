@@ -338,6 +338,17 @@ def analyse_league(raw: dict, fixtures: list[dict], title_places: int, relegatio
     later = [f for f in cal if f["fixtureId"] not in own_ids and f["dateTime"] > last["dateTime"]]
     next_day = [f for f in later if f["dateTime"][:10] == later[0]["dateTime"][:10]] if later else []
     remaining_days = len({f["dateTime"][:10] for f in later})
+    # Alle kommenden Wettkampftage (je Datum + Ausrichter ein Eintrag) fuer die Terminliste
+    upcoming = {}
+    for f in later:
+        k = (f["dateTime"][:10], f.get("host") or "", f.get("locationCity") or "")
+        e = upcoming.setdefault(k, {"datum": f["dateTime"][:10], "beginn": f["dateTime"][11:16],
+                                    "wettkampftag_nr": [], "ausrichter": f.get("host"),
+                                    "halle": f.get("locationAddressLine1"), "strasse": f.get("locationAddressLine2"),
+                                    "plz": f.get("locationPostcode"), "ort": f.get("locationCity"), "fixture_ids": []})
+        e["beginn"] = min(e["beginn"], f["dateTime"][11:16])
+        e["wettkampftag_nr"].append(f.get("fixtureNo"))
+        e["fixture_ids"].append(f["fixtureId"])
 
     set_records.sort(key=lambda s: -s["ringe"])
     best_set = set_records[0]["ringe"] if set_records else None
@@ -368,6 +379,7 @@ def analyse_league(raw: dict, fixtures: list[dict], title_places: int, relegatio
         "erster_wettkampftag_der_saison": erster_wettkampftag,
         "verbleibende_wettkampftage": remaining_days,
         "naechster_wettkampftag": [{k: f.get(k) for k in ("fixtureId", "fixtureNo", "dateTime", "host", "locationCity")} for f in next_day],
+        "kommende_wettkampftage": sorted(upcoming.values(), key=lambda e: (e["datum"], e["beginn"])),
         "offene_matches": [f"Fixture {m['fixture_id']} R{m['runde']}: {m['team_a']} - {m['team_b']}" for m in matches if not m["abgeschlossen"]],
         "tabellen_abweichung": abweichungen,
         "highlights": highlights,
@@ -408,6 +420,13 @@ def to_markdown(reports: list[dict]) -> str:
         out.append(f"Fixtures: {', '.join(str(f['fixtureId']) for f in r['fixtures'])} | erster Wettkampftag: "
                    f"{r['erster_wettkampftag_der_saison']} | verbleibende Wettkampftage: {r['verbleibende_wettkampftage']} | "
                    f"naechster: {j(r['naechster_wettkampftag'])}")
+        out.append("Kommende Wettkampftage:")
+        for e in r["kommende_wettkampftage"]:
+            nr = ", ".join(str(n) for n in e["wettkampftag_nr"] if n is not None)
+            adr = ", ".join(x for x in (e["halle"], e["strasse"], f"{e['plz'] or ''} {e['ort'] or ''}".strip()) if x)
+            out.append(f"- {e['datum']} {e['beginn']} Uhr – Wettkampftag {nr} – Ausrichter {e['ausrichter'] or '?'} – {adr}")
+        if not r["kommende_wettkampftage"]:
+            out.append("- keine (letzter Wettkampftag der Saison)")
         if not any(m["abgeschlossen"] for m in r["matches"]):
             out.append("\n**Achtung: Fuer diesen Wettkampftag liegen noch keine abgeschlossenen Matches vor.**")
         if r["offene_matches"]:

@@ -7,7 +7,7 @@ description: Schreibt aus den Ergebnissen eines oder mehrerer bulibow-Fixtures (
 
 Ziel: ein veröffentlichungsfertiger deutscher Artikel für die HSV-Webseite, der die Highlights
 eines Liga-Wettkampftags erzählt – Tagessieger, Top-Schützen, ein spannender Matchverlauf,
-Titel- und Abstiegskampf, Ausblick. Jede Zahl und jeder Name im Artikel muss aus den Daten stammen.
+Titel- und Abstiegskampf, Dank an den Ausrichter, kommende Termine mit Einladung an Zuschauer. Jede Zahl und jeder Name im Artikel muss aus den Daten stammen.
 
 ## 1. Eingaben klären
 
@@ -78,7 +78,13 @@ Lies `references/stil.md` für Aufbau und Tonalität. Wähle dann aus den Fakten
    Allgemein und herzlich formulieren; keine Details erfinden (Verpflegung, Helferzahl,
    Hallenausstattung), außer der Nutzer nennt sie. Ist kein Ausrichter angegeben, nach ihm
    fragen oder den Ort als Gastgeber nennen.
-7. **Ausblick** – `naechster_wettkampftag` (Datum, Ausrichter, Ort).
+7. **Ausblick und Termine** – im Fließtext kurz der nächste Wettkampftag. Am Ende des
+   Artikels (nach den Tabellen) **immer** der Abschnitt „Die nächsten Wettkampftage“ mit allen
+   Einträgen aus `kommende_wettkampftage` (Datum mit Wochentag, Beginn, Ausrichter, Halle mit
+   Adresse) und einer herzlichen Einladung an Zuschauer: Bogensport live erleben, die
+   Mannschaften anfeuern; nur behaupten, was sicher ist (z. B. keinen freien Eintritt
+   versprechen, wenn der Nutzer das nicht sagt). Beim letzten Wettkampftag der Saison
+   entfällt die Liste; stattdessen Dank an alle Ausrichter und Zuschauer der Saison.
 
 Nicht jedes Team muss namentlich vorkommen, aber kein Team darf falsch dargestellt werden.
 
