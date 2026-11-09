@@ -10,7 +10,7 @@ Am nächsten an einer Niederlage war Bürstadt in der fünften Runde gegen den S
 
 Den besten Einzelschnitt erzielte Patrick Jestädt (SG Eichenzell) mit 8,38 Ringen pro Pfeil vor Klaus Gerlings (HSV Götzenhain, 8,30) und Michael Gaber (BS Frankfurt, 8,21). Gerlings traf zudem elfmal die Zehn – so oft wie kein anderer Blankbogenschütze. Für eine Überraschung sorgte die Homburger SG: Sie schlug den späteren Tageszweiten Götzenhain glatt mit 6:0 und drehte in der Schlussrunde gegen die SG Eichenzell einen 0:4-Rückstand in einen 6:4-Sieg.
 
-In der Tabelle steht Bürstadt mit 14:0 Punkten auf dem Aufstiegsplatz, vier Punkte vor Götzenhain und Homburg (je 10:4). Am Tabellenende liegen vier Mannschaften mit 4:10 Punkten gleichauf. BS Frankfurt rangiert trotz zweier Siege zum Abschluss auf dem sicheren Abstiegsplatz; ob auch die Plätze davor noch zittern müssen, hängt von den Absteigern aus den höheren Ligen ab.
+Im Rennen um den Hessenmeistertitel führt Bürstadt mit 14:0 Punkten, vier Punkte vor Götzenhain und Homburg (je 10:4). Am Tabellenende liegen vier Mannschaften mit 4:10 Punkten gleichauf. BS Frankfurt rangiert trotz zweier Siege zum Abschluss auf dem sicheren Abstiegsplatz; ob auch die Plätze davor noch zittern müssen, steht erst am Saisonende fest.
 
 ## Hessenliga Compound: Fulda trifft zweimal die Maximalzahl
 
@@ -20,7 +20,7 @@ Den einzigen Punkt gab Fulda ausgerechnet im engsten Match des Tages ab. Gegen d
 
 Auch statistisch stellte Fulda den stärksten Schützen: Pascal Schmidt erzielte 9,71 Ringe pro Pfeil und traf 34-mal die Zehn. Dahinter folgten Gianluca DeSilvio (SpS Niederwetz, 9,65) und Christian Schönfeld (BSC Fulda, 9,62). Die meisten Zehner des Tages schoss Oliver Funk (SpS Niederwetz) mit 39.
 
-Hinter Fulda (13:1) folgt mit vier Punkten Abstand ein Trio mit je 9:5 Punkten: der BS GW Kassel, Gastgeber Bürstadt und Niederwetz. Der SV Arolsen blieb ohne Punkt und steht auf dem sicheren Abstiegsplatz, kam beim 4:6 gegen Kassel aber nah an den ersten Erfolg heran. Davor liegen der TV Weidenhausen (3:11) und der SPSV Breidenbach (5:9) – wie viele Mannschaften am Ende absteigen, entscheidet sich erst mit den Absteigern aus den höheren Ligen.
+Im Kampf um den Hessenmeistertitel folgt hinter Fulda (13:1) mit vier Punkten Abstand ein Trio mit je 9:5 Punkten: der BS GW Kassel, Gastgeber Bürstadt und Niederwetz. Der SV Arolsen blieb ohne Punkt und steht auf dem sicheren Abstiegsplatz, kam beim 4:6 gegen Kassel aber nah an den ersten Erfolg heran. Davor liegen der TV Weidenhausen (3:11) und der SPSV Breidenbach (5:9) – wie viele Mannschaften am Ende absteigen, steht erst am Saisonende fest.
 
 ## Dank an den Gastgeber
 
@@ -107,4 +107,4 @@ Offene Punkte:
 - **„Am Sonntag“:** Der 8. November 2026 war ein Sonntag. Falls der Artikel später erscheint, das Datum ausschreiben.
 - **Teamname:** In bulibow heißt die Mannschaft inzwischen „Homburger SG“ (vorher „Homburger SG 2“).
 - **Ausrichter:** Der Dank ist bewusst allgemein gehalten. Konkrete Details (Helfer, Verpflegung) bitte ergänzen, falls bekannt.
-- **Höhere Ligen:** Welche Liga über den Hessenligen liegt, ist im Artikel nicht genannt.
+- **Meistertitel:** Hessenliga Blankbogen und Compound sind die höchsten hessischen Spielklassen; der Artikel spricht deshalb vom Rennen um den Hessenmeistertitel, nicht vom Aufstieg.

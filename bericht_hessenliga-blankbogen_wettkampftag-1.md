@@ -10,7 +10,7 @@ Den stärksten Einzelschnitt des Tages erzielte Patrick Jestädt (SG Eichenzell)
 
 Die Homburger SG sorgte auch für eine der Überraschungen des Tages: Nach dem 0:6 gegen Bürstadt zum Auftakt schlug sie in der zweiten Runde den späteren Tageszweiten Götzenhain glatt mit 6:0. In der Schlussrunde gelang den Homburgern zudem die größte Aufholjagd des Tages: Gegen die SG Eichenzell lagen sie nach zwei Sätzen mit 0:4 zurück, gewannen dann aber drei Sätze in Folge und siegten mit 6:4.
 
-Nach dem ersten von vier Wettkampftagen steht Bürstadt damit auf dem Aufstiegsplatz – mit vier Punkten Vorsprung auf das Verfolgerduo Götzenhain und Homburg. Am Tabellenende geht es dagegen eng zu: Die SG Eichenzell, der BSC Korbach, der SVW Erzhausen und BS Frankfurt haben jeweils 4:10 Punkte, nur zwei Punkte dahinter folgt der BSC Gießen (6:8). BS Frankfurt rangiert trotz zweier Siege zum Abschluss – 6:2 gegen Eichenzell und 6:4 gegen Gießen – auf dem einzigen sicheren Abstiegsplatz. Ob auch die Plätze davor am Saisonende noch zittern müssen, hängt davon ab, wie viele hessische Mannschaften aus den höheren Ligen absteigen.
+Nach dem ersten von vier Wettkampftagen führt Bürstadt damit das Rennen um den Hessenmeistertitel an – mit vier Punkten Vorsprung auf das Verfolgerduo Götzenhain und Homburg. Am Tabellenende geht es dagegen eng zu: Die SG Eichenzell, der BSC Korbach, der SVW Erzhausen und BS Frankfurt haben jeweils 4:10 Punkte, nur zwei Punkte dahinter folgt der BSC Gießen (6:8). BS Frankfurt rangiert trotz zweier Siege zum Abschluss – 6:2 gegen Eichenzell und 6:4 gegen Gießen – auf dem einzigen sicheren Abstiegsplatz. Ob auch die Plätze davor am Saisonende noch zittern müssen, steht erst nach dem letzten Wettkampftag fest.
 
 Ein großes Dankeschön geht an den PBC Bürstadt, der nicht nur sportlich überzeugte, sondern sich auch als hervorragender Gastgeber erwies und den acht Mannschaften in seiner Bogenhalle einen gelungenen Saisonauftakt bereitete. Weiter geht es am Samstag, 5. Dezember 2026, mit dem zweiten Wettkampftag beim BSC Oberauroff in Idstein.
 
@@ -53,7 +53,7 @@ Quelle: bulibow, Fixture 195 (Hessenliga Blankbogen 2026/2027, 1. Wettkampftag, 
 | Homburg – Götzenhain 6:0 (R2); Homburg – Eichenzell 6:4 nach 0:4 (Sätze 39:43, 44:50, 48:45, 51:38, 49:41) | Runden 2 und 7 |
 | Frankfurt – Eichenzell 6:2 (R5), Gießen – Frankfurt 4:6 (R7) | Runden 5 und 7 |
 | Ausrichter PBC Bürstadt, Bogenhalle PBC Bürstadt | Fixture-Info |
-| Aufstiegsplatz Bürstadt, sicherer Abstiegsplatz BS Frankfurt (Platz 8); weitere Absteiger offen | Tabelle + Ligamodus (1 Auf-, 1 sicherer Absteiger) |
+| Bürstadt Tabellenführer im Rennen um den Hessenmeistertitel (Hessenliga = höchste Spielklasse, kein Aufstieg); sicherer Abstiegsplatz BS Frankfurt (Platz 8); weitere Absteiger offen | Tabelle + Ligamodus |
 | Kommende Wettkampftage: 05.12.2026 09:30 Idstein (BSC Oberauroff), 09.01.2027 15:00 Neu-Isenburg (SG Neu-Isenburg), 07.02.2027 15:00 Korbach (BSC Korbach), inkl. Hallenadressen | Ligakalender bulibow |
 
 Offene Punkte:

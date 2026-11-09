@@ -188,6 +188,27 @@ def evaluate_match(fid: int, rnd: dict, match: dict, members: dict) -> dict | No
     return m
 
 
+def league_mode(league: str, title_places_override: int | None) -> dict:
+    """Bedeutung der Spitzenplaetze je Spielklasse (Bogenligen Hessen).
+
+    Hessenliga = hoechste hessische Spielklasse: Es geht um den Meistertitel, kein Aufstieg;
+    in der Hessenliga Recurve qualifizieren sich die ersten beiden fuer die Aufstiegsrelegation
+    zur Regionalliga. Darunter (Oberliga, Verbandsliga, Bezirksliga) steigt der Erste auf.
+    """
+    name = league.casefold()
+    if name.startswith("hessenliga") and "recurve" in name:
+        mode = {"modus": "meisterschaft_mit_relegation", "platz_anzahl": 2,
+                "bedeutung": "Platz 1 wird Hessenmeister; Platz 1 und 2 duerfen in der Aufstiegsrelegation zur Regionalliga antreten"}
+    elif name.startswith("hessenliga"):
+        mode = {"modus": "meisterschaft", "platz_anzahl": 1,
+                "bedeutung": "Hoechste hessische Spielklasse: Platz 1 wird Hessenmeister, kein Aufstieg"}
+    else:
+        mode = {"modus": "aufstieg", "platz_anzahl": 1, "bedeutung": "Platz 1 steigt auf"}
+    if title_places_override is not None:
+        mode["platz_anzahl"] = title_places_override
+    return mode
+
+
 def table_rows(table) -> list[dict]:
     rows = (table or {}).get("positions") or []
     return [{"rank": p["rank"], "team": p["teamName"], "team_id": p["teamId"],
@@ -311,27 +332,33 @@ def analyse_league(raw: dict, fixtures: list[dict], title_places: int, relegatio
         if d and (r["mp_won"] - b["mp_won"] != d["mp_won"] or r["sp_won"] - b["sp_won"] != d["sp_won"]):
             abweichungen.append(r["team"])
 
+    mode = league_mode(infos[0]["league"] or "", title_places)
+    title_places = mode["platz_anzahl"]
     situation = None
     if after:
-        # Ligamodus HSV: Platz 1 steigt auf, der Letzte steigt sicher ab; ob weitere absteigen,
-        # haengt von den Absteigern aus den hoeheren Ligen ab (--relegation-places = sichere Absteiger).
+        # Absteiger: Der Letzte steigt sicher ab; ob weitere absteigen, steht waehrend der Saison
+        # noch nicht fest (haengt u. a. von den Absteigern aus den hoeheren Ligen ab).
         n = len(after)
         leader_pts = after[0]["mp_won"]
         sure = after[n - relegation_places:] if relegation_places else []
         safe = after[n - relegation_places - 1]["mp_won"] if relegation_places and n > relegation_places else None
         maybe = after[max(title_places, n - relegation_places - maybe_places):n - relegation_places] if relegation_places else []
         situation = {
-            "aufstiegsplatz": [r["team"] for r in after[:title_places]],
-            "abstand_platz2_zur_spitze": leader_pts - after[title_places]["mp_won"] if n > title_places else None,
-            "verfolger_innerhalb_4_mp": [r["team"] for r in after[title_places:] if leader_pts - r["mp_won"] <= 4],
+            "ligamodus": mode["modus"],
+            "bedeutung_spitzenplaetze": mode["bedeutung"],
+            "spitzenplaetze": [r["team"] for r in after[:title_places]],
+            "tabellenfuehrer": after[0]["team"],
+            "abstand_erster_bis_letzter_spitzenplatz_zum_naechsten": (after[title_places - 1]["mp_won"] - after[title_places]["mp_won"])
+                                                                     if n > title_places else None,
+            "abstand_platz2_zur_spitze": leader_pts - after[1]["mp_won"] if n > 1 else None,
+            "verfolger_innerhalb_4_mp_zur_spitze": [r["team"] for r in after[1:] if leader_pts - r["mp_won"] <= 4],
             "sicherer_abstiegsplatz": [r["team"] for r in sure],
             "punkte_erster_platz_vor_sicherem_abstieg": safe,
             "moeglicherweise_abstiegsgefaehrdet": [r["team"] for r in maybe],
             "innerhalb_4_mp_vor_sicherem_abstieg": [r["team"] for r in after[title_places:n - relegation_places]
                                                     if sure and r["mp_won"] - sure[0]["mp_won"] <= 4],
-            "hinweis": (f"Platz 1..{title_places} steigt auf, die letzten {relegation_places} steigen sicher ab; "
-                        f"ob die {len(maybe)} Plaetze davor ebenfalls absteigen, haengt von den Absteigern "
-                        "der hoeheren Ligen ab und steht noch nicht fest."),
+            "hinweis": (f"{mode['bedeutung']}. Die letzten {relegation_places} steigen sicher ab; ob die "
+                        f"{len(maybe)} Plaetze davor ebenfalls absteigen, steht waehrend der Saison noch nicht fest."),
         }
 
     own_ids = {i["fixtureId"] for i in infos}
@@ -475,7 +502,8 @@ def main():
     p.add_argument("--api-url", default=os.environ.get("BULIBOW_API_URL", DEFAULT_URL))
     p.add_argument("--raw", help="Rohdaten aus Datei statt API laden (Format von --dump-raw)")
     p.add_argument("--dump-raw", help="Rohdaten zusaetzlich in diese Datei schreiben")
-    p.add_argument("--title-places", type=int, default=1, help="Aufstiegsplaetze (Standard 1)")
+    p.add_argument("--title-places", type=int, default=None,
+                   help="Anzahl der Spitzenplaetze (Meister/Relegation/Aufstieg); Standard je nach Liga automatisch")
     p.add_argument("--relegation-places", type=int, default=1, help="sichere Abstiegsplaetze (Standard 1, 0 = keine)")
     p.add_argument("--maybe-relegation-places", type=int, default=2,
                    help="Plaetze vor dem sicheren Abstieg, die je nach Absteigern aus hoeheren Ligen ebenfalls absteigen koennen (Standard 2)")

@@ -23,7 +23,7 @@
 
 <Absatz 3: Top-Schützen und weitere Höhepunkte – beste Ringschnitte, 60er-Satz, Überraschungen.>
 
-<Absatz 4: Tabellensituation – Kampf um den Aufstiegsplatz und gegen den Abstieg.>
+<Absatz 4: Tabellensituation – Meisterschaft (Hessenliga) bzw. Relegation (Hessenliga Recurve) bzw. Aufstieg (darunter) und Abstieg.>
 
 <Absatz 5: Dank an den Ausrichter als guten Gastgeber, verbunden mit dem Ausblick auf den nächsten Wettkampftag.>
 
@@ -88,8 +88,13 @@ Ergebnisse immer als Satzpunkte schreiben („gewann 6:4“), Ringe nur ergänze
   spannenden Bogensport aus nächster Nähe und feuern Sie die Mannschaften an!“, „Die
   Ausrichter freuen sich über jeden Besucher in der Halle.“ (freier Eintritt immer nennen;
   keine Versprechen zu Verpflegung o. Ä. ohne Quelle)
-- Aufstieg/Abstieg: „steht auf dem Aufstiegsplatz“, „rangiert auf dem einzigen sicheren
-  Abstiegsplatz“, „muss je nach Absteigern aus der höheren Liga ebenfalls noch zittern“
+- Meisterschaft (Hessenliga): „führt das Rennen um den Hessenmeistertitel an“, „hat die
+  Meisterschaft im Blick“, „Titelverteidiger“ (nur wenn bekannt) – nie „Aufstiegsplatz“
+- Relegation (Hessenliga Recurve): „belegt einen der beiden Plätze für die
+  Aufstiegsrelegation zur Regionalliga“
+- Aufstieg (Ober-, Verbands-, Bezirksliga): „steht auf dem Aufstiegsplatz“
+- Abstieg: „rangiert auf dem einzigen sicheren Abstiegsplatz“, „muss je nach Absteigern aus
+  der höheren Liga ebenfalls noch zittern“ (nur in Ligen unterhalb der Hessenliga)
 - Tabelle: „übernimmt die Tabellenspitze“, „verteidigt Platz eins“, „bleibt mit nur einem
   Punkt Rückstand in Schlagdistanz“, „steht weiter auf einem Abstiegsplatz“, „verschafft sich
   Luft im Tabellenkeller“

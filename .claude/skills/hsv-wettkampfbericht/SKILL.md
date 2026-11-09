@@ -7,7 +7,7 @@ description: Schreibt aus den Ergebnissen eines oder mehrerer bulibow-Fixtures (
 
 Ziel: ein veröffentlichungsfertiger deutscher Artikel für die HSV-Webseite, der die Highlights
 eines Liga-Wettkampftags erzählt – Tagessieger, Top-Schützen, ein spannender Matchverlauf,
-Titel- und Abstiegskampf, Dank an den Ausrichter, kommende Termine mit Einladung an Zuschauer. Jede Zahl und jeder Name im Artikel muss aus den Daten stammen.
+Meister-, Aufstiegs- und Abstiegskampf, Dank an den Ausrichter, kommende Termine mit Einladung an Zuschauer. Jede Zahl und jeder Name im Artikel muss aus den Daten stammen.
 
 ## 1. Eingaben klären
 
@@ -18,12 +18,17 @@ Titel- und Abstiegskampf, Dank an den Ausrichter, kommende Termine mit Einladung
   Kennt der Nutzer die ID nicht, finde sie über den Kalender:
   `curl -s "https://api.bogenligen-hessen.org/api/public/calendar?seasonId=<id>"`
   (Saisons: `/api/public/seasons`), Felder `fixtureId`, `league`, `dateTime`, `locationCity`.
-- **Ligamodus**: In den hessischen Ligen steigt der Erste auf und der Letzte sicher ab.
-  Ob weitere Mannschaften absteigen, hängt davon ab, wer aus den höheren Ligen absteigt –
-  das steht während der Saison nicht fest. Das Skript nutzt das als Standard
-  (`--title-places 1 --relegation-places 1`); die zwei Plätze vor dem Letzten markiert es als
-  „möglicherweise abstiegsgefährdet“ (`--maybe-relegation-places`). Nur abweichende Regeln
-  beim Nutzer erfragen.
+- **Ligamodus** – das Skript erkennt ihn am Liganamen (`ligamodus` in `tabellensituation`):
+  - **Hessenliga** (höchste hessische Spielklasse, `meisterschaft`): Es geht um den
+    **Meistertitel** (Hessenmeister), es gibt keinen Aufstieg. Nie „Aufstiegsplatz“ schreiben.
+  - **Hessenliga Recurve** (`meisterschaft_mit_relegation`): Platz 1 wird Hessenmeister;
+    die **ersten beiden** dürfen in der **Aufstiegsrelegation zur Regionalliga** antreten.
+  - **Oberliga, Verbandsliga, Bezirksliga** (`aufstieg`): Der Erste steigt auf.
+  - **Abstieg** (alle Ligen): Der Letzte steigt sicher ab. Ob weitere absteigen, steht während
+    der Saison nicht fest – in den unteren Ligen hängt es von den Absteigern aus den höheren
+    Ligen ab. Das Skript markiert die zwei Plätze vor dem Letzten als „möglicherweise
+    abstiegsgefährdet“ (`--maybe-relegation-places`).
+  Übersteuern nur bei abweichenden Regeln (`--title-places`, `--relegation-places`).
 
 Mehr braucht es nicht: Die öffentlichen Endpunkte erfordern keinen Login, Vortabelle,
 verbleibende Wettkampftage und nächster Termin kommen aus dem Ligakalender.
@@ -72,10 +77,13 @@ Lies `references/stil.md` für Aufbau und Tonalität. Wähle dann aus den Fakten
    Einzelrangliste“). Bei Abweichungen gelten die Zahlen der bulibow-Statistik.
 4. **Weitere Höhepunkte** – `perfekte_saetze_60` (immer erwähnen), `hoechster_satz`,
    beste Mannschaftsschnitte, Comebacks, glatte Siege des Underdogs.
-5. **Tabellensituation** – Aufstiegsplatz und Abstand, Verfolger, Rangänderungen
-   (`rang_vorher`). Unten: Der Letzte steht auf dem sicheren Abstiegsplatz; die Plätze davor
-   nur als „möglicherweise gefährdet“ beschreiben („ob auch Platz sieben absteigen muss,
-   entscheidet sich erst mit den Absteigern aus den höheren Ligen“) – nie als feststehend. Mit `verbleibende_wettkampftage` einordnen („drei Wettkampftage vor
+5. **Tabellensituation** – je nach `ligamodus`: Kampf um den Meistertitel (Hessenliga), um
+   die Relegationsplätze zur Regionalliga (Hessenliga Recurve, Plätze 1–2) oder um den
+   Aufstiegsplatz (darunter); Abstand, Verfolger, Rangänderungen (`rang_vorher`). Unten: Der
+   Letzte steht auf dem sicheren Abstiegsplatz; die Plätze davor nur als „möglicherweise
+   gefährdet“ beschreiben („ob auch Platz sieben absteigen muss, steht erst am Saisonende
+   fest“; in unteren Ligen: „… entscheidet sich mit den Absteigern aus den höheren Ligen“) –
+   nie als feststehend. Mit `verbleibende_wettkampftage` einordnen („drei Wettkampftage vor
    Schluss“). Am ersten Wettkampftag der Saison: nur „erste Tabellenführung“ etc.
 6. **Ausrichter würdigen** – jeder Artikel hebt den Ausrichter (`Ausrichter`, Halle/Ort) als
    guten Gastgeber hervor und dankt ihm, z. B. für die Ausrichtung und die gute Organisation.
