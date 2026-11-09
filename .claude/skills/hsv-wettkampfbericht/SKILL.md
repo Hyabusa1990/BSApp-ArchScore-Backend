@@ -65,7 +65,11 @@ Lies `references/stil.md` für Aufbau und Tonalität. Wähle dann aus den Fakten
    Erzähle den Verlauf mit `satzpunkte_verlauf` und `saetze`.
 3. **Top-Schützen** – aus `top_schuetzen` (Ringschnitt pro Pfeil, nur Schützen mit
    genügend Pfeilen) und `meiste_zehner`; ein bis drei Namen mit Verein und Schnitt.
-   Bei Abweichungen gilt die Einzelrangliste laut bulibow.
+   Wichtig: Es gibt in den Bogenligen **keine offizielle Einzelwertung** – die Zahlen sind
+   nur eine Statistik. Sie dürfen gern in den Artikel, aber als Statistik formuliert
+   („den besten Ringschnitt des Tages erzielte …“, „statistisch stärkster Schütze“), nie als
+   Wertung, Rangliste, Sieg oder Platzierung („gewann die Einzelwertung“, „Platz 1 der
+   Einzelrangliste“). Bei Abweichungen gelten die Zahlen der bulibow-Statistik.
 4. **Weitere Höhepunkte** – `perfekte_saetze_60` (immer erwähnen), `hoechster_satz`,
    beste Mannschaftsschnitte, Comebacks, glatte Siege des Underdogs.
 5. **Tabellensituation** – Aufstiegsplatz und Abstand, Verfolger, Rangänderungen
@@ -94,10 +98,12 @@ Nicht jedes Team muss namentlich vorkommen, aber kein Team darf falsch dargestel
 Gib den Artikel als Markdown aus (Struktur siehe `references/stil.md`) und speichere ihn
 zusätzlich als Datei im Arbeitsverzeichnis, z. B. `bericht_<liga>_<wettkampftag>.md`.
 Darunter, klar abgesetzt, eine kurze **Faktenprüfung für die Redaktion**: genannte Zahlen
-und Namen mit Herkunft (Runde/Match, Einzelauswertung) sowie offene Punkte.
+und Namen mit Herkunft (Runde/Match, Einzelstatistik) sowie offene Punkte.
 
 Selbstkontrolle vor der Ausgabe:
 - Stimmt jede Zahl (Satzpunkte, Ringe, Matchpunkte, Schnitte) mit der Skriptausgabe überein?
 - Ist Sieger/Verlierer bei jedem genannten Match korrekt (Team A/B nicht vertauscht)?
 - Sind Namen korrekt geschrieben und dem richtigen Verein zugeordnet?
 - Keine erfundenen Zitate, Wetterberichte oder Zuschauerzahlen?
+- Steht „Bogenliga“ (bzw. „Bogensport“) prominent in der Überschrift?
+- Werden Einzelleistungen als Statistik und nicht als Einzelwertung dargestellt?

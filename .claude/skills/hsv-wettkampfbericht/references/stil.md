@@ -13,7 +13,7 @@
 ## Aufbau (400–600 Wörter, wenn nicht anders gewünscht)
 
 ```markdown
-# <Titel: Kernaussage mit Teamname, max. ~70 Zeichen>
+# <Titel: „Bogenliga“ prominent vorn + Kernaussage mit Teamname, max. ~80 Zeichen>
 
 **<Teaser, 1–2 Sätze: Liga, Wettkampftag, Ort, wichtigstes Ergebnis.>**
 
@@ -44,6 +44,20 @@
 Wochentag aus dem Datum berechnen, nicht schätzen. Uhrzeit = Beginn laut bulibow.
 
 Zwischenüberschriften im Fließtext nur bei mehr als ~600 Wörtern.
+
+### Überschrift
+
+Die Überschrift muss auf den ersten Blick zeigen, dass es um **Bogensport** geht – auf der
+HSV-Webseite stehen auch Berichte aus Gewehr-, Pistolen- und anderen Disziplinen. Deshalb
+„Bogenliga“ (oder „Bogensport“) prominent an den Anfang, z. B. als Dachzeile mit
+Doppelpunkt:
+
+- „Bogenliga: Bürstadt startet mit weißer Weste in die Blankbogen-Saison“
+- „Bogenliga Hessen: Doppelter Saisonauftakt in Bürstadt“
+- „Hessenliga Bogen Compound: Fulda trifft zweimal die 60“
+
+Auch Zwischenüberschriften für einzelne Ligen nennen die Bogenklasse
+(„Hessenliga Blankbogen“, „Hessenliga Compound“, „Hessenliga Recurve“).
 
 ## Fachbegriffe (Bogenliga, Satzsystem)
 
@@ -84,6 +98,8 @@ Ergebnisse immer als Satzpunkte schreiben („gewann 6:4“), Ringe nur ergänze
 
 - Namen von Schützen, die nicht aus den Daten stammen; Trainer oder Zitate, die der Nutzer nicht geliefert hat.
 - Schwache Einzelleistungen namentlich hervorheben – Schützen werden nur positiv genannt.
+- Begriffe wie „Einzelwertung“, „Einzelrangliste“, „Einzelsieger“ – es gibt keine offizielle
+  Einzelwertung; Einzelleistungen sind nur Statistik („bester Ringschnitt des Tages“).
 - Angaben zu Wetter, Halle, Zuschauern, Stimmung ohne Quelle.
 - Prognosen zu Auf-/Abstieg als Tatsache, solange rechnerisch noch alles offen ist; nur der
   Letzte steht auf dem sicheren Abstiegsplatz, weitere Absteiger stehen erst nach der Saison

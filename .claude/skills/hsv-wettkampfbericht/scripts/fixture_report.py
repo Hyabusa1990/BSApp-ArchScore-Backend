@@ -8,7 +8,7 @@ Benutzte oeffentliche Endpunkte (kein Login noetig):
   GET /api/public/fixture/{id}/info               Liga, Saison, Ausrichter, Ort, Datum
   GET /api/public/fixture/{id}/rounds             Runden > Matches > Scheiben > Saetze > Pfeile
   GET /api/public/fixture/{id}/table              Tabelle NACH diesem Fixture (kumulativ)
-  GET /api/public/fixture/{id}/individualranking  Einzelrangliste laut bulibow
+  GET /api/public/fixture/{id}/individualranking  Einzelstatistik laut bulibow (keine offizielle Wertung)
   GET /api/public/calendar?seasonId=&leagueId=    alle Fixtures der Liga (Vortabelle, Ausblick)
 
 Mehrere Fixture-IDs derselben Liga (z. B. zwei Durchgaenge an einem Tag) werden zu
@@ -437,7 +437,7 @@ def to_markdown(reports: list[dict]) -> str:
         for k, v in r["highlights"].items():
             out.append(f"- **{k}**: {j(v)}")
         e = r["einzelschuetzen"]
-        out.append(f"\n## Einzelschuetzen (Pfeile mit Zuordnung: {e['pfeile_mit_schuetzenzuordnung']}/{e['pfeile_gesamt']}, "
+        out.append(f"\n## Einzelstatistik – keine offizielle Wertung (Pfeile mit Zuordnung: {e['pfeile_mit_schuetzenzuordnung']}/{e['pfeile_gesamt']}, "
                    f"aussagekraeftig: {e['aussagekraeftig']}, Mindestpfeile: {e['mindestpfeile_fuer_rangliste']})")
         if not e["aussagekraeftig"]:
             out.append("- Pfeile sind (fast) keinen Schuetzen zugeordnet: keine Einzelauswertung, im Artikel keine Top-Schuetzen nennen.")
@@ -445,7 +445,8 @@ def to_markdown(reports: list[dict]) -> str:
             for s in e["top_schuetzen"]:
                 out.append(f"- {s['name']} ({s['team']}): {s['schnitt']} Ringe/Pfeil, {s['ringe']} Ringe aus {s['pfeile']} Pfeilen, {s['zehner']} Zehner")
             out.append(f"- meiste Zehner: {j([(s['name'], s['team'], s['zehner']) for s in e['meiste_zehner']])}")
-            out.append(f"- Einzelrangliste laut bulibow (Top 5 je Fixture): {j(e['laut_bulibow'])}")
+            out.append(f"- Einzelstatistik laut bulibow (Top 5 je Fixture): {j(e['laut_bulibow'])}")
+            out.append("- Hinweis: keine offizielle Einzelwertung, nur Statistik")
         out.append("\n## Tagestabelle")
         out.append("| Platz | Team | MP | SP | Ringe/Satz | S-U-N |")
         out.append("|---|---|---|---|---|---|")
@@ -479,7 +480,7 @@ def main():
     p.add_argument("--maybe-relegation-places", type=int, default=2,
                    help="Plaetze vor dem sicheren Abstieg, die je nach Absteigern aus hoeheren Ligen ebenfalls absteigen koennen (Standard 2)")
     p.add_argument("--min-shots-share", type=float, default=0.5,
-                   help="Einzelrangliste: Mindestanteil an Pfeilen des Schuetzen mit den meisten Pfeilen (Standard 0.5)")
+                   help="Einzelstatistik: Mindestanteil an Pfeilen des Schuetzen mit den meisten Pfeilen (Standard 0.5)")
     p.add_argument("--format", choices=["json", "md"], default="md")
     a = p.parse_args()
 

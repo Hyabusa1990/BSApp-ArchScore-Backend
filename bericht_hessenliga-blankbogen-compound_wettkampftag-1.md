@@ -1,4 +1,4 @@
-# Doppelter Saisonauftakt in Bürstadt: Gastgeber und Fulda an der Spitze
+# Bogenliga Hessen: Doppelter Saisonauftakt in Bürstadt – Gastgeber und Fulda vorn
 
 **Der PBC Bürstadt war am Sonntag gleich doppelt Gastgeber: Am Vormittag startete die Hessenliga Blankbogen, am Nachmittag die Hessenliga Compound in die neue Saison. Bei den Blankbogenschützen gewann Bürstadt alle sieben Matches, bei den Compoundern setzte sich der BSC Fulda mit 13:1 Punkten an die Spitze.**
 
@@ -18,7 +18,7 @@ Bei den Compoundern gab der BSC Fulda den Ton an. Leonie Dana Dorfner, Christian
 
 Den einzigen Punkt gab Fulda ausgerechnet im engsten Match des Tages ab. Gegen die SpS Niederwetz endeten gleich drei von fünf Sätzen ringgleich mit 57:57. Fulda ging zwar mit 58:57 im dritten Satz 4:2 in Führung, doch Oliver Funk, Gianluca DeSilvio und Jacqueline Emler glichen mit 58:56 aus. Im letzten Satz trafen beide Teams erneut 57 Ringe – 5:5, ein Remis, bei dem Niederwetz am Ende sogar einen Ring mehr auf dem Konto hatte (286:285). Für Niederwetz war es eines von drei Unentschieden in Folge, auch gegen den BSV Moischt und Bürstadt hieß es 5:5.
 
-Auch in der Einzelwertung lag Fulda vorn: Pascal Schmidt erzielte 9,71 Ringe pro Pfeil und traf 34-mal die Zehn. Dahinter folgten Gianluca DeSilvio (SpS Niederwetz, 9,65) und Christian Schönfeld (BSC Fulda, 9,62). Die meisten Zehner des Tages schoss Oliver Funk (SpS Niederwetz) mit 39.
+Auch statistisch stellte Fulda den stärksten Schützen: Pascal Schmidt erzielte 9,71 Ringe pro Pfeil und traf 34-mal die Zehn. Dahinter folgten Gianluca DeSilvio (SpS Niederwetz, 9,65) und Christian Schönfeld (BSC Fulda, 9,62). Die meisten Zehner des Tages schoss Oliver Funk (SpS Niederwetz) mit 39.
 
 Hinter Fulda (13:1) folgt mit vier Punkten Abstand ein Trio mit je 9:5 Punkten: der BS GW Kassel, Gastgeber Bürstadt und Niederwetz. Der SV Arolsen blieb ohne Punkt und steht auf dem sicheren Abstiegsplatz, kam beim 4:6 gegen Kassel aber nah an den ersten Erfolg heran. Davor liegen der TV Weidenhausen (3:11) und der SPSV Breidenbach (5:9) – wie viele Mannschaften am Ende absteigen, entscheidet sich erst mit den Absteigern aus den höheren Ligen.
 
@@ -83,7 +83,7 @@ Quellen: bulibow, Fixture 195 (Hessenliga Blankbogen, 08.11.2026, 10:30 Uhr) und
 | R7 Bürstadt – Götzenhain 6:2, Sätze 39:47, 47:37, 52:43, 42:41 | Runde 7 |
 | R5 Erzhausen – Bürstadt 4:6, Sätze 50:52, 52:43, 48:47, 39:46, 43:50; Schützen laut Matchaufstellung | Runde 5 |
 | Erzhausen 45,46 Ringe/Satz (3. bester), 2-0-5, Rang 7 | Tagesauswertung / Tabelle |
-| Jestädt 8,38 (285/34), Gerlings 8,30 (382/46, 11 Zehner), Gaber 8,21 (394/48) | Einzelauswertung = Einzelrangliste bulibow |
+| Jestädt 8,38 (285/34), Gerlings 8,30 (382/46, 11 Zehner), Gaber 8,21 (394/48) | Einzelstatistik bulibow (keine offizielle Wertung) |
 | Homburg – Götzenhain 6:0 (R2); Homburg – Eichenzell 6:4 nach 0:4 (R7) | Runden 2 und 7 |
 | Sicherer Abstiegsplatz BS Frankfurt (Platz 8) | Tabelle + Ligamodus |
 
@@ -97,7 +97,7 @@ Quellen: bulibow, Fixture 195 (Hessenliga Blankbogen, 08.11.2026, 10:30 Uhr) und
 | 60er-Sätze Fulda: R6 Satz 1 gegen Weidenhausen (60:54), R7 Satz 1 gegen Bürstadt (60:56); beide Matches 6:0 | Runden 6 und 7 |
 | R5 Niederwetz – Fulda 5:5, Sätze 57:57, 57:57, 57:58, 58:56, 57:57; Ringe 286:285 | Runde 5 |
 | Niederwetz 5:5 in R4 (Moischt), R5 (Fulda), R6 (Bürstadt) | Runden 4–6 |
-| Schmidt 9,71 (466/48, 34 Zehner), DeSilvio 9,65 (521/54), Schönfeld 9,62 (462/48); Funk 39 Zehner (596/62) | Einzelauswertung = Einzelrangliste bulibow |
+| Schmidt 9,71 (466/48, 34 Zehner), DeSilvio 9,65 (521/54), Schönfeld 9,62 (462/48); Funk 39 Zehner (596/62) | Einzelstatistik bulibow (keine offizielle Wertung) |
 | Kassel, Bürstadt, Niederwetz je 9:5; Arolsen 0:14, R5 Kassel – Arolsen 6:4 | Tabelle / Runde 5 |
 | Sicherer Abstiegsplatz SV Arolsen (Platz 8); Weidenhausen 3:11, Breidenbach 5:9 | Tabelle + Ligamodus |
 

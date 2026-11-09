@@ -1,4 +1,4 @@
-# Bürstadt startet mit weißer Weste in die Blankbogen-Saison
+# Bogenliga: Bürstadt startet mit weißer Weste in die Blankbogen-Saison
 
 **Perfekter Auftakt als Gastgeber: Der PBC Bürstadt gewann am ersten Wettkampftag der Hessenliga Blankbogen alle sieben Matches und führt die Tabelle mit 14:0 Punkten an. Dahinter folgen der HSV Götzenhain und die Homburger SG mit je 10:4 Punkten.**
 
@@ -48,7 +48,7 @@ Quelle: bulibow, Fixture 195 (Hessenliga Blankbogen 2026/2027, 1. Wettkampftag, 
 | R7 Bürstadt – Götzenhain 6:2, Sätze 39:47, 47:37, 52:43, 42:41 | Runde 7, Match 1 |
 | R5 Erzhausen – Bürstadt 4:6, Sätze 50:52, 52:43, 48:47, 39:46, 43:50; Schützen laut Matchaufstellung | Runde 5, Match 3 |
 | Erzhausen 45,46 Ringe/Satz (3. bester), Bilanz 2-0-5 | Tagesauswertung |
-| Jestädt 8,38 (285/34), Gerlings 8,30 (382/46, 11 Zehner), Gaber 8,21 (394/48) | Einzelauswertung = Einzelrangliste bulibow |
+| Jestädt 8,38 (285/34), Gerlings 8,30 (382/46, 11 Zehner), Gaber 8,21 (394/48) | Einzelstatistik bulibow (keine offizielle Wertung) |
 | Höchster Satz 54 Ringe, Homburger SG gegen BSC Gießen (R5, Satz 3); Match 2:6 | Runde 5 |
 | Homburg – Götzenhain 6:0 (R2); Homburg – Eichenzell 6:4 nach 0:4 (Sätze 39:43, 44:50, 48:45, 51:38, 49:41) | Runden 2 und 7 |
 | Frankfurt – Eichenzell 6:2 (R5), Gießen – Frankfurt 4:6 (R7) | Runden 5 und 7 |
