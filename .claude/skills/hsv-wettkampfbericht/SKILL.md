@@ -5,6 +5,9 @@ description: Schreibt aus den Ergebnissen eines oder mehrerer bulibow-Fixtures (
 
 # HSV-Wettkampfbericht aus bulibow-Fixtures
 
+`<SKILL_DIR>` ist das Verzeichnis dieses Skills (dort, wo diese SKILL.md liegt), z. B.
+`.claude/skills/hsv-wettkampfbericht` im Repository oder `~/.claude/skills/hsv-wettkampfbericht`.
+
 Ziel: ein veröffentlichungsfertiger deutscher Artikel für die HSV-Webseite, der die Highlights
 eines Liga-Wettkampftags erzählt – Tagessieger, Top-Schützen, ein spannender Matchverlauf,
 Meister-, Aufstiegs- und Abstiegskampf, Dank an den Ausrichter, kommende Termine mit Einladung an Zuschauer. Jede Zahl und jeder Name im Artikel muss aus den Daten stammen.
@@ -40,7 +43,7 @@ verbleibende Wettkampftage und nächster Termin kommen aus dem Ligakalender.
 ## 2. Daten holen und auswerten
 
 ```bash
-python3 .claude/skills/hsv-wettkampfbericht/scripts/fixture_report.py <ID> [<ID> ...] \
+python3 <SKILL_DIR>/scripts/fixture_report.py <ID> [<ID> ...] \
   --dump-raw <scratchpad>/rohdaten.json
 ```
 
@@ -117,7 +120,7 @@ und Namen mit Herkunft (Runde/Match, Einzelstatistik) sowie offene Punkte.
 will), nach der Selbstkontrolle aus der Markdown-Datei erzeugen:
 
 ```bash
-node .claude/skills/hsv-wettkampfbericht/scripts/bericht_docx.js bericht_<...>.md [ausgabe.docx] [--mit-faktenpruefung]
+node <SKILL_DIR>/scripts/bericht_docx.js bericht_<...>.md [ausgabe.docx] [--mit-faktenpruefung]
 ```
 
 - Standard: nur der Artikel (Überschrift, Teaser, Text, Tabellen, Termine) – zur
