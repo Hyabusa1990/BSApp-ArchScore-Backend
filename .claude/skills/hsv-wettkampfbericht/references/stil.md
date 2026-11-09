@@ -23,9 +23,9 @@
 
 <Absatz 3: Top-Schützen und weitere Höhepunkte – beste Ringschnitte, 60er-Satz, Überraschungen.>
 
-<Absatz 4: Tabellensituation – Titelrennen und Abstiegskampf.>
+<Absatz 4: Tabellensituation – Kampf um den Aufstiegsplatz und gegen den Abstieg.>
 
-<Absatz 5 (optional): Ausblick auf den nächsten Wettkampftag.>
+<Absatz 5: Dank an den Ausrichter als guten Gastgeber, verbunden mit dem Ausblick auf den nächsten Wettkampftag.>
 
 ## Ergebnisse <Liga> – <Wettkampftag>
 
@@ -58,6 +58,11 @@ Ergebnisse immer als Satzpunkte schreiben („gewann 6:4“), Ringe nur ergänze
 - Comeback: „lag nach zwei Sätzen mit 0:4 zurück“, „kämpfte sich zurück“, „drehte die Partie“
 - Knapp: „mit einem einzigen Ring Vorsprung“, „ringgleich – beide Teams teilten sich den Satz“
 - Dominanz: „ließ nichts anbrennen und siegte glatt mit 6:0“
+- Ausrichter: „Ein großes Dankeschön geht an den PBC Bürstadt, der ein hervorragender Gastgeber
+  war“, „die Gastgeber sorgten für einen reibungslosen Ablauf“, „bot den Mannschaften
+  beste Bedingungen“ (nur allgemein – keine erfundenen Details)
+- Aufstieg/Abstieg: „steht auf dem Aufstiegsplatz“, „rangiert auf dem einzigen sicheren
+  Abstiegsplatz“, „muss je nach Absteigern aus der höheren Liga ebenfalls noch zittern“
 - Tabelle: „übernimmt die Tabellenspitze“, „verteidigt Platz eins“, „bleibt mit nur einem
   Punkt Rückstand in Schlagdistanz“, „steht weiter auf einem Abstiegsplatz“, „verschafft sich
   Luft im Tabellenkeller“
@@ -67,5 +72,7 @@ Ergebnisse immer als Satzpunkte schreiben („gewann 6:4“), Ringe nur ergänze
 - Namen von Schützen, die nicht aus den Daten stammen; Trainer oder Zitate, die der Nutzer nicht geliefert hat.
 - Schwache Einzelleistungen namentlich hervorheben – Schützen werden nur positiv genannt.
 - Angaben zu Wetter, Halle, Zuschauern, Stimmung ohne Quelle.
-- Prognosen zu Auf-/Abstieg als Tatsache, solange rechnerisch noch alles offen ist.
+- Prognosen zu Auf-/Abstieg als Tatsache, solange rechnerisch noch alles offen ist; nur der
+  Letzte steht auf dem sicheren Abstiegsplatz, weitere Absteiger stehen erst nach der Saison
+  der höheren Ligen fest.
 - Interne Begriffe aus bulibow (Fixture, Target, RoundNo, Spotter, DOS, Satz 99).

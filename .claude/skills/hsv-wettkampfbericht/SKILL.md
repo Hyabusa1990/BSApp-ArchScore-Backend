@@ -18,9 +18,12 @@ Titel- und Abstiegskampf, Ausblick. Jede Zahl und jeder Name im Artikel muss aus
   Kennt der Nutzer die ID nicht, finde sie über den Kalender:
   `curl -s "https://api.bogenligen-hessen.org/api/public/calendar?seasonId=<id>"`
   (Saisons: `/api/public/seasons`), Felder `fixtureId`, `league`, `dateTime`, `locationCity`.
-- **Ligamodus** (optional): wie viele Plätze um Titel/Aufstieg spielen und wie viele
-  absteigen (Standard 1 bzw. 2). Unbekannt → vorsichtig formulieren („Tabellenende“ statt
-  „Abstiegsplatz“).
+- **Ligamodus**: In den hessischen Ligen steigt der Erste auf und der Letzte sicher ab.
+  Ob weitere Mannschaften absteigen, hängt davon ab, wer aus den höheren Ligen absteigt –
+  das steht während der Saison nicht fest. Das Skript nutzt das als Standard
+  (`--title-places 1 --relegation-places 1`); die zwei Plätze vor dem Letzten markiert es als
+  „möglicherweise abstiegsgefährdet“ (`--maybe-relegation-places`). Nur abweichende Regeln
+  beim Nutzer erfragen.
 
 Mehr braucht es nicht: Die öffentlichen Endpunkte erfordern keinen Login, Vortabelle,
 verbleibende Wettkampftage und nächster Termin kommen aus dem Ligakalender.
@@ -29,7 +32,7 @@ verbleibende Wettkampftage und nächster Termin kommen aus dem Ligakalender.
 
 ```bash
 python3 .claude/skills/hsv-wettkampfbericht/scripts/fixture_report.py <ID> [<ID> ...] \
-  --title-places 1 --relegation-places 2 --dump-raw <scratchpad>/rohdaten.json
+  --dump-raw <scratchpad>/rohdaten.json
 ```
 
 - Ausgabe standardmäßig Markdown; `--format json` liefert dieselben Fakten maschinenlesbar.
@@ -65,10 +68,17 @@ Lies `references/stil.md` für Aufbau und Tonalität. Wähle dann aus den Fakten
    Bei Abweichungen gilt die Einzelrangliste laut bulibow.
 4. **Weitere Höhepunkte** – `perfekte_saetze_60` (immer erwähnen), `hoechster_satz`,
    beste Mannschaftsschnitte, Comebacks, glatte Siege des Underdogs.
-5. **Tabellensituation** – Spitze und Abstand, Verfolger, Tabellenende, Rangänderungen
-   (`rang_vorher`). Mit `verbleibende_wettkampftage` einordnen („drei Wettkampftage vor
+5. **Tabellensituation** – Aufstiegsplatz und Abstand, Verfolger, Rangänderungen
+   (`rang_vorher`). Unten: Der Letzte steht auf dem sicheren Abstiegsplatz; die Plätze davor
+   nur als „möglicherweise gefährdet“ beschreiben („ob auch Platz sieben absteigen muss,
+   entscheidet sich erst mit den Absteigern aus den höheren Ligen“) – nie als feststehend. Mit `verbleibende_wettkampftage` einordnen („drei Wettkampftage vor
    Schluss“). Am ersten Wettkampftag der Saison: nur „erste Tabellenführung“ etc.
-6. **Ausblick** – `naechster_wettkampftag` (Datum, Ausrichter, Ort).
+6. **Ausrichter würdigen** – jeder Artikel hebt den Ausrichter (`Ausrichter`, Halle/Ort) als
+   guten Gastgeber hervor und dankt ihm, z. B. für die Ausrichtung und die gute Organisation.
+   Allgemein und herzlich formulieren; keine Details erfinden (Verpflegung, Helferzahl,
+   Hallenausstattung), außer der Nutzer nennt sie. Ist kein Ausrichter angegeben, nach ihm
+   fragen oder den Ort als Gastgeber nennen.
+7. **Ausblick** – `naechster_wettkampftag` (Datum, Ausrichter, Ort).
 
 Nicht jedes Team muss namentlich vorkommen, aber kein Team darf falsch dargestellt werden.
 

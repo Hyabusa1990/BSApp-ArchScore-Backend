@@ -197,7 +197,7 @@ def table_rows(table) -> list[dict]:
 
 
 def analyse_league(raw: dict, fixtures: list[dict], title_places: int, relegation_places: int,
-                   min_shots_share: float) -> dict:
+                   maybe_places: int, min_shots_share: float) -> dict:
     infos = [f["info"] for f in fixtures]
     key = f"{infos[0]['seasonId']}-{infos[0]['leagueId']}"
     cal = calendar_fixtures(raw["calendars"].get(key, {}))
@@ -313,18 +313,25 @@ def analyse_league(raw: dict, fixtures: list[dict], title_places: int, relegatio
 
     situation = None
     if after:
+        # Ligamodus HSV: Platz 1 steigt auf, der Letzte steigt sicher ab; ob weitere absteigen,
+        # haengt von den Absteigern aus den hoeheren Ligen ab (--relegation-places = sichere Absteiger).
         n = len(after)
         leader_pts = after[0]["mp_won"]
+        sure = after[n - relegation_places:] if relegation_places else []
         safe = after[n - relegation_places - 1]["mp_won"] if relegation_places and n > relegation_places else None
+        maybe = after[max(title_places, n - relegation_places - maybe_places):n - relegation_places] if relegation_places else []
         situation = {
-            "spitze": [r["team"] for r in after if r["rank"] <= title_places],
-            "abstand_platz2_zur_spitze": leader_pts - after[1]["mp_won"] if n > 1 else None,
-            "verfolger_innerhalb_4_mp": [r["team"] for r in after[1:] if leader_pts - r["mp_won"] <= 4],
-            "abstiegsplaetze": [r["team"] for r in after[n - relegation_places:]] if relegation_places else [],
-            "punkte_erster_nichtabstiegsplatz": safe,
-            "gefaehrdet_innerhalb_4_mp": [r["team"] for r in after[:n - relegation_places]
-                                          if safe is not None and r["mp_won"] - safe <= 4 and r["rank"] > title_places],
-            "hinweis": "Titel-/Abstiegsplaetze sind Annahmen (--title-places/--relegation-places).",
+            "aufstiegsplatz": [r["team"] for r in after[:title_places]],
+            "abstand_platz2_zur_spitze": leader_pts - after[title_places]["mp_won"] if n > title_places else None,
+            "verfolger_innerhalb_4_mp": [r["team"] for r in after[title_places:] if leader_pts - r["mp_won"] <= 4],
+            "sicherer_abstiegsplatz": [r["team"] for r in sure],
+            "punkte_erster_platz_vor_sicherem_abstieg": safe,
+            "moeglicherweise_abstiegsgefaehrdet": [r["team"] for r in maybe],
+            "innerhalb_4_mp_vor_sicherem_abstieg": [r["team"] for r in after[title_places:n - relegation_places]
+                                                    if sure and r["mp_won"] - sure[0]["mp_won"] <= 4],
+            "hinweis": (f"Platz 1..{title_places} steigt auf, die letzten {relegation_places} steigen sicher ab; "
+                        f"ob die {len(maybe)} Plaetze davor ebenfalls absteigen, haengt von den Absteigern "
+                        "der hoeheren Ligen ab und steht noch nicht fest."),
         }
 
     own_ids = {i["fixtureId"] for i in infos}
@@ -376,11 +383,11 @@ def strip(m: dict) -> dict:
     return {k: v for k, v in m.items() if not k.startswith("_")}
 
 
-def analyse(raw: dict, title_places: int, relegation_places: int, min_shots_share: float) -> list[dict]:
+def analyse(raw: dict, title_places: int, relegation_places: int, maybe_places: int, min_shots_share: float) -> list[dict]:
     by_league = defaultdict(list)
     for fx in raw["fixtures"].values():
         by_league[(fx["info"]["seasonId"], fx["info"]["leagueId"])].append(fx)
-    return [analyse_league(raw, fxs, title_places, relegation_places, min_shots_share) for fxs in by_league.values()]
+    return [analyse_league(raw, fxs, title_places, relegation_places, maybe_places, min_shots_share) for fxs in by_league.values()]
 
 
 # ---------------------------------------------------------------------- Markdown
@@ -395,6 +402,9 @@ def to_markdown(reports: list[dict]) -> str:
         f0 = r["fixtures"][0]
         out.append(f"# {r['liga']} {r['saison']} – Wettkampftag {', '.join(str(f['fixtureNo']) for f in r['fixtures'])} "
                    f"({f0['dateTime'][:10]}, {f0['host'] or ''} in {f0['locationCity']})")
+        hosts = sorted({f["host"] for f in r["fixtures"] if f.get("host")})
+        out.append(f"Ausrichter: {', '.join(hosts) if hosts else 'in bulibow nicht angegeben'} | Halle/Ort: "
+                   f"{'; '.join(sorted({(f.get('locationAddressLine1') or '') + ', ' + (f.get('locationCity') or '') for f in r['fixtures']}))}")
         out.append(f"Fixtures: {', '.join(str(f['fixtureId']) for f in r['fixtures'])} | erster Wettkampftag: "
                    f"{r['erster_wettkampftag_der_saison']} | verbleibende Wettkampftage: {r['verbleibende_wettkampftage']} | "
                    f"naechster: {j(r['naechster_wettkampftag'])}")
@@ -445,8 +455,10 @@ def main():
     p.add_argument("--api-url", default=os.environ.get("BULIBOW_API_URL", DEFAULT_URL))
     p.add_argument("--raw", help="Rohdaten aus Datei statt API laden (Format von --dump-raw)")
     p.add_argument("--dump-raw", help="Rohdaten zusaetzlich in diese Datei schreiben")
-    p.add_argument("--title-places", type=int, default=1, help="Plaetze, die um Titel/Aufstieg spielen (Standard 1)")
-    p.add_argument("--relegation-places", type=int, default=2, help="Abstiegsplaetze (Standard 2, 0 = keine)")
+    p.add_argument("--title-places", type=int, default=1, help="Aufstiegsplaetze (Standard 1)")
+    p.add_argument("--relegation-places", type=int, default=1, help="sichere Abstiegsplaetze (Standard 1, 0 = keine)")
+    p.add_argument("--maybe-relegation-places", type=int, default=2,
+                   help="Plaetze vor dem sicheren Abstieg, die je nach Absteigern aus hoeheren Ligen ebenfalls absteigen koennen (Standard 2)")
     p.add_argument("--min-shots-share", type=float, default=0.5,
                    help="Einzelrangliste: Mindestanteil an Pfeilen des Schuetzen mit den meisten Pfeilen (Standard 0.5)")
     p.add_argument("--format", choices=["json", "md"], default="md")
@@ -466,7 +478,7 @@ def main():
         with open(a.dump_raw, "w", encoding="utf-8") as f:
             json.dump(raw, f, ensure_ascii=False)
 
-    reports = analyse(raw, a.title_places, a.relegation_places, a.min_shots_share)
+    reports = analyse(raw, a.title_places, a.relegation_places, a.maybe_relegation_places, a.min_shots_share)
     print(to_markdown(reports) if a.format == "md" else json.dumps(reports, ensure_ascii=False, indent=2))
 
 
