@@ -113,6 +113,21 @@ zusätzlich als Datei im Arbeitsverzeichnis, z. B. `bericht_<liga>_<wettkampftag
 Darunter, klar abgesetzt, eine kurze **Faktenprüfung für die Redaktion**: genannte Zahlen
 und Namen mit Herkunft (Runde/Match, Einzelstatistik) sowie offene Punkte.
 
+**Word-Dokument (.docx)** – wenn der Nutzer Word/.docx möchte (oder den Bericht weitergeben
+will), nach der Selbstkontrolle aus der Markdown-Datei erzeugen:
+
+```bash
+node .claude/skills/hsv-wettkampfbericht/scripts/bericht_docx.js bericht_<...>.md [ausgabe.docx] [--mit-faktenpruefung]
+```
+
+- Standard: nur der Artikel (Überschrift, Teaser, Text, Tabellen, Termine) – zur
+  Veröffentlichung bzw. Weitergabe. `--mit-faktenpruefung` hängt die Faktenprüfung auf einer
+  eigenen Seite an (für die interne Abstimmung).
+- A4, Arial, Tabellen mit Kopfzeile; Tabellen und Termin-Zwischenzeilen werden nicht über
+  Seitenumbrüche zerrissen. Braucht das npm-Paket `docx` (lokal oder global).
+- Vor der Abgabe ins PDF rendern und ansehen (z. B. `soffice --headless --convert-to pdf`,
+  `pdftoppm -jpeg`), ob Umbrüche und Tabellen passen.
+
 Selbstkontrolle vor der Ausgabe:
 - Stimmt jede Zahl (Satzpunkte, Ringe, Matchpunkte, Schnitte) mit der Skriptausgabe überein?
 - Ist Sieger/Verlierer bei jedem genannten Match korrekt (Team A/B nicht vertauscht)?
