@@ -197,6 +197,7 @@ def league_mode(league: str, title_places_override: int | None) -> dict:
     """
     name = league.casefold()
     if name.startswith("hessenliga") and "recurve" in name:
+        # keine feste Anzahl an Absteigern: der Letzte sicher, weitere moeglich
         mode = {"modus": "meisterschaft_mit_relegation", "platz_anzahl": 2, "weitere_moegliche_absteiger": 2,
                 "bedeutung": "Platz 1 wird Hessenmeister; Platz 1 und 2 duerfen in der Aufstiegsrelegation zur Regionalliga antreten"}
     elif name.startswith("hessenliga"):

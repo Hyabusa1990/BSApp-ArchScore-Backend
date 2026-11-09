@@ -26,8 +26,10 @@ Meister-, Aufstiegs- und Abstiegskampf, Dank an den Ausrichter, kommende Termine
   - **Oberliga, Verbandsliga, Bezirksliga** (`aufstieg`): Der Erste steigt auf.
   - **Abstieg**: In der **Hessenliga Blankbogen und Compound** gibt es **immer genau einen
     Absteiger**, den Letzten – keine „möglicherweise gefährdeten“ Plätze. In allen anderen
-    Ligen steigt der Letzte sicher ab; ob weitere absteigen, steht während der Saison nicht
-    fest (in den unteren Ligen hängt es von den Absteigern aus den höheren Ligen ab). Dort
+    Ligen – auch in der **Hessenliga Recurve**, die keine feste Anzahl an Absteigern hat –
+    steigt der Letzte sicher ab; ob weitere absteigen, steht während der Saison nicht fest
+    (es hängt von den Absteigern aus den höheren Ligen ab, bei der Hessenliga Recurve aus
+    der Regionalliga). Dort
     markiert das Skript die zwei Plätze davor als „möglicherweise abstiegsgefährdet“
     (`moeglicherweise_abstiegsgefaehrdet`, `--maybe-relegation-places`).
   Übersteuern nur bei abweichenden Regeln (`--title-places`, `--relegation-places`).
