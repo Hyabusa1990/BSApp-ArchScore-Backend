@@ -197,13 +197,14 @@ def league_mode(league: str, title_places_override: int | None) -> dict:
     """
     name = league.casefold()
     if name.startswith("hessenliga") and "recurve" in name:
-        mode = {"modus": "meisterschaft_mit_relegation", "platz_anzahl": 2,
+        mode = {"modus": "meisterschaft_mit_relegation", "platz_anzahl": 2, "weitere_moegliche_absteiger": 2,
                 "bedeutung": "Platz 1 wird Hessenmeister; Platz 1 und 2 duerfen in der Aufstiegsrelegation zur Regionalliga antreten"}
     elif name.startswith("hessenliga"):
-        mode = {"modus": "meisterschaft", "platz_anzahl": 1,
-                "bedeutung": "Hoechste hessische Spielklasse: Platz 1 wird Hessenmeister, kein Aufstieg"}
+        # Hessenliga Blankbogen/Compound: immer genau ein Absteiger (der Letzte)
+        mode = {"modus": "meisterschaft", "platz_anzahl": 1, "weitere_moegliche_absteiger": 0,
+                "bedeutung": "Hoechste hessische Spielklasse: Platz 1 wird Hessenmeister, kein Aufstieg; genau ein Absteiger"}
     else:
-        mode = {"modus": "aufstieg", "platz_anzahl": 1, "bedeutung": "Platz 1 steigt auf"}
+        mode = {"modus": "aufstieg", "platz_anzahl": 1, "weitere_moegliche_absteiger": 2, "bedeutung": "Platz 1 steigt auf"}
     if title_places_override is not None:
         mode["platz_anzahl"] = title_places_override
     return mode
@@ -334,6 +335,8 @@ def analyse_league(raw: dict, fixtures: list[dict], title_places: int, relegatio
 
     mode = league_mode(infos[0]["league"] or "", title_places)
     title_places = mode["platz_anzahl"]
+    if maybe_places is None:
+        maybe_places = mode["weitere_moegliche_absteiger"]
     situation = None
     if after:
         # Absteiger: Der Letzte steigt sicher ab; ob weitere absteigen, steht waehrend der Saison
@@ -357,8 +360,9 @@ def analyse_league(raw: dict, fixtures: list[dict], title_places: int, relegatio
             "moeglicherweise_abstiegsgefaehrdet": [r["team"] for r in maybe],
             "innerhalb_4_mp_vor_sicherem_abstieg": [r["team"] for r in after[title_places:n - relegation_places]
                                                     if sure and r["mp_won"] - sure[0]["mp_won"] <= 4],
-            "hinweis": (f"{mode['bedeutung']}. Die letzten {relegation_places} steigen sicher ab; ob die "
-                        f"{len(maybe)} Plaetze davor ebenfalls absteigen, steht waehrend der Saison noch nicht fest."),
+            "hinweis": (f"{mode['bedeutung']}. Die letzten {relegation_places} steigen sicher ab"
+                        + (f"; ob die {len(maybe)} Plaetze davor ebenfalls absteigen, steht waehrend der Saison noch nicht fest."
+                           if maybe else "; weitere Absteiger gibt es nicht.")),
         }
 
     own_ids = {i["fixtureId"] for i in infos}
@@ -505,8 +509,9 @@ def main():
     p.add_argument("--title-places", type=int, default=None,
                    help="Anzahl der Spitzenplaetze (Meister/Relegation/Aufstieg); Standard je nach Liga automatisch")
     p.add_argument("--relegation-places", type=int, default=1, help="sichere Abstiegsplaetze (Standard 1, 0 = keine)")
-    p.add_argument("--maybe-relegation-places", type=int, default=2,
-                   help="Plaetze vor dem sicheren Abstieg, die je nach Absteigern aus hoeheren Ligen ebenfalls absteigen koennen (Standard 2)")
+    p.add_argument("--maybe-relegation-places", type=int, default=None,
+                   help="Plaetze vor dem sicheren Abstieg, die ggf. ebenfalls absteigen (Standard je nach Liga: "
+                        "Hessenliga Blankbogen/Compound 0, sonst 2)")
     p.add_argument("--min-shots-share", type=float, default=0.5,
                    help="Einzelstatistik: Mindestanteil an Pfeilen des Schuetzen mit den meisten Pfeilen (Standard 0.5)")
     p.add_argument("--format", choices=["json", "md"], default="md")

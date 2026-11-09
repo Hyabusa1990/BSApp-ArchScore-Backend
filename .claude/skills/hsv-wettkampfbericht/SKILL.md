@@ -24,10 +24,12 @@ Meister-, Aufstiegs- und Abstiegskampf, Dank an den Ausrichter, kommende Termine
   - **Hessenliga Recurve** (`meisterschaft_mit_relegation`): Platz 1 wird Hessenmeister;
     die **ersten beiden** dürfen in der **Aufstiegsrelegation zur Regionalliga** antreten.
   - **Oberliga, Verbandsliga, Bezirksliga** (`aufstieg`): Der Erste steigt auf.
-  - **Abstieg** (alle Ligen): Der Letzte steigt sicher ab. Ob weitere absteigen, steht während
-    der Saison nicht fest – in den unteren Ligen hängt es von den Absteigern aus den höheren
-    Ligen ab. Das Skript markiert die zwei Plätze vor dem Letzten als „möglicherweise
-    abstiegsgefährdet“ (`--maybe-relegation-places`).
+  - **Abstieg**: In der **Hessenliga Blankbogen und Compound** gibt es **immer genau einen
+    Absteiger**, den Letzten – keine „möglicherweise gefährdeten“ Plätze. In allen anderen
+    Ligen steigt der Letzte sicher ab; ob weitere absteigen, steht während der Saison nicht
+    fest (in den unteren Ligen hängt es von den Absteigern aus den höheren Ligen ab). Dort
+    markiert das Skript die zwei Plätze davor als „möglicherweise abstiegsgefährdet“
+    (`moeglicherweise_abstiegsgefaehrdet`, `--maybe-relegation-places`).
   Übersteuern nur bei abweichenden Regeln (`--title-places`, `--relegation-places`).
 
 Mehr braucht es nicht: Die öffentlichen Endpunkte erfordern keinen Login, Vortabelle,
@@ -79,11 +81,12 @@ Lies `references/stil.md` für Aufbau und Tonalität. Wähle dann aus den Fakten
    beste Mannschaftsschnitte, Comebacks, glatte Siege des Underdogs.
 5. **Tabellensituation** – je nach `ligamodus`: Kampf um den Meistertitel (Hessenliga), um
    die Relegationsplätze zur Regionalliga (Hessenliga Recurve, Plätze 1–2) oder um den
-   Aufstiegsplatz (darunter); Abstand, Verfolger, Rangänderungen (`rang_vorher`). Unten: Der
-   Letzte steht auf dem sicheren Abstiegsplatz; die Plätze davor nur als „möglicherweise
-   gefährdet“ beschreiben („ob auch Platz sieben absteigen muss, steht erst am Saisonende
-   fest“; in unteren Ligen: „… entscheidet sich mit den Absteigern aus den höheren Ligen“) –
-   nie als feststehend. Mit `verbleibende_wettkampftage` einordnen („drei Wettkampftage vor
+   Aufstiegsplatz (darunter); Abstand, Verfolger, Rangänderungen (`rang_vorher`). Unten:
+   In der Hessenliga Blankbogen/Compound geht es um den **einzigen Abstiegsplatz** – keine
+   Spekulation über weitere Absteiger. Sonst steht der Letzte auf dem sicheren Abstiegsplatz
+   und die Plätze aus `moeglicherweise_abstiegsgefaehrdet` werden nur als „möglicherweise
+   gefährdet“ beschrieben („ob auch Platz sieben absteigen muss, entscheidet sich erst mit
+   den Absteigern aus den höheren Ligen“) – nie als feststehend. Mit `verbleibende_wettkampftage` einordnen („drei Wettkampftage vor
    Schluss“). Am ersten Wettkampftag der Saison: nur „erste Tabellenführung“ etc.
 6. **Ausrichter würdigen** – jeder Artikel hebt den Ausrichter (`Ausrichter`, Halle/Ort) als
    guten Gastgeber hervor und dankt ihm, z. B. für die Ausrichtung und die gute Organisation.

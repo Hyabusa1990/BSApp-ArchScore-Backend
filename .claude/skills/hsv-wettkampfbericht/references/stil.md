@@ -93,8 +93,11 @@ Ergebnisse immer als Satzpunkte schreiben („gewann 6:4“), Ringe nur ergänze
 - Relegation (Hessenliga Recurve): „belegt einen der beiden Plätze für die
   Aufstiegsrelegation zur Regionalliga“
 - Aufstieg (Ober-, Verbands-, Bezirksliga): „steht auf dem Aufstiegsplatz“
-- Abstieg: „rangiert auf dem einzigen sicheren Abstiegsplatz“, „muss je nach Absteigern aus
-  der höheren Liga ebenfalls noch zittern“ (nur in Ligen unterhalb der Hessenliga)
+- Abstieg Hessenliga Blankbogen/Compound (genau ein Absteiger): „steht auf dem einzigen
+  Abstiegsplatz“, „will den letzten Platz schnell wieder verlassen“, „hat zwei Punkte
+  Vorsprung auf den Abstiegsplatz“
+- Abstieg andere Ligen: „rangiert auf dem sicheren Abstiegsplatz“, „muss je nach Absteigern
+  aus der höheren Liga ebenfalls noch zittern“
 - Tabelle: „übernimmt die Tabellenspitze“, „verteidigt Platz eins“, „bleibt mit nur einem
   Punkt Rückstand in Schlagdistanz“, „steht weiter auf einem Abstiegsplatz“, „verschafft sich
   Luft im Tabellenkeller“
@@ -106,7 +109,7 @@ Ergebnisse immer als Satzpunkte schreiben („gewann 6:4“), Ringe nur ergänze
 - Begriffe wie „Einzelwertung“, „Einzelrangliste“, „Einzelsieger“ – es gibt keine offizielle
   Einzelwertung; Einzelleistungen sind nur Statistik („bester Ringschnitt des Tages“).
 - Angaben zu Wetter, Halle, Zuschauern, Stimmung ohne Quelle.
-- Prognosen zu Auf-/Abstieg als Tatsache, solange rechnerisch noch alles offen ist; nur der
-  Letzte steht auf dem sicheren Abstiegsplatz, weitere Absteiger stehen erst nach der Saison
-  der höheren Ligen fest.
+- Prognosen zu Auf-/Abstieg als Tatsache, solange rechnerisch noch alles offen ist. In der
+  Hessenliga Blankbogen/Compound gibt es genau einen Absteiger; in den anderen Ligen stehen
+  weitere Absteiger erst nach der Saison der höheren Ligen fest.
 - Interne Begriffe aus bulibow (Fixture, Target, RoundNo, Spotter, DOS, Satz 99).
