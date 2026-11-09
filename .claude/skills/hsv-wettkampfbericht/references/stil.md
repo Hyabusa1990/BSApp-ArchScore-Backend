@@ -35,7 +35,7 @@
 
 ## Die nächsten Wettkampftage
 
-<Einladung an Zuschauer, 1–2 Sätze.>
+<Einladung an Zuschauer mit Hinweis auf freien Eintritt, 1–2 Sätze.>
 
 - **<Wochentag>, <TT. Monat JJJJ>, ab <HH:MM> Uhr** – <Ausrichter>, <Halle>, <Straße>, <PLZ Ort>
 - …
@@ -70,9 +70,10 @@ Ergebnisse immer als Satzpunkte schreiben („gewann 6:4“), Ringe nur ergänze
 - Ausrichter: „Ein großes Dankeschön geht an den PBC Bürstadt, der ein hervorragender Gastgeber
   war“, „die Gastgeber sorgten für einen reibungslosen Ablauf“, „bot den Mannschaften
   beste Bedingungen“ (nur allgemein – keine erfundenen Details)
-- Einladung: „Zuschauer sind herzlich willkommen – erleben Sie spannenden Bogensport aus
-  nächster Nähe und feuern Sie die Mannschaften an!“, „Die Ausrichter freuen sich über jeden
-  Besucher in der Halle.“ (keine Versprechen zu Eintritt, Verpflegung o. Ä. ohne Quelle)
+- Einladung: „Zuschauer sind herzlich willkommen, der Eintritt ist frei – erleben Sie
+  spannenden Bogensport aus nächster Nähe und feuern Sie die Mannschaften an!“, „Die
+  Ausrichter freuen sich über jeden Besucher in der Halle.“ (freier Eintritt immer nennen;
+  keine Versprechen zu Verpflegung o. Ä. ohne Quelle)
 - Aufstieg/Abstieg: „steht auf dem Aufstiegsplatz“, „rangiert auf dem einzigen sicheren
   Abstiegsplatz“, „muss je nach Absteigern aus der höheren Liga ebenfalls noch zittern“
 - Tabelle: „übernimmt die Tabellenspitze“, „verteidigt Platz eins“, „bleibt mit nur einem

@@ -82,8 +82,9 @@ Lies `references/stil.md` für Aufbau und Tonalität. Wähle dann aus den Fakten
    Artikels (nach den Tabellen) **immer** der Abschnitt „Die nächsten Wettkampftage“ mit allen
    Einträgen aus `kommende_wettkampftage` (Datum mit Wochentag, Beginn, Ausrichter, Halle mit
    Adresse) und einer herzlichen Einladung an Zuschauer: Bogensport live erleben, die
-   Mannschaften anfeuern; nur behaupten, was sicher ist (z. B. keinen freien Eintritt
-   versprechen, wenn der Nutzer das nicht sagt). Beim letzten Wettkampftag der Saison
+   Mannschaften anfeuern. Der Eintritt ist bei allen Wettkampftagen der hessischen Ligen
+   frei – das gehört immer in die Einladung. Darüber hinaus nichts versprechen, was nicht
+   sicher ist (z. B. Verpflegung). Beim letzten Wettkampftag der Saison
    entfällt die Liste; stattdessen Dank an alle Ausrichter und Zuschauer der Saison.
 
 Nicht jedes Team muss namentlich vorkommen, aber kein Team darf falsch dargestellt werden.

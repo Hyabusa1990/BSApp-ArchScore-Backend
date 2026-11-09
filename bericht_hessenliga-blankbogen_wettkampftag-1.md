@@ -29,7 +29,7 @@ Ein großes Dankeschön geht an den PBC Bürstadt, der nicht nur sportlich über
 
 ## Die nächsten Wettkampftage
 
-Zuschauer sind an allen Wettkampftagen herzlich willkommen – erleben Sie spannenden Bogensport aus nächster Nähe und feuern Sie die Mannschaften an! Die Ausrichter freuen sich über jeden Besucher in der Halle.
+Zuschauer sind an allen Wettkampftagen herzlich willkommen, der Eintritt ist frei – erleben Sie spannenden Bogensport aus nächster Nähe und feuern Sie die Mannschaften an! Die Ausrichter freuen sich über jeden Besucher in der Halle.
 
 - **Samstag, 5. Dezember 2026, ab 09:30 Uhr** – BSC Oberauroff, Sporthalle am Taubenberg, Seelbacher Straße, 65510 Idstein
 - **Samstag, 9. Januar 2027, ab 15:00 Uhr** – SG Neu-Isenburg, Halle im Sportpark, Alicestraße 113, 63263 Neu-Isenburg
@@ -58,7 +58,7 @@ Quelle: bulibow, Fixture 195 (Hessenliga Blankbogen 2026/2027, 1. Wettkampftag, 
 
 Offene Punkte:
 - **Teamname:** Die Mannschaft heißt in bulibow inzwischen „Homburger SG“ (vorher „Homburger SG 2“). Bitte prüfen, welche Schreibweise auf der Webseite gelten soll.
-- **Einladung:** Ohne Angaben zu Eintritt oder Verpflegung, da die Daten dazu nichts enthalten.
+- **Einladung:** Freier Eintritt laut Vorgabe des Verbands; keine Angaben zur Verpflegung, da die Daten dazu nichts enthalten.
 - **Ausrichter:** Der Dank ist bewusst allgemein gehalten. Konkrete Details (Helfer, Verpflegung) bitte ergänzen, falls bekannt.
 - **Platzierung bei Punktgleichheit:** Die Reihenfolge der vier Teams mit 4:10 Punkten stammt aus der bulibow-Tabelle. Eichenzell steht trotz schwächerem Ringschnitt vor Korbach, vermutlich wegen des direkten Vergleichs (6:0 in Runde 2). Die Begründung ist im Artikel bewusst weggelassen.
 - **Kein Wert von 60 Ringen:** Im Blankbogen ist das nicht ungewöhnlich und wird daher nicht erwähnt.
