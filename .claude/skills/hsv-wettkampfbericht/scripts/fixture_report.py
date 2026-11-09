@@ -1,28 +1,25 @@
 #!/usr/bin/env python3
-"""Holt die Ergebnisse eines oder mehrerer Fixtures aus der ArchScore-API (Fawkes)
-und berechnet daraus die Fakten, die ein Wettkampfbericht braucht.
+"""Holt die Ergebnisse eines oder mehrerer Fixtures (Wettkampftage) aus der
+bulibow-API (Bogenligen Hessen) und berechnet die Fakten fuer einen Wettkampfbericht.
 
-Nur Python-Standardbibliothek. Ausgabe: JSON (Standard) oder Markdown (--format md).
+Nur Python-Standardbibliothek. Ausgabe: Markdown (--format md) oder JSON.
 
-Datenquellen
-  * API:   --api-url + Zugangsdaten (Umgebungsvariablen ARCHSCORE_API_URL,
-           ARCHSCORE_EMAIL, ARCHSCORE_PASSWORD oder ARCHSCORE_TOKEN)
-  * Datei: --raw <datei.json> mit zuvor per --dump-raw gespeicherten Rohdaten
+Benutzte oeffentliche Endpunkte (kein Login noetig):
+  GET /api/public/fixture/{id}/info               Liga, Saison, Ausrichter, Ort, Datum
+  GET /api/public/fixture/{id}/rounds             Runden > Matches > Scheiben > Saetze > Pfeile
+  GET /api/public/fixture/{id}/table              Tabelle NACH diesem Fixture (kumulativ)
+  GET /api/public/fixture/{id}/individualranking  Einzelrangliste laut bulibow
+  GET /api/public/calendar?seasonId=&leagueId=    alle Fixtures der Liga (Vortabelle, Ausblick)
 
-Optional: --table <datei.json|csv> mit der Tabelle VOR dem Wettkampftag
-(Spalten/Felder: team, rank, mp_won, mp_lost, sp_won, sp_lost). Ohne sie gibt es
-nur die Tagestabelle; Titel- und Abstiegskampf lassen sich dann nicht bewerten.
+Mehrere Fixture-IDs derselben Liga (z. B. zwei Durchgaenge an einem Tag) werden zu
+einem Wettkampftag zusammengefasst; verschiedene Ligen ergeben je einen eigenen Abschnitt.
 
-Regeln (wie Fawkes RuleSet DEFAULT): 5 Sätze à 6 Pfeile (max. 60 Ringe),
-Satzsieg 2 Satzpunkte, Satz-Unentschieden je 1, Matchgewinn ab 6 Satzpunkten
-(2 Matchpunkte), 5:5 nach fünf Sätzen = Unentschieden (je 1 Matchpunkt).
-Ein Match sind die Scheiben (2k-1, 2k) einer Runde.
+Basis-URL: --api-url oder BULIBOW_API_URL (Standard https://api.bogenligen-hessen.org).
 """
 
 from __future__ import annotations
 
 import argparse
-import csv
 import json
 import os
 import sys
@@ -30,310 +27,348 @@ import urllib.error
 import urllib.request
 from collections import defaultdict
 
-MAX_SETS = 5
-WIN_SET_POINTS = 6
+DEFAULT_URL = "https://api.bogenligen-hessen.org"
 MAX_SET_SCORE = 60
+SHOOT_OFF_SET_NO = 99
 
 
 # --------------------------------------------------------------------------- API
 
 class Api:
-    def __init__(self, base_url: str, token: str | None, email: str | None, password: str | None):
+    def __init__(self, base_url: str):
         self.base_url = base_url.rstrip("/")
-        self.token = token
-        if not self.token:
-            if not (email and password):
-                sys.exit("Keine Zugangsdaten: ARCHSCORE_TOKEN oder ARCHSCORE_EMAIL + ARCHSCORE_PASSWORD setzen.")
-            self.token = self._request("POST", "/auth/login", {"email": email, "password": password}, auth=False)["accessToken"]
-
-    def _request(self, method: str, path: str, body=None, auth: bool = True):
-        data = json.dumps(body).encode() if body is not None else None
-        req = urllib.request.Request(self.base_url + path, data=data, method=method)
-        req.add_header("Accept", "application/json")
-        if data is not None:
-            req.add_header("Content-Type", "application/json")
-        if auth:
-            req.add_header("Authorization", f"Bearer {self.token}")
-        try:
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                return json.loads(resp.read().decode() or "null")
-        except urllib.error.HTTPError as e:
-            detail = e.read().decode(errors="replace")[:500]
-            sys.exit(f"API-Fehler {e.code} bei {method} {path}: {detail}")
-        except urllib.error.URLError as e:
-            sys.exit(f"API nicht erreichbar ({self.base_url}): {e.reason}")
+        self.cache: dict[str, object] = {}
 
     def get(self, path: str):
-        return self._request("GET", path)
+        if path in self.cache:
+            return self.cache[path]
+        req = urllib.request.Request(self.base_url + path, headers={"Accept": "application/json"})
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                data = json.loads(resp.read().decode() or "null")
+        except urllib.error.HTTPError as e:
+            sys.exit(f"API-Fehler {e.code} bei GET {path}: {e.read().decode(errors='replace')[:300]}")
+        except urllib.error.URLError as e:
+            sys.exit(f"API nicht erreichbar ({self.base_url}): {e.reason}")
+        self.cache[path] = data
+        return data
 
-    def fetch_fixture(self, fixture_id: int) -> dict:
-        fixture = self.get(f"/fixtures/{fixture_id}")
-        phase = self.get(f"/fixtures/{fixture_id}/phase")
-        rounds = [self.get(f"/fixtures/{fixture_id}/rounds/{n}") for n in range(1, phase["roundCount"] + 1)]
-        return {"fixture": fixture, "rounds": rounds}
+
+def fetch(api: Api, fixture_ids: list[int]) -> dict:
+    """Sammelt alle Rohdaten, die die Auswertung braucht."""
+    raw = {"fixtures": {}, "calendars": {}, "tables": {}}
+    for fid in fixture_ids:
+        p = f"/api/public/fixture/{fid}"
+        raw["fixtures"][str(fid)] = {
+            "info": api.get(p + "/info"),
+            "rounds": api.get(p + "/rounds"),
+            "individualranking": api.get(p + "/individualranking"),
+        }
+        raw["tables"][str(fid)] = api.get(p + "/table")
+    for fx in raw["fixtures"].values():
+        info = fx["info"]
+        key = f"{info['seasonId']}-{info['leagueId']}"
+        if key not in raw["calendars"]:
+            cal = api.get(f"/api/public/calendar?seasonId={info['seasonId']}&leagueId={info['leagueId']}")
+            raw["calendars"][key] = cal
+    # Vortabelle = Tabelle des letzten Fixtures der Liga vor dem Wettkampftag
+    for key, cal in raw["calendars"].items():
+        own = [f for f in raw["fixtures"].values() if f"{f['info']['seasonId']}-{f['info']['leagueId']}" == key]
+        prev = previous_fixture(cal, own)
+        if prev and str(prev["fixtureId"]) not in raw["tables"]:
+            raw["tables"][str(prev["fixtureId"])] = api.get(f"/api/public/fixture/{prev['fixtureId']}/table")
+    return raw
+
+
+def calendar_fixtures(cal) -> list[dict]:
+    fixtures = cal.get("fixtures") if isinstance(cal, dict) else cal
+    return sorted(fixtures or [], key=lambda f: (f["dateTime"], f.get("fixtureNo") or 0, f["fixtureId"]))
+
+
+def previous_fixture(cal, own: list[dict]):
+    own_ids = {f["info"]["fixtureId"] for f in own}
+    first = min((f["info"]["dateTime"], f["info"].get("fixtureNo") or 0) for f in own)
+    before = [f for f in calendar_fixtures(cal)
+              if f["fixtureId"] not in own_ids and (f["dateTime"], f.get("fixtureNo") or 0) < first]
+    return before[-1] if before else None
 
 
 # ---------------------------------------------------------------------- Analyse
 
-def evaluate_match(a: dict, b: dict) -> dict:
-    """Spielt ein Match Satz für Satz nach dem Satzsystem nach."""
-    sp = [0, 0]
-    progression = []
-    sets = []
-    result = None
-    for i in range(MAX_SETS):
-        sa = a["setScores"][i] if i < len(a["setScores"]) else None
-        sb = b["setScores"][i] if i < len(b["setScores"]) else None
-        if sa is None or sb is None:
+def target_sets(t: dict) -> list[dict]:
+    return sorted((s for s in (t.get("sets") or []) if s["setNo"] != SHOOT_OFF_SET_NO), key=lambda s: s["setNo"])
+
+
+def shoot_off(t: dict):
+    so = next((s for s in (t.get("sets") or []) if s["setNo"] == SHOOT_OFF_SET_NO), None)
+    return so["score"] if so else None
+
+
+def evaluate_match(fid: int, rnd: dict, match: dict, members: dict) -> dict | None:
+    ts = sorted(match.get("targets") or [], key=lambda t: t["targetNo"])
+    if len(ts) != 2 or not all(t.get("teamName") for t in ts):
+        return None  # Freilos / leere Scheibe
+    a, b = ts
+    sa_list, sb_list = target_sets(a), target_sets(b)
+    sets, progression, sp = [], [], [0, 0]
+    run_def = [0, 0]
+    lead_changes, leader_prev = 0, None
+    for s1, s2 in zip(sa_list, sb_list):
+        if s1["score"] is None or s2["score"] is None:
             break
-        if sa > sb:
-            sp[0] += 2
-        elif sb > sa:
-            sp[1] += 2
-        else:
-            sp[0] += 1
-            sp[1] += 1
-        sets.append((sa, sb))
+        sets.append((s1["score"], s2["score"]))
+        sp[0] += s1["points"] or 0
+        sp[1] += s2["points"] or 0
         progression.append(f"{sp[0]}:{sp[1]}")
-        if sp[0] >= WIN_SET_POINTS or sp[1] >= WIN_SET_POINTS:
-            result = "A" if sp[0] > sp[1] else "B"
-            break
-    if result is None and len(sets) == MAX_SETS:
-        result = "draw"
-
-    winner = loser = None
-    if result == "A":
-        winner, loser = a["teamName"], b["teamName"]
-    elif result == "B":
-        winner, loser = b["teamName"], a["teamName"]
-
-    # Spannungsindikatoren
-    comeback = None
-    lead_changes = 0
-    leader_prev = None
-    max_deficit = [0, 0]  # groesster Rueckstand von A bzw. B im Verlauf
-    run = [0, 0]
-    for sa, sb in sets:
-        run[0] += 2 if sa > sb else (1 if sa == sb else 0)
-        run[1] += 2 if sb > sa else (1 if sa == sb else 0)
-        leader = "A" if run[0] > run[1] else ("B" if run[1] > run[0] else None)
-        if leader and leader_prev and leader != leader_prev:
+        leader = 0 if sp[0] > sp[1] else (1 if sp[1] > sp[0] else None)
+        if leader is not None and leader_prev is not None and leader != leader_prev:
             lead_changes += 1
-        if leader:
+        if leader is not None:
             leader_prev = leader
-        max_deficit[0] = max(max_deficit[0], run[1] - run[0])
-        max_deficit[1] = max(max_deficit[1], run[0] - run[1])
+        run_def[0] = max(run_def[0], sp[1] - sp[0])
+        run_def[1] = max(run_def[1], sp[0] - sp[1])
+
+    mp = (a.get("matchPoints"), b.get("matchPoints"))
+    complete = mp[0] is not None and mp[1] is not None
     names = (a["teamName"], b["teamName"])
-    if result in ("A", "B"):
-        w = 0 if result == "A" else 1
-        if max_deficit[w] >= 2:
-            comeback = {"team": names[w], "max_rueckstand_satzpunkte": max_deficit[w], "ausgang": "Sieg"}
+    result = None
+    if complete:
+        result = "draw" if mp[0] == mp[1] else (0 if mp[0] > mp[1] else 1)
+    so = (shoot_off(a), shoot_off(b))
+    stechen = None
+    if so[0] is not None or so[1] is not None:
+        stechen = {"pfeile": f"{so[0]}:{so[1]}",
+                   "naeher_an_der_mitte": names[0] if a.get("isCloserToCenterInShootOff") else
+                   (names[1] if b.get("isCloserToCenterInShootOff") else None)}
+
+    comeback = None
+    if result in (0, 1) and run_def[result] >= 2:
+        comeback = {"team": names[result], "max_rueckstand_satzpunkte": run_def[result], "ausgang": "Sieg"}
     elif result == "draw":
-        side = 0 if max_deficit[0] >= max_deficit[1] else 1
-        if max_deficit[side] >= 2:
-            comeback = {"team": names[side], "max_rueckstand_satzpunkte": max_deficit[side], "ausgang": "Unentschieden"}
+        side = 0 if run_def[0] >= run_def[1] else 1
+        if run_def[side] >= 2:
+            comeback = {"team": names[side], "max_rueckstand_satzpunkte": run_def[side], "ausgang": "Unentschieden"}
 
-    tied_sets = sum(1 for sa, sb in sets if sa == sb)
-    close_sets = sum(1 for sa, sb in sets if abs(sa - sb) <= 1)
-    total_a = sum(s[0] for s in sets)
-    total_b = sum(s[1] for s in sets)
+    def schuetzen(t):
+        return [members.get((t["teamId"], p["no"]), f"{p.get('firstNames')} {p.get('surname')}")
+                for p in (t.get("participants") or [])]
 
-    return {
-        "scheiben": [a["targetNo"], b["targetNo"]],
-        "team_a": a["teamName"],
-        "team_b": b["teamName"],
-        "saetze": [f"{sa}:{sb}" for sa, sb in sets],
+    tied = sum(1 for x, y in sets if x == y)
+    m = {
+        "fixture_id": fid,
+        "runde": rnd["roundNo"],
+        "match_nr": match["matchNo"],
+        "team_a": names[0],
+        "team_b": names[1],
+        "schuetzen_a": schuetzen(a),
+        "schuetzen_b": schuetzen(b),
+        "saetze": [f"{x}:{y}" for x, y in sets],
         "satzpunkte_verlauf": progression,
-        "endstand_satzpunkte": f"{sp[0]}:{sp[1]}",
-        "ringe": f"{total_a}:{total_b}",
-        "abgeschlossen": result is not None,
-        "ergebnis": {"A": "Sieg " + a["teamName"], "B": "Sieg " + b["teamName"], "draw": "Unentschieden", None: "nicht abgeschlossen"}[result],
-        "sieger": winner,
-        "verlierer": loser,
+        "endstand_satzpunkte": f"{a.get('setPoints')}:{b.get('setPoints')}",
+        "matchpunkte": f"{mp[0]}:{mp[1]}" if complete else None,
+        "ringe": f"{sum(x for x, _ in sets)}:{sum(y for _, y in sets)}",
+        "abgeschlossen": complete,
+        "ergebnis": {0: "Sieg " + names[0], 1: "Sieg " + names[1], "draw": "Unentschieden", None: "nicht abgeschlossen"}[result],
+        "sieger": names[result] if result in (0, 1) else None,
+        "verlierer": names[1 - result] if result in (0, 1) else None,
         "anzahl_saetze": len(sets),
-        "entscheidung_im_letzten_satz": result is not None and len(sets) == MAX_SETS,
-        "satz_unentschieden": tied_sets,
-        "knappe_saetze_max_1_ring": close_sets,
+        "stechen": stechen,
+        "entscheidung_im_letzten_satz": complete and len(sets) == 5,
+        "satz_unentschieden": tied,
+        "knappe_saetze_max_1_ring": sum(1 for x, y in sets if abs(x - y) <= 1),
         "fuehrungswechsel": lead_changes,
         "comeback": comeback,
-        "glatter_sieg_3_0": result in ("A", "B") and len(sets) == 3 and tied_sets == 0,
-        "_raw": {"a": a, "b": b, "sets": sets, "result": result, "sp": sp},
+        "glatter_sieg": result in (0, 1) and len(sets) == 3 and tied == 0,
+        "_sets": sets,
+        "_result": result,
+        "_targets": (a, b),
     }
+    m["spannung"] = (4 * m["entscheidung_im_letzten_satz"] + 5 * bool(stechen) + 3 * (result == "draw")
+                     + 3 * lead_changes + 3 * bool(comeback) + 2 * tied + m["knappe_saetze_max_1_ring"])
+    return m
 
 
-def spannung(m: dict) -> int:
-    """Grober Score, um die spannendsten Matches vorzuschlagen."""
-    s = 0
-    s += 4 if m["entscheidung_im_letzten_satz"] else 0
-    s += 3 if m["ergebnis"] == "Unentschieden" else 0
-    s += 3 * m["fuehrungswechsel"]
-    s += 3 if m["comeback"] else 0
-    s += 2 * m["satz_unentschieden"]
-    s += m["knappe_saetze_max_1_ring"]
-    return s
+def table_rows(table) -> list[dict]:
+    rows = (table or {}).get("positions") or []
+    return [{"rank": p["rank"], "team": p["teamName"], "team_id": p["teamId"],
+             "mp_won": p["matchPointsWon"], "mp_lost": p["matchPointsLost"],
+             "sp_won": p["setPointsWon"], "sp_lost": p["setPointsLost"],
+             "ringe": p.get("totalScore"), "saetze": p.get("setCount")} for p in rows]
 
 
-def load_table(path: str) -> list[dict]:
-    if path.lower().endswith(".csv"):
-        with open(path, newline="", encoding="utf-8-sig") as f:
-            sample = f.readline()
-            f.seek(0)
-            rows = list(csv.DictReader(f, delimiter=";" if ";" in sample else ","))
-    else:
-        with open(path, encoding="utf-8") as f:
-            rows = json.load(f)
-    table = []
-    for r in rows:
-        table.append({
-            "team": str(r["team"]).strip(),
-            "rank": int(r.get("rank") or 0),
-            "mp_won": int(r.get("mp_won") or 0),
-            "mp_lost": int(r.get("mp_lost") or 0),
-            "sp_won": int(r.get("sp_won") or 0),
-            "sp_lost": int(r.get("sp_lost") or 0),
-        })
-    return table
+def analyse_league(raw: dict, fixtures: list[dict], title_places: int, relegation_places: int,
+                   min_shots_share: float) -> dict:
+    infos = [f["info"] for f in fixtures]
+    key = f"{infos[0]['seasonId']}-{infos[0]['leagueId']}"
+    cal = calendar_fixtures(raw["calendars"].get(key, {}))
 
-
-def rank(rows: list[dict]) -> list[dict]:
-    rows.sort(key=lambda r: (-r["mp_won"], -(r["sp_won"] - r["sp_lost"]), -r["sp_won"], r["team"]))
-    prev = None
-    for i, r in enumerate(rows, 1):
-        key = (r["mp_won"], r["sp_won"] - r["sp_lost"])
-        r["rank"] = i if key != prev else rows[i - 2]["rank"]
-        prev = key
-    return rows
-
-
-def analyse(raw: list[dict], table_before: list[dict] | None, title_places: int, relegation_places: int) -> dict:
-    fixtures_out = []
-    all_matches = []
-    team_day = defaultdict(lambda: {"team": "", "mp_won": 0, "mp_lost": 0, "sp_won": 0, "sp_lost": 0,
+    matches, set_records = [], []
+    team_day = defaultdict(lambda: {"team": "", "team_id": 0, "mp_won": 0, "mp_lost": 0, "sp_won": 0, "sp_lost": 0,
                                     "ringe": 0, "saetze": 0, "siege": 0, "unentschieden": 0, "niederlagen": 0,
                                     "matches": []})
-    set_records = []
+    shooters = defaultdict(lambda: {"name": "", "team": "", "ringe": 0, "pfeile": 0, "zehner": 0, "matches": 0})
+    shots_total = shots_attributed = 0
 
-    for item in raw:
-        fx = item["fixture"]
-        fixtures_out.append({k: fx.get(k) for k in ("id", "leagueName", "fixtureName", "location", "date")})
-        for rnd in item["rounds"]:
-            targets = sorted(rnd["targets"], key=lambda t: t["targetNo"])
-            by_match = defaultdict(list)
-            for t in targets:
-                by_match[(t["targetNo"] + 1) // 2].append(t)
-            for match_no, pair in sorted(by_match.items()):
-                if len(pair) != 2 or not all(p.get("teamName") for p in pair):
-                    continue  # Freilos / leere Scheibe
-                m = evaluate_match(pair[0], pair[1])
-                m["fixture_id"] = fx.get("id")
-                m["runde"] = rnd["roundNo"]
-                m["match_nr"] = match_no
-                m["spannung"] = spannung(m)
-                all_matches.append(m)
-
-                res = m["_raw"]["result"]
-                for idx, (team, opp) in enumerate(((pair[0], pair[1]), (pair[1], pair[0]))):
-                    name = team["teamName"]
-                    d = team_day[name]
-                    d["team"] = name
-                    my_sets = [s[idx] for s in m["_raw"]["sets"]]
+    for fx in fixtures:
+        fid = fx["info"]["fixtureId"]
+        for rnd in sorted(fx["rounds"] or [], key=lambda r: r["roundNo"]):
+            for match in sorted(rnd.get("matches") or [], key=lambda m: m["matchNo"]):
+                # Namen aller Teammitglieder je Team
+                members = {}
+                for t in match.get("targets") or []:
+                    for p in t.get("allTeamMembers") or []:
+                        members[(t["teamId"], p["no"])] = f"{p.get('firstNames') or ''} {p.get('surname') or ''}".strip()
+                m = evaluate_match(fid, rnd, match, members)
+                if not m:
+                    continue
+                matches.append(m)
+                for idx, t in enumerate(m["_targets"]):
+                    opp = m["_targets"][1 - idx]
+                    d = team_day[t["teamName"]]
+                    d["team"], d["team_id"] = t["teamName"], t["teamId"]
+                    my_sets = [s[idx] for s in m["_sets"]]
                     d["ringe"] += sum(my_sets)
                     d["saetze"] += len(my_sets)
                     for sn, score in enumerate(my_sets, 1):
-                        set_records.append({"team": name, "gegner": opp["teamName"], "runde": rnd["roundNo"],
+                        set_records.append({"team": t["teamName"], "gegner": opp["teamName"], "runde": m["runde"],
                                             "satz": sn, "ringe": score})
-                    if res is None:
-                        d["matches"].append(f"R{rnd['roundNo']} vs. {opp['teamName']}: offen")
+                    # Einzelschuetzen
+                    seen = set()
+                    for s in target_sets(t):
+                        for shot in s.get("shots") or []:
+                            if shot.get("score") is None:
+                                continue
+                            shots_total += 1
+                            if shot.get("teamMemberNo") is None:
+                                continue
+                            shots_attributed += 1
+                            k = (t["teamId"], shot["teamMemberNo"])
+                            sh = shooters[k]
+                            sh["name"] = members.get(k, f"Nr. {shot['teamMemberNo']}")
+                            sh["team"] = t["teamName"]
+                            sh["ringe"] += shot["score"]
+                            sh["pfeile"] += 1
+                            sh["zehner"] += shot["score"] == 10
+                            seen.add(k)
+                    for k in seen:
+                        shooters[k]["matches"] += 1
+                    if not m["abgeschlossen"]:
+                        d["matches"].append(f"R{m['runde']} vs. {opp['teamName']}: offen")
                         continue
-                    my_sp, opp_sp = m["_raw"]["sp"][idx], m["_raw"]["sp"][1 - idx]
-                    d["sp_won"] += my_sp
-                    d["sp_lost"] += opp_sp
-                    if res == "draw":
-                        d["mp_won"] += 1; d["mp_lost"] += 1; d["unentschieden"] += 1
-                    elif (res == "A") == (idx == 0):
-                        d["mp_won"] += 2; d["siege"] += 1
+                    d["sp_won"] += t.get("setPoints") or 0
+                    d["sp_lost"] += opp.get("setPoints") or 0
+                    d["mp_won"] += t["matchPoints"]
+                    d["mp_lost"] += opp["matchPoints"]
+                    if t["matchPoints"] > opp["matchPoints"]:
+                        d["siege"] += 1
+                    elif t["matchPoints"] < opp["matchPoints"]:
+                        d["niederlagen"] += 1
                     else:
-                        d["mp_lost"] += 2; d["niederlagen"] += 1
-                    d["matches"].append(f"R{rnd['roundNo']} vs. {opp['teamName']}: {my_sp}:{opp_sp}")
+                        d["unentschieden"] += 1
+                    d["matches"].append(f"R{m['runde']} vs. {opp['teamName']}: {t.get('setPoints')}:{opp.get('setPoints')}")
 
     for d in team_day.values():
         d["schnitt_pro_satz"] = round(d["ringe"] / d["saetze"], 2) if d["saetze"] else None
         d["schnitt_pro_pfeil"] = round(d["ringe"] / (d["saetze"] * 6), 2) if d["saetze"] else None
+    day_table = sorted(team_day.values(), key=lambda r: (-r["mp_won"], -(r["sp_won"] - r["sp_lost"]), -r["sp_won"], r["team"]))
+    for i, r in enumerate(day_table, 1):
+        r["platz_tag"] = i
 
-    day_table = rank([dict(v) for v in team_day.values()])
+    # Einzelschuetzen-Statistik des Tages
+    for sh in shooters.values():
+        sh["schnitt"] = round(sh["ringe"] / sh["pfeile"], 2) if sh["pfeile"] else None
+    max_shots = max((s["pfeile"] for s in shooters.values()), default=0)
+    min_shots = int(max_shots * min_shots_share)
+    ranked = sorted((s for s in shooters.values() if s["pfeile"] >= min_shots), key=lambda s: (-s["schnitt"], -s["pfeile"]))
+    individual = {
+        "pfeile_gesamt": shots_total,
+        "pfeile_mit_schuetzenzuordnung": shots_attributed,
+        "aussagekraeftig": shots_total > 0 and shots_attributed / shots_total >= 0.9,
+        "mindestpfeile_fuer_rangliste": min_shots,
+        "top_schuetzen": ranked[:5],
+        "meiste_zehner": sorted(shooters.values(), key=lambda s: -s["zehner"])[:3],
+        "laut_bulibow": [((fx.get("individualranking") or {}).get("individualRankingPositions") or [])[:5]
+                         for fx in fixtures],
+    }
 
-    # Gesamttabelle
-    overall = None
+    # Tabellen: nachher = Tabelle des letzten Fixtures des Tages, vorher = letztes Fixture davor
+    last = max(infos, key=lambda i: (i["dateTime"], i.get("fixtureNo") or 0))
+    after = table_rows(raw["tables"].get(str(last["fixtureId"])))
+    prev = previous_fixture(raw["calendars"].get(key, {}), fixtures)
+    before = table_rows(raw["tables"].get(str(prev["fixtureId"]))) if prev else []
+    before_by_team = {r["team_id"]: r for r in before}
+    erster_wettkampftag = prev is None
+    for r in after:
+        b = before_by_team.get(r["team_id"])
+        r["rang_vorher"] = b["rank"] if b else None
+        r["veraenderung"] = (b["rank"] - r["rank"]) if b else None
+
+    # Plausibilitaet: Tageswerte = Tabelle nachher - Tabelle vorher
+    abweichungen = []
+    for r in after:
+        d = next((x for x in day_table if x["team_id"] == r["team_id"]), None)
+        b = before_by_team.get(r["team_id"], {"mp_won": 0, "sp_won": 0})
+        if d and (r["mp_won"] - b["mp_won"] != d["mp_won"] or r["sp_won"] - b["sp_won"] != d["sp_won"]):
+            abweichungen.append(r["team"])
+
     situation = None
-    if table_before:
-        before = {r["team"].casefold(): r for r in table_before}
-        rows = []
-        unknown = [t for t in team_day if t.casefold() not in before]
-        for r in table_before:
-            d = team_day.get(next((t for t in team_day if t.casefold() == r["team"].casefold()), ""), None)
-            rows.append({
-                "team": r["team"],
-                "rang_vorher": r["rank"],
-                "mp_won": r["mp_won"] + (d["mp_won"] if d else 0),
-                "mp_lost": r["mp_lost"] + (d["mp_lost"] if d else 0),
-                "sp_won": r["sp_won"] + (d["sp_won"] if d else 0),
-                "sp_lost": r["sp_lost"] + (d["sp_lost"] if d else 0),
-            })
-        overall = rank(rows)
-        for r in overall:
-            r["veraenderung"] = (r["rang_vorher"] - r["rank"]) if r["rang_vorher"] else None
-        n = len(overall)
-        leader_pts = overall[0]["mp_won"]
-        safe_line = overall[n - relegation_places - 1]["mp_won"] if n > relegation_places else None
+    if after:
+        n = len(after)
+        leader_pts = after[0]["mp_won"]
+        safe = after[n - relegation_places - 1]["mp_won"] if relegation_places and n > relegation_places else None
         situation = {
-            "spitze": [r["team"] for r in overall if r["rank"] <= title_places],
-            "abstand_platz2_zur_spitze": leader_pts - overall[1]["mp_won"] if n > 1 else None,
-            "verfolger_innerhalb_4_mp": [r["team"] for r in overall[1:] if leader_pts - r["mp_won"] <= 4],
-            "abstiegsplaetze": [r["team"] for r in overall[n - relegation_places:]] if relegation_places else [],
-            "punkte_erster_nichtabstiegsplatz": safe_line,
-            "gefaehrdet_innerhalb_4_mp": [r["team"] for r in overall[:n - relegation_places]
-                                          if safe_line is not None and r["mp_won"] - safe_line <= 4
-                                          and r["rank"] > title_places] if relegation_places else [],
-            "nicht_in_vortabelle": unknown,
-            "hinweis": "Platzierungen fuer Titel/Abstieg sind Annahmen (--title-places/--relegation-places); "
-                       "verbleibende Wettkampftage kennt das Skript nicht.",
+            "spitze": [r["team"] for r in after if r["rank"] <= title_places],
+            "abstand_platz2_zur_spitze": leader_pts - after[1]["mp_won"] if n > 1 else None,
+            "verfolger_innerhalb_4_mp": [r["team"] for r in after[1:] if leader_pts - r["mp_won"] <= 4],
+            "abstiegsplaetze": [r["team"] for r in after[n - relegation_places:]] if relegation_places else [],
+            "punkte_erster_nichtabstiegsplatz": safe,
+            "gefaehrdet_innerhalb_4_mp": [r["team"] for r in after[:n - relegation_places]
+                                          if safe is not None and r["mp_won"] - safe <= 4 and r["rank"] > title_places],
+            "hinweis": "Titel-/Abstiegsplaetze sind Annahmen (--title-places/--relegation-places).",
         }
 
-    # Highlights
+    own_ids = {i["fixtureId"] for i in infos}
+    later = [f for f in cal if f["fixtureId"] not in own_ids and f["dateTime"] > last["dateTime"]]
+    next_day = [f for f in later if f["dateTime"][:10] == later[0]["dateTime"][:10]] if later else []
+    remaining_days = len({f["dateTime"][:10] for f in later})
+
     set_records.sort(key=lambda s: -s["ringe"])
     best_set = set_records[0]["ringe"] if set_records else None
-    complete = [m for m in all_matches if m["abgeschlossen"]]
-    best_match_avg = sorted(
-        ({"team": m[f"team_{side}"], "gegner": m["team_b" if side == "a" else "team_a"], "runde": m["runde"],
-          "schnitt_pro_satz": round(sum(s[0 if side == "a" else 1] for s in m["_raw"]["sets"]) / len(m["_raw"]["sets"]), 2)}
-         for m in complete for side in ("a", "b") if m["_raw"]["sets"]),
-        key=lambda x: -x["schnitt_pro_satz"])[:3]
+    complete = [m for m in matches if m["abgeschlossen"]]
     highlights = {
         "hoechster_satz": [s for s in set_records if s["ringe"] == best_set],
         "perfekte_saetze_60": [s for s in set_records if s["ringe"] == MAX_SET_SCORE],
-        "beste_tagesschnitte": [{"team": r["team"], "schnitt_pro_satz": r["schnitt_pro_satz"],
-                                 "schnitt_pro_pfeil": r["schnitt_pro_pfeil"]} for r in
-                                sorted(day_table, key=lambda r: -(r["schnitt_pro_satz"] or 0))[:3]],
-        "beste_matchschnitte": best_match_avg,
+        "beste_tagesschnitte_teams": [{"team": r["team"], "schnitt_pro_satz": r["schnitt_pro_satz"],
+                                       "schnitt_pro_pfeil": r["schnitt_pro_pfeil"]}
+                                      for r in sorted(day_table, key=lambda r: -(r["schnitt_pro_satz"] or 0))[:3]],
         "ungeschlagen": [r["team"] for r in day_table if r["niederlagen"] == 0 and r["siege"] + r["unentschieden"] > 0],
         "ohne_sieg": [r["team"] for r in day_table if r["siege"] == 0 and r["niederlagen"] + r["unentschieden"] > 0],
         "spannendste_matches": [strip(m) for m in sorted(complete, key=lambda m: -m["spannung"])[:3]],
-        "glatte_siege_3_0": [f"R{m['runde']}: {m['sieger']} gegen {m['verlierer']}" for m in complete if m["glatter_sieg_3_0"]],
+        "stechen": [f"R{m['runde']}: {m['team_a']} - {m['team_b']} {m['endstand_satzpunkte']} (Stechen {m['stechen']['pfeile']})"
+                    for m in complete if m["stechen"]],
+        "glatte_siege_6_0": [f"R{m['runde']}: {m['sieger']} gegen {m['verlierer']}" for m in complete if m["glatter_sieg"]],
         "comebacks": [f"R{m['runde']}: {m['comeback']['team']} ({m['team_a']} - {m['team_b']} {m['endstand_satzpunkte']}, "
                       f"{m['comeback']['ausgang']} nach bis zu {m['comeback']['max_rueckstand_satzpunkte']} Satzpunkten Rueckstand)"
                       for m in complete if m["comeback"]],
-        "unentschieden": [f"R{m['runde']}: {m['team_a']} - {m['team_b']}" for m in complete if m["ergebnis"] == "Unentschieden"],
+        "unentschieden": [f"R{m['runde']}: {m['team_a']} - {m['team_b']}" for m in complete if m["_result"] == "draw"],
     }
 
     return {
-        "fixtures": fixtures_out,
-        "regeln": "5 Saetze a 6 Pfeile, Satzsieg 2 SP, Satz-Remis 1 SP, Matchsieg ab 6 SP (2 MP), 5:5 = Remis (1 MP)",
-        "offene_matches": [f"Fixture {m['fixture_id']} R{m['runde']}: {m['team_a']} - {m['team_b']}" for m in all_matches if not m["abgeschlossen"]],
+        "liga": infos[0]["league"],
+        "saison": infos[0]["season"],
+        "fixtures": [{k: i.get(k) for k in ("fixtureId", "fixtureNo", "dateTime", "host", "locationAddressLine1", "locationCity")}
+                     for i in sorted(infos, key=lambda i: (i["dateTime"], i.get("fixtureNo") or 0))],
+        "erster_wettkampftag_der_saison": erster_wettkampftag,
+        "verbleibende_wettkampftage": remaining_days,
+        "naechster_wettkampftag": [{k: f.get(k) for k in ("fixtureId", "fixtureNo", "dateTime", "host", "locationCity")} for f in next_day],
+        "offene_matches": [f"Fixture {m['fixture_id']} R{m['runde']}: {m['team_a']} - {m['team_b']}" for m in matches if not m["abgeschlossen"]],
+        "tabellen_abweichung": abweichungen,
         "highlights": highlights,
-        "tagestabelle": [{k: v for k, v in r.items()} for r in day_table],
-        "gesamttabelle": overall,
+        "einzelschuetzen": individual,
+        "tagestabelle": day_table,
+        "tabelle_nachher": after,
         "tabellensituation": situation,
-        "matches": [strip(m) for m in sorted(all_matches, key=lambda m: (m["fixture_id"] or 0, m["runde"], m["match_nr"]))],
+        "matches": [strip(m) for m in matches],
     }
 
 
@@ -341,68 +376,98 @@ def strip(m: dict) -> dict:
     return {k: v for k, v in m.items() if not k.startswith("_")}
 
 
+def analyse(raw: dict, title_places: int, relegation_places: int, min_shots_share: float) -> list[dict]:
+    by_league = defaultdict(list)
+    for fx in raw["fixtures"].values():
+        by_league[(fx["info"]["seasonId"], fx["info"]["leagueId"])].append(fx)
+    return [analyse_league(raw, fxs, title_places, relegation_places, min_shots_share) for fxs in by_league.values()]
+
+
 # ---------------------------------------------------------------------- Markdown
 
-def to_markdown(r: dict) -> str:
+def j(v) -> str:
+    return json.dumps(v, ensure_ascii=False)
+
+
+def to_markdown(reports: list[dict]) -> str:
     out = []
-    for f in r["fixtures"]:
-        out.append(f"## {f.get('leagueName')} – {f.get('fixtureName')} ({f.get('location')}, {str(f.get('date'))[:10]})")
-    if r["offene_matches"]:
-        out.append("\n**Achtung, nicht abgeschlossene Matches:** " + "; ".join(r["offene_matches"]))
-    out.append("\n### Highlights")
-    for k, v in r["highlights"].items():
-        out.append(f"- **{k}**: {json.dumps(v, ensure_ascii=False)}")
-    out.append("\n### Tagestabelle")
-    out.append("| Rang | Team | MP | SP | Ringe/Satz | S-U-N |")
-    out.append("|---|---|---|---|---|---|")
-    for t in r["tagestabelle"]:
-        out.append(f"| {t['rank']} | {t['team']} | {t['mp_won']}:{t['mp_lost']} | {t['sp_won']}:{t['sp_lost']} | "
-                   f"{t['schnitt_pro_satz']} | {t['siege']}-{t['unentschieden']}-{t['niederlagen']} |")
-    if r["gesamttabelle"]:
-        out.append("\n### Gesamttabelle")
-        out.append("| Rang | (vorher) | Team | MP | SP |")
+    for r in reports:
+        f0 = r["fixtures"][0]
+        out.append(f"# {r['liga']} {r['saison']} – Wettkampftag {', '.join(str(f['fixtureNo']) for f in r['fixtures'])} "
+                   f"({f0['dateTime'][:10]}, {f0['host'] or ''} in {f0['locationCity']})")
+        out.append(f"Fixtures: {', '.join(str(f['fixtureId']) for f in r['fixtures'])} | erster Wettkampftag: "
+                   f"{r['erster_wettkampftag_der_saison']} | verbleibende Wettkampftage: {r['verbleibende_wettkampftage']} | "
+                   f"naechster: {j(r['naechster_wettkampftag'])}")
+        if not any(m["abgeschlossen"] for m in r["matches"]):
+            out.append("\n**Achtung: Fuer diesen Wettkampftag liegen noch keine abgeschlossenen Matches vor.**")
+        if r["offene_matches"]:
+            out.append("\n**Achtung, nicht abgeschlossene Matches:** " + "; ".join(r["offene_matches"]))
+        if r["tabellen_abweichung"]:
+            out.append("\n**Achtung, Tabelle passt nicht zu den Matchergebnissen bei:** " + ", ".join(r["tabellen_abweichung"]))
+        out.append("\n## Highlights")
+        for k, v in r["highlights"].items():
+            out.append(f"- **{k}**: {j(v)}")
+        e = r["einzelschuetzen"]
+        out.append(f"\n## Einzelschuetzen (Pfeile mit Zuordnung: {e['pfeile_mit_schuetzenzuordnung']}/{e['pfeile_gesamt']}, "
+                   f"aussagekraeftig: {e['aussagekraeftig']}, Mindestpfeile: {e['mindestpfeile_fuer_rangliste']})")
+        if not e["aussagekraeftig"]:
+            out.append("- Pfeile sind (fast) keinen Schuetzen zugeordnet: keine Einzelauswertung, im Artikel keine Top-Schuetzen nennen.")
+        else:
+            for s in e["top_schuetzen"]:
+                out.append(f"- {s['name']} ({s['team']}): {s['schnitt']} Ringe/Pfeil, {s['ringe']} Ringe aus {s['pfeile']} Pfeilen, {s['zehner']} Zehner")
+            out.append(f"- meiste Zehner: {j([(s['name'], s['team'], s['zehner']) for s in e['meiste_zehner']])}")
+            out.append(f"- Einzelrangliste laut bulibow (Top 5 je Fixture): {j(e['laut_bulibow'])}")
+        out.append("\n## Tagestabelle")
+        out.append("| Platz | Team | MP | SP | Ringe/Satz | S-U-N |")
+        out.append("|---|---|---|---|---|---|")
+        for t in r["tagestabelle"]:
+            out.append(f"| {t['platz_tag']} | {t['team']} | {t['mp_won']}:{t['mp_lost']} | {t['sp_won']}:{t['sp_lost']} | "
+                       f"{t['schnitt_pro_satz']} | {t['siege']}-{t['unentschieden']}-{t['niederlagen']} |")
+        out.append("\n## Tabelle nach dem Wettkampftag")
+        out.append("| Rang | vorher | Team | MP | SP |")
         out.append("|---|---|---|---|---|")
-        for t in r["gesamttabelle"]:
-            out.append(f"| {t['rank']} | {t['rang_vorher']} | {t['team']} | {t['mp_won']}:{t['mp_lost']} | {t['sp_won']}:{t['sp_lost']} |")
-        out.append("\n**Tabellensituation:** " + json.dumps(r["tabellensituation"], ensure_ascii=False))
-    out.append("\n### Alle Matches")
-    for m in r["matches"]:
-        out.append(f"- R{m['runde']} {m['team_a']} – {m['team_b']}: {m['endstand_satzpunkte']} "
-                   f"(Sätze {', '.join(m['saetze'])}; Verlauf {' → '.join(m['satzpunkte_verlauf'])}; Ringe {m['ringe']})")
+        for t in r["tabelle_nachher"]:
+            out.append(f"| {t['rank']} | {t['rang_vorher'] or '–'} | {t['team']} | {t['mp_won']}:{t['mp_lost']} | {t['sp_won']}:{t['sp_lost']} |")
+        out.append(f"\n**Tabellensituation:** {j(r['tabellensituation'])}")
+        out.append("\n## Alle Matches")
+        for m in r["matches"]:
+            extra = f"; Stechen {m['stechen']['pfeile']}" if m["stechen"] else ""
+            out.append(f"- F{m['fixture_id']} R{m['runde']} {m['team_a']} – {m['team_b']}: {m['endstand_satzpunkte']} "
+                       f"(Saetze {', '.join(m['saetze'])}; Verlauf {' → '.join(m['satzpunkte_verlauf'])}; Ringe {m['ringe']}{extra})"
+                       f" | Schuetzen: {', '.join(m['schuetzen_a'])} / {', '.join(m['schuetzen_b'])}")
+        out.append("")
     return "\n".join(out)
 
 
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("fixture_ids", nargs="*", type=int, help="IDs der Fixtures (z. B. 12 13)")
-    p.add_argument("--api-url", default=os.environ.get("ARCHSCORE_API_URL"))
-    p.add_argument("--raw", help="Rohdaten aus Datei statt API laden")
+    p.add_argument("fixture_ids", nargs="*", type=int, help="bulibow-Fixture-IDs (z. B. 220 221)")
+    p.add_argument("--api-url", default=os.environ.get("BULIBOW_API_URL", DEFAULT_URL))
+    p.add_argument("--raw", help="Rohdaten aus Datei statt API laden (Format von --dump-raw)")
     p.add_argument("--dump-raw", help="Rohdaten zusaetzlich in diese Datei schreiben")
-    p.add_argument("--table", help="Tabelle vor dem Wettkampftag (JSON oder CSV)")
-    p.add_argument("--title-places", type=int, default=1, help="Plaetze, die um den Titel spielen (Standard 1)")
+    p.add_argument("--title-places", type=int, default=1, help="Plaetze, die um Titel/Aufstieg spielen (Standard 1)")
     p.add_argument("--relegation-places", type=int, default=2, help="Abstiegsplaetze (Standard 2, 0 = keine)")
-    p.add_argument("--format", choices=["json", "md"], default="json")
+    p.add_argument("--min-shots-share", type=float, default=0.5,
+                   help="Einzelrangliste: Mindestanteil an Pfeilen des Schuetzen mit den meisten Pfeilen (Standard 0.5)")
+    p.add_argument("--format", choices=["json", "md"], default="md")
     a = p.parse_args()
 
     if a.raw:
         with open(a.raw, encoding="utf-8") as f:
             raw = json.load(f)
         if a.fixture_ids:
-            raw = [x for x in raw if x["fixture"]["id"] in a.fixture_ids]
+            raw["fixtures"] = {k: v for k, v in raw["fixtures"].items() if int(k) in a.fixture_ids}
     else:
         if not a.fixture_ids:
             p.error("Mindestens eine Fixture-ID angeben (oder --raw).")
-        if not a.api_url:
-            p.error("API-URL fehlt: --api-url oder ARCHSCORE_API_URL setzen.")
-        api = Api(a.api_url, os.environ.get("ARCHSCORE_TOKEN"), os.environ.get("ARCHSCORE_EMAIL"), os.environ.get("ARCHSCORE_PASSWORD"))
-        raw = [api.fetch_fixture(i) for i in a.fixture_ids]
+        raw = fetch(Api(a.api_url), a.fixture_ids)
 
     if a.dump_raw:
         with open(a.dump_raw, "w", encoding="utf-8") as f:
-            json.dump(raw, f, ensure_ascii=False, indent=2)
+            json.dump(raw, f, ensure_ascii=False)
 
-    result = analyse(raw, load_table(a.table) if a.table else None, a.title_places, a.relegation_places)
-    print(to_markdown(result) if a.format == "md" else json.dumps(result, ensure_ascii=False, indent=2))
+    reports = analyse(raw, a.title_places, a.relegation_places, a.min_shots_share)
+    print(to_markdown(reports) if a.format == "md" else json.dumps(reports, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

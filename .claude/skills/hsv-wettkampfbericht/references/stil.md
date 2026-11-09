@@ -7,7 +7,7 @@
 - Neutral gegenüber allen Vereinen – der HSV berichtet für alle hessischen Mannschaften.
 - Aktiv formulieren, kurze Sätze, Präteritum für den Wettkampfverlauf, Präsens für die
   Tabellensituation.
-- Vereinsnamen beim ersten Nennen vollständig (wie in den Daten), danach Ortsname oder
+- Vereinsnamen beim ersten Nennen vollständig (wie in den Daten); Schützen mit Vor- und Nachname und Verein, danach Ortsname oder
   gängige Kurzform („die Fuldaer“, „Wiesbaden“). Keine Spitznamen erfinden.
 
 ## Aufbau (400–600 Wörter, wenn nicht anders gewünscht)
@@ -21,7 +21,7 @@
 
 <Absatz 2: Das Match des Tages – Verlauf Satz für Satz, Wendepunkt, Entscheidung.>
 
-<Absatz 3: Weitere Höhepunkte – 60er-Satz, beste Schnitte, Überraschungen, glatte Siege.>
+<Absatz 3: Top-Schützen und weitere Höhepunkte – beste Ringschnitte, 60er-Satz, Überraschungen.>
 
 <Absatz 4: Tabellensituation – Titelrennen und Abstiegskampf.>
 
@@ -40,9 +40,10 @@ Zwischenüberschriften im Fließtext nur bei mehr als ~600 Wörtern.
 
 | Begriff | Verwendung |
 |---|---|
-| Wettkampftag | ein Liga-Spieltag (= ein oder mehrere Fixtures) |
+| Wettkampftag | ein Liga-Spieltag (in bulibow ein oder mehrere Fixtures) |
 | Match / Begegnung / Duell | zwei Mannschaften auf einem Scheibenpaar |
 | Satz | 6 Pfeile einer Mannschaft (3 Schützen × 2 Pfeile), max. 60 Ringe |
+| Stechen | Entscheidung per Einzelpfeil bei Gleichstand (falls die Liga es vorsieht) |
 | Satzpunkte | 2 für Satzgewinn, je 1 bei Gleichstand; Match gewonnen ab 6 Satzpunkten |
 | Matchpunkte (Tabellenpunkte) | 2 für Sieg, je 1 bei 5:5, 0 für Niederlage |
 | „Satz-Remis“ / „ringgleich“ | beide Mannschaften gleiche Ringzahl im Satz |
@@ -63,7 +64,8 @@ Ergebnisse immer als Satzpunkte schreiben („gewann 6:4“), Ringe nur ergänze
 
 ## Was nicht in den Artikel gehört
 
-- Namen einzelner Schützen, Trainer oder Zitate, die der Nutzer nicht geliefert hat.
+- Namen von Schützen, die nicht aus den Daten stammen; Trainer oder Zitate, die der Nutzer nicht geliefert hat.
+- Schwache Einzelleistungen namentlich hervorheben – Schützen werden nur positiv genannt.
 - Angaben zu Wetter, Halle, Zuschauern, Stimmung ohne Quelle.
 - Prognosen zu Auf-/Abstieg als Tatsache, solange rechnerisch noch alles offen ist.
-- Interne Begriffe aus ArchScore (Fixture, Target, RoundNo, Spotter, DOS).
+- Interne Begriffe aus bulibow (Fixture, Target, RoundNo, Spotter, DOS, Satz 99).
