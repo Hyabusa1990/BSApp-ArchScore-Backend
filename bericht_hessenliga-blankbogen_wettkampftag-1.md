@@ -58,7 +58,7 @@ Quelle: bulibow, Fixture 195 (Hessenliga Blankbogen 2026/2027, 1. Wettkampftag, 
 
 Offene Punkte:
 - **Teamname:** Die Mannschaft heißt in bulibow inzwischen „Homburger SG“ (vorher „Homburger SG 2“). Bitte prüfen, welche Schreibweise auf der Webseite gelten soll.
-- **Einladung:** Freier Eintritt laut Vorgabe des Verbands; keine Angaben zur Verpflegung, da die Daten dazu nichts enthalten.
+- **Einladung:** Freier Eintritt gilt für alle Wettkampftage der hessischen Ligen; keine Angaben zur Verpflegung, da die Daten dazu nichts enthalten.
 - **Ausrichter:** Der Dank ist bewusst allgemein gehalten. Konkrete Details (Helfer, Verpflegung) bitte ergänzen, falls bekannt.
 - **Platzierung bei Punktgleichheit:** Die Reihenfolge der vier Teams mit 4:10 Punkten stammt aus der bulibow-Tabelle. Eichenzell steht trotz schwächerem Ringschnitt vor Korbach, vermutlich wegen des direkten Vergleichs (6:0 in Runde 2). Die Begründung ist im Artikel bewusst weggelassen.
 - **Kein Wert von 60 Ringen:** Im Blankbogen ist das nicht ungewöhnlich und wird daher nicht erwähnt.
