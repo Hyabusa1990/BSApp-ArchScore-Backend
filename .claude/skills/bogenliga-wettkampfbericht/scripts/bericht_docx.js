@@ -167,7 +167,7 @@ async function main() {
   const title = (markdown.match(/^#\s+(.*)$/m) || [, "Wettkampfbericht"])[1];
 
   const doc = new Document({
-    creator: "HSV-Wettkampfbericht",
+    creator: "Bogenliga-Wettkampfbericht",
     title,
     styles: {
       default: { document: { run: { font: FONT, size: 22 } } },

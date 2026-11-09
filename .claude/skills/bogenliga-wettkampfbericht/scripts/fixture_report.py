@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Holt die Ergebnisse eines oder mehrerer Fixtures (Wettkampftage) aus der
-bulibow-API (Bogenligen Hessen) und berechnet die Fakten fuer einen Wettkampfbericht.
+bulibow-API (BuLiBow, z. B. Bogenligen Hessen und Westfalen) und berechnet die Fakten fuer
+einen Wettkampfbericht.
 
 Nur Python-Standardbibliothek. Ausgabe: Markdown (--format md) oder JSON.
 
@@ -10,6 +11,10 @@ Benutzte oeffentliche Endpunkte (kein Login noetig):
   GET /api/public/fixture/{id}/table              Tabelle NACH diesem Fixture (kumulativ)
   GET /api/public/fixture/{id}/individualranking  Einzelstatistik laut bulibow (keine offizielle Wertung)
   GET /api/public/calendar?seasonId=&leagueId=    alle Fixtures der Liga (Vortabelle, Ausblick)
+  GET /api/public/seasoninfo?seasonId=            Ligen der Saison mit Region (z. B. HS, WF)
+
+Ligaregeln (Meister/Aufstieg/Relegation/Abstieg, Verband, freier Eintritt) stehen je Region in
+references/regionen.json; fuer Regionen oder Ligen ohne Regel gilt der Modus "unbekannt".
 
 Mehrere Fixture-IDs derselben Liga (z. B. zwei Durchgaenge an einem Tag) werden zu
 einem Wettkampftag zusammengefasst; verschiedene Ligen ergeben je einen eigenen Abschnitt.
@@ -22,6 +27,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.request
@@ -56,7 +62,7 @@ class Api:
 
 def fetch(api: Api, fixture_ids: list[int]) -> dict:
     """Sammelt alle Rohdaten, die die Auswertung braucht."""
-    raw = {"fixtures": {}, "calendars": {}, "tables": {}}
+    raw = {"fixtures": {}, "calendars": {}, "tables": {}, "seasoninfo": {}}
     for fid in fixture_ids:
         p = f"/api/public/fixture/{fid}"
         raw["fixtures"][str(fid)] = {
@@ -71,6 +77,10 @@ def fetch(api: Api, fixture_ids: list[int]) -> dict:
         if key not in raw["calendars"]:
             cal = api.get(f"/api/public/calendar?seasonId={info['seasonId']}&leagueId={info['leagueId']}")
             raw["calendars"][key] = cal
+    for fx in raw["fixtures"].values():
+        sid = str(fx["info"]["seasonId"])
+        if sid not in raw["seasoninfo"]:
+            raw["seasoninfo"][sid] = api.get(f"/api/public/seasoninfo?seasonId={sid}")
     # Vortabelle = Tabelle des letzten Fixtures der Liga vor dem Wettkampftag
     for key, cal in raw["calendars"].items():
         own = [f for f in raw["fixtures"].values() if f"{f['info']['seasonId']}-{f['info']['leagueId']}" == key]
@@ -188,26 +198,44 @@ def evaluate_match(fid: int, rnd: dict, match: dict, members: dict) -> dict | No
     return m
 
 
-def league_mode(league: str, title_places_override: int | None) -> dict:
-    """Bedeutung der Spitzenplaetze je Spielklasse (Bogenligen Hessen).
+DEFAULT_RULES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "references", "regionen.json")
 
-    Hessenliga = hoechste hessische Spielklasse: Es geht um den Meistertitel, kein Aufstieg;
-    in der Hessenliga Recurve qualifizieren sich die ersten beiden fuer die Aufstiegsrelegation
-    zur Regionalliga. Darunter (Oberliga, Verbandsliga, Bezirksliga) steigt der Erste auf.
-    """
-    name = league.casefold()
-    if name.startswith("hessenliga") and "recurve" in name:
-        # keine feste Anzahl an Absteigern: der Letzte sicher, weitere moeglich
-        mode = {"modus": "meisterschaft_mit_relegation", "platz_anzahl": 2, "weitere_moegliche_absteiger": 2,
-                "bedeutung": "Platz 1 wird Hessenmeister; Platz 1 und 2 duerfen in der Aufstiegsrelegation zur Regionalliga antreten"}
-    elif name.startswith("hessenliga"):
-        # Hessenliga Blankbogen/Compound: immer genau ein Absteiger (der Letzte)
-        mode = {"modus": "meisterschaft", "platz_anzahl": 1, "weitere_moegliche_absteiger": 0,
-                "bedeutung": "Hoechste hessische Spielklasse: Platz 1 wird Hessenmeister, kein Aufstieg; genau ein Absteiger"}
-    else:
-        mode = {"modus": "aufstieg", "platz_anzahl": 1, "weitere_moegliche_absteiger": 2, "bedeutung": "Platz 1 steigt auf"}
+UNKNOWN_MODE = {"modus": "unbekannt", "spitzenplaetze": 1, "sichere_absteiger": 0, "weitere_moegliche_absteiger": 0,
+                "bedeutung": "Ligaregeln fuer diese Liga/Region nicht hinterlegt: keine Aussagen zu Meistertitel, Aufstieg oder Abstieg",
+                "abstieg": "unbekannt"}
+
+
+def load_rules(path: str) -> dict:
+    with open(path, encoding="utf-8") as f:
+        return {k: v for k, v in json.load(f).items() if not k.startswith("_")}
+
+
+def league_region(raw: dict, info: dict) -> dict:
+    """Region der Liga laut /api/public/seasoninfo (Code und Name), sonst unbekannt."""
+    si = (raw.get("seasoninfo") or {}).get(str(info["seasonId"])) or {}
+    regions = {r["id"]: r for r in si.get("regions") or []}
+    league = next((l for l in si.get("leagues") or [] if l["id"] == info["leagueId"]), None)
+    region = regions.get(league.get("regionId")) if league else None
+    return {"code": region["code"], "name": region["name"]} if region else {"code": None, "name": None}
+
+
+def league_mode(league: str, region_code: str | None, rules: dict,
+                title_places_override: int | None, relegation_override: int | None, maybe_override: int | None) -> dict:
+    """Bedeutung der Spitzen- und Abstiegsplaetze laut references/regionen.json."""
+    region_rules = rules.get(region_code or "", {})
+    mode = dict(UNKNOWN_MODE)
+    for rule in region_rules.get("ligen") or []:
+        if re.search(rule["muster"], league, re.IGNORECASE):
+            mode = {k: v for k, v in rule.items() if k != "muster"}
+            break
     if title_places_override is not None:
-        mode["platz_anzahl"] = title_places_override
+        mode["spitzenplaetze"] = title_places_override
+    if relegation_override is not None:
+        mode["sichere_absteiger"] = relegation_override
+    if maybe_override is not None:
+        mode["weitere_moegliche_absteiger"] = maybe_override
+    mode["verband"] = region_rules.get("verband")
+    mode["eintritt_frei"] = region_rules.get("eintritt_frei")
     return mode
 
 
@@ -219,8 +247,8 @@ def table_rows(table) -> list[dict]:
              "ringe": p.get("totalScore"), "saetze": p.get("setCount")} for p in rows]
 
 
-def analyse_league(raw: dict, fixtures: list[dict], title_places: int, relegation_places: int,
-                   maybe_places: int, min_shots_share: float) -> dict:
+def analyse_league(raw: dict, fixtures: list[dict], rules: dict, title_places: int | None, relegation_places: int | None,
+                   maybe_places: int | None, min_shots_share: float) -> dict:
     infos = [f["info"] for f in fixtures]
     key = f"{infos[0]['seasonId']}-{infos[0]['leagueId']}"
     cal = calendar_fixtures(raw["calendars"].get(key, {}))
@@ -334,10 +362,11 @@ def analyse_league(raw: dict, fixtures: list[dict], title_places: int, relegatio
         if d and (r["mp_won"] - b["mp_won"] != d["mp_won"] or r["sp_won"] - b["sp_won"] != d["sp_won"]):
             abweichungen.append(r["team"])
 
-    mode = league_mode(infos[0]["league"] or "", title_places)
-    title_places = mode["platz_anzahl"]
-    if maybe_places is None:
-        maybe_places = mode["weitere_moegliche_absteiger"]
+    region = league_region(raw, infos[0])
+    mode = league_mode(infos[0]["league"] or "", region["code"], rules, title_places, relegation_places, maybe_places)
+    title_places = mode["spitzenplaetze"]
+    relegation_places = mode["sichere_absteiger"]
+    maybe_places = mode["weitere_moegliche_absteiger"]
     situation = None
     if after:
         # Absteiger: Der Letzte steigt sicher ab; ob weitere absteigen, steht waehrend der Saison
@@ -361,9 +390,13 @@ def analyse_league(raw: dict, fixtures: list[dict], title_places: int, relegatio
             "moeglicherweise_abstiegsgefaehrdet": [r["team"] for r in maybe],
             "innerhalb_4_mp_vor_sicherem_abstieg": [r["team"] for r in after[title_places:n - relegation_places]
                                                     if sure and r["mp_won"] - sure[0]["mp_won"] <= 4],
-            "hinweis": (f"{mode['bedeutung']}. Die letzten {relegation_places} steigen sicher ab"
-                        + (f"; ob die {len(maybe)} Plaetze davor ebenfalls absteigen, steht waehrend der Saison noch nicht fest."
-                           if maybe else "; weitere Absteiger gibt es nicht.")),
+            "abstieg_regel": mode["abstieg"],
+            "hinweis": (f"{mode['bedeutung']}. "
+                        + ("Abstiegsregel unbekannt: nur von Tabellenende sprechen, keine Abstiegsplaetze nennen."
+                           if mode["modus"] == "unbekannt" else
+                           f"Die letzten {relegation_places} steigen sicher ab"
+                           + (f"; ob die {len(maybe)} Plaetze davor ebenfalls absteigen, steht waehrend der Saison noch nicht fest."
+                              if maybe else "; weitere Absteiger gibt es nicht."))),
         }
 
     own_ids = {i["fixtureId"] for i in infos}
@@ -405,6 +438,10 @@ def analyse_league(raw: dict, fixtures: list[dict], title_places: int, relegatio
 
     return {
         "liga": infos[0]["league"],
+        "region": region,
+        "verband": mode["verband"],
+        "eintritt_frei": mode["eintritt_frei"],
+        "ligaregeln_bekannt": mode["modus"] != "unbekannt",
         "saison": infos[0]["season"],
         "fixtures": [{k: i.get(k) for k in ("fixtureId", "fixtureNo", "dateTime", "host", "locationAddressLine1", "locationCity")}
                      for i in sorted(infos, key=lambda i: (i["dateTime"], i.get("fixtureNo") or 0))],
@@ -427,11 +464,12 @@ def strip(m: dict) -> dict:
     return {k: v for k, v in m.items() if not k.startswith("_")}
 
 
-def analyse(raw: dict, title_places: int, relegation_places: int, maybe_places: int, min_shots_share: float) -> list[dict]:
+def analyse(raw: dict, rules: dict, title_places: int | None, relegation_places: int | None, maybe_places: int | None,
+            min_shots_share: float) -> list[dict]:
     by_league = defaultdict(list)
     for fx in raw["fixtures"].values():
         by_league[(fx["info"]["seasonId"], fx["info"]["leagueId"])].append(fx)
-    return [analyse_league(raw, fxs, title_places, relegation_places, maybe_places, min_shots_share) for fxs in by_league.values()]
+    return [analyse_league(raw, fxs, rules, title_places, relegation_places, maybe_places, min_shots_share) for fxs in by_league.values()]
 
 
 # ---------------------------------------------------------------------- Markdown
@@ -446,6 +484,10 @@ def to_markdown(reports: list[dict]) -> str:
         f0 = r["fixtures"][0]
         out.append(f"# {r['liga']} {r['saison']} – Wettkampftag {', '.join(str(f['fixtureNo']) for f in r['fixtures'])} "
                    f"({f0['dateTime'][:10]}, {f0['host'] or ''} in {f0['locationCity']})")
+        reg = r["region"]
+        out.append(f"Region: {reg['name'] or 'unbekannt'} ({reg['code'] or '–'}) | Verband: {r['verband'] or 'unbekannt'} | "
+                   f"Eintritt frei: {'ja' if r['eintritt_frei'] else ('nein' if r['eintritt_frei'] is False else 'unbekannt')} | "
+                   f"Ligaregeln bekannt: {'ja' if r['ligaregeln_bekannt'] else 'NEIN – keine Aussagen zu Meister/Auf-/Abstieg'}")
         hosts = sorted({f["host"] for f in r["fixtures"] if f.get("host")})
         out.append(f"Ausrichter: {', '.join(hosts) if hosts else 'in bulibow nicht angegeben'} | Halle/Ort: "
                    f"{'; '.join(sorted({(f.get('locationAddressLine1') or '') + ', ' + (f.get('locationCity') or '') for f in r['fixtures']}))}")
@@ -509,10 +551,10 @@ def main():
     p.add_argument("--dump-raw", help="Rohdaten zusaetzlich in diese Datei schreiben")
     p.add_argument("--title-places", type=int, default=None,
                    help="Anzahl der Spitzenplaetze (Meister/Relegation/Aufstieg); Standard je nach Liga automatisch")
-    p.add_argument("--relegation-places", type=int, default=1, help="sichere Abstiegsplaetze (Standard 1, 0 = keine)")
+    p.add_argument("--relegation-places", type=int, default=None, help="sichere Abstiegsplaetze (Standard laut Regeldatei)")
     p.add_argument("--maybe-relegation-places", type=int, default=None,
-                   help="Plaetze vor dem sicheren Abstieg, die ggf. ebenfalls absteigen (Standard je nach Liga: "
-                        "Hessenliga Blankbogen/Compound 0, sonst 2)")
+                   help="Plaetze vor dem sicheren Abstieg, die ggf. ebenfalls absteigen (Standard laut Regeldatei)")
+    p.add_argument("--regeln", default=DEFAULT_RULES, help="Regeldatei je Region (Standard references/regionen.json)")
     p.add_argument("--min-shots-share", type=float, default=0.5,
                    help="Einzelstatistik: Mindestanteil an Pfeilen des Schuetzen mit den meisten Pfeilen (Standard 0.5)")
     p.add_argument("--format", choices=["json", "md"], default="md")
@@ -532,7 +574,8 @@ def main():
         with open(a.dump_raw, "w", encoding="utf-8") as f:
             json.dump(raw, f, ensure_ascii=False)
 
-    reports = analyse(raw, a.title_places, a.relegation_places, a.maybe_relegation_places, a.min_shots_share)
+    reports = analyse(raw, load_rules(a.regeln), a.title_places, a.relegation_places, a.maybe_relegation_places,
+                      a.min_shots_share)
     print(to_markdown(reports) if a.format == "md" else json.dumps(reports, ensure_ascii=False, indent=2))
 
 

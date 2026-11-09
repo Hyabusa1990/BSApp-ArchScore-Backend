@@ -1,10 +1,10 @@
-# Stilleitfaden Wettkampfbericht (HSV-Webseite)
+# Stilleitfaden Bogenliga-Wettkampfbericht (Verbands- oder Vereinswebseite)
 
 ## Tonalität
 
 - Sachlich-sportlich wie ein Lokalsportteil: lebendig, aber nicht reißerisch.
   Keine Superlative ohne Beleg („sensationell“ nur bei echter Überraschung laut Tabelle).
-- Neutral gegenüber allen Vereinen – der HSV berichtet für alle hessischen Mannschaften.
+- Neutral gegenüber allen Vereinen – der Verband berichtet für alle Mannschaften seiner Ligen.
 - Aktiv formulieren, kurze Sätze, Präteritum für den Wettkampfverlauf, Präsens für die
   Tabellensituation.
 - Vereinsnamen beim ersten Nennen vollständig (wie in den Daten); Schützen mit Vor- und Nachname und Verein, danach Ortsname oder
@@ -23,7 +23,7 @@
 
 <Absatz 3: Top-Schützen und weitere Höhepunkte – beste Ringschnitte, 60er-Satz, Überraschungen.>
 
-<Absatz 4: Tabellensituation – Meisterschaft (Hessenliga) bzw. Relegation (Hessenliga Recurve) bzw. Aufstieg (darunter) und Abstieg.>
+<Absatz 4: Tabellensituation – je nach Ligaregel Meisterschaft, Relegation oder Aufstieg sowie Abstieg; bei unbekannten Regeln nur Tabellenspitze und -ende.>
 
 <Absatz 5: Dank an den Ausrichter als guten Gastgeber, verbunden mit dem Ausblick auf den nächsten Wettkampftag.>
 
@@ -35,7 +35,7 @@
 
 ## Die nächsten Wettkampftage
 
-<Einladung an Zuschauer mit Hinweis auf freien Eintritt, 1–2 Sätze.>
+<Einladung an Zuschauer, 1–2 Sätze; freier Eintritt nur, wenn laut Regeldatei bekannt.>
 
 - **<Wochentag>, <TT. Monat JJJJ>, ab <HH:MM> Uhr** – <Ausrichter>, <Halle>, <Straße>, <PLZ Ort>
 - …
@@ -47,17 +47,20 @@ Zwischenüberschriften im Fließtext nur bei mehr als ~600 Wörtern.
 
 ### Überschrift
 
-Die Überschrift muss auf den ersten Blick zeigen, dass es um **Bogensport** geht – auf der
-HSV-Webseite stehen auch Berichte aus Gewehr-, Pistolen- und anderen Disziplinen. Deshalb
+Die Überschrift muss auf den ersten Blick zeigen, dass es um **Bogensport** geht – auf den
+Webseiten der Schützenverbände stehen auch Berichte aus Gewehr-, Pistolen- und anderen
+Disziplinen. Deshalb
 „Bogenliga“ (oder „Bogensport“) prominent an den Anfang, z. B. als Dachzeile mit
 Doppelpunkt:
 
 - „Bogenliga: Bürstadt startet mit weißer Weste in die Blankbogen-Saison“
 - „Bogenliga Hessen: Doppelter Saisonauftakt in Bürstadt“
 - „Hessenliga Bogen Compound: Fulda trifft zweimal die 60“
+- „Bogenliga Westfalen: Mettingen startet mit sieben Siegen“
 
 Auch Zwischenüberschriften für einzelne Ligen nennen die Bogenklasse
-(„Hessenliga Blankbogen“, „Hessenliga Compound“, „Hessenliga Recurve“).
+(„Hessenliga Blankbogen“, „Hessenliga Compound“, „Hessenliga Recurve“); heißt eine Liga
+ohne Bogenklasse im Namen (z. B. „Westfalenliga“), „Bogen“ ergänzen („Westfalenliga Bogen“).
 
 ## Fachbegriffe (Bogenliga, Satzsystem)
 
@@ -84,20 +87,21 @@ Ergebnisse immer als Satzpunkte schreiben („gewann 6:4“), Ringe nur ergänze
 - Ausrichter: „Ein großes Dankeschön geht an den PBC Bürstadt, der ein hervorragender Gastgeber
   war“, „die Gastgeber sorgten für einen reibungslosen Ablauf“, „bot den Mannschaften
   beste Bedingungen“ (nur allgemein – keine erfundenen Details)
-- Einladung: „Zuschauer sind herzlich willkommen, der Eintritt ist frei – erleben Sie
-  spannenden Bogensport aus nächster Nähe und feuern Sie die Mannschaften an!“, „Die
-  Ausrichter freuen sich über jeden Besucher in der Halle.“ (freier Eintritt immer nennen;
-  keine Versprechen zu Verpflegung o. Ä. ohne Quelle)
-- Meisterschaft (Hessenliga): „führt das Rennen um den Hessenmeistertitel an“, „hat die
+- Einladung: „Zuschauer sind herzlich willkommen – erleben Sie spannenden Bogensport aus
+  nächster Nähe und feuern Sie die Mannschaften an!“, „Die Ausrichter freuen sich über jeden
+  Besucher in der Halle.“; bei `eintritt_frei: true` immer ergänzen: „der Eintritt ist frei“
+  (keine Versprechen zu Eintritt, Verpflegung o. Ä. ohne Quelle)
+- Meisterschaft (z. B. Hessenliga): „führt das Rennen um den Hessenmeistertitel an“, „hat die
   Meisterschaft im Blick“, „Titelverteidiger“ (nur wenn bekannt) – nie „Aufstiegsplatz“
-- Relegation (Hessenliga Recurve): „belegt einen der beiden Plätze für die
+- Relegation (z. B. Hessenliga Recurve): „belegt einen der beiden Plätze für die
   Aufstiegsrelegation zur Regionalliga“
-- Aufstieg (Ober-, Verbands-, Bezirksliga): „steht auf dem Aufstiegsplatz“
-- Abstieg Hessenliga Blankbogen/Compound (genau ein Absteiger): „steht auf dem einzigen
-  Abstiegsplatz“, „will den letzten Platz schnell wieder verlassen“, „hat zwei Punkte
-  Vorsprung auf den Abstiegsplatz“
-- Abstieg andere Ligen: „rangiert auf dem sicheren Abstiegsplatz“, „muss je nach Absteigern
-  aus der höheren Liga ebenfalls noch zittern“
+- Aufstieg: „steht auf dem Aufstiegsplatz“
+- Abstieg bei genau einem Absteiger: „steht auf dem einzigen Abstiegsplatz“, „will den
+  letzten Platz schnell wieder verlassen“, „hat zwei Punkte Vorsprung auf den Abstiegsplatz“
+- Abstieg bei offener Anzahl: „rangiert auf dem sicheren Abstiegsplatz“, „muss je nach
+  Absteigern aus der höheren Liga ebenfalls noch zittern“
+- Regeln unbekannt: „übernimmt die Tabellenführung“, „Schlusslicht“, „steht am Tabellenende“
+  – keine Begriffe wie Aufstieg, Abstieg, Meister oder Relegation
 - Tabelle: „übernimmt die Tabellenspitze“, „verteidigt Platz eins“, „bleibt mit nur einem
   Punkt Rückstand in Schlagdistanz“, „steht weiter auf einem Abstiegsplatz“, „verschafft sich
   Luft im Tabellenkeller“
@@ -109,7 +113,6 @@ Ergebnisse immer als Satzpunkte schreiben („gewann 6:4“), Ringe nur ergänze
 - Begriffe wie „Einzelwertung“, „Einzelrangliste“, „Einzelsieger“ – es gibt keine offizielle
   Einzelwertung; Einzelleistungen sind nur Statistik („bester Ringschnitt des Tages“).
 - Angaben zu Wetter, Halle, Zuschauern, Stimmung ohne Quelle.
-- Prognosen zu Auf-/Abstieg als Tatsache, solange rechnerisch noch alles offen ist. In der
-  Hessenliga Blankbogen/Compound gibt es genau einen Absteiger; in den anderen Ligen stehen
-  weitere Absteiger erst nach der Saison der höheren Ligen fest.
-- Interne Begriffe aus bulibow (Fixture, Target, RoundNo, Spotter, DOS, Satz 99).
+- Prognosen zu Auf-/Abstieg als Tatsache, solange rechnerisch noch alles offen ist; Aussagen
+  zu Titel, Aufstieg, Relegation oder Abstieg, die nicht durch die Regeldatei gedeckt sind.
+- Interne Begriffe aus BuLiBow (Fixture, Target, RoundNo, Spotter, DOS, Satz 99).
