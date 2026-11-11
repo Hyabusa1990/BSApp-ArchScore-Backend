@@ -241,9 +241,16 @@ Namen zu (Team-IDs wechseln je Saison). Die Ausgabe unterscheidet zwei Fälle:
   `zugaenge` (mit Vorsaisonleistung, wenn sie in derselben Liga für ein anderes Team
   schossen). `schreibvarianten` sind dieselbe Person – weder Ab- noch Zugang.
   `kader_weitgehend_neu` deutet eher auf Umnummerierung der Mannschaften eines Vereins hin –
-  dann nicht von einem Aderlass schreiben, sondern neutral oder gar nicht. Kader stammen aus
-  der BuLiBow-Meldung und können zum Saisonstart unvollständig sein.
+  dann nicht von einem Aderlass schreiben, sondern neutral oder gar nicht.
+  **Ab- und Zugänge sind nur aus der vorläufigen Mannschaftsmeldung in BuLiBow abgeleitet**
+  (Kader können sich bis zum Wettkampf noch ändern; wer tatsächlich schießt, zeigt erst der
+  Wettkampftag). Das muss im Artikel klar erkennbar sein – z. B. „Laut vorläufiger
+  Mannschaftsmeldung fehlen …“, „… stehen nach vorläufiger Meldung nicht mehr im Kader“ – und
+  nie als feststehender Abgang („hat den Verein verlassen“, „hört auf“) formuliert werden.
 
 Aufbau und Ton einer Vorschau: siehe „Vorschau“ in `references/stil.md`. Immer mit Termin,
 Ausrichter, Halle und Adresse sowie der Einladung an Zuschauer (freier Eintritt laut
-`eintritt_frei`). Dateiname z. B. `vorschau_<liga>_<wettkampftag>.md`.
+`eintritt_frei`). **Eine Vorschau behandelt nur den beschriebenen Wettkampftag**: keine
+Liste „Die nächsten Wettkampftage“ und keine späteren Termine im Text – die folgen erst im
+Nachbericht. (Beschreibt die Vorschau mehrere Ligen am selben Tag, gehören deren Zeiten an
+diesem Tag natürlich dazu.) Dateiname z. B. `vorschau_<liga>_<wettkampftag>.md`.

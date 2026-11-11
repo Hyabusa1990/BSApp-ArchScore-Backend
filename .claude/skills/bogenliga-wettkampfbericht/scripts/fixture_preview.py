@@ -189,9 +189,6 @@ def preview_league(col: Collector, infos: list[dict], rules: dict, supra: str | 
         },
         "mannschaften": sorted(current_teams.values()),
         "mannschaften_hinweis": None if current_teams else "Mannschaften noch nicht in BuLiBow eingetragen",
-        "weitere_termine": [{"datum": f["dateTime"][:10], "wochentag": weekday(f["dateTime"]), "beginn": f["dateTime"][11:16],
-                             "wettkampftag": f.get("fixtureNo"), "ausrichter": f.get("host"), "ort": f.get("locationCity")}
-                            for f in later],
     }
 
     if not first_day:
@@ -433,7 +430,9 @@ def preview_season_start(col: Collector, info: dict, region: dict, current_teams
         "nicht_mehr_dabei": departed,
         "knappe_entscheidungen_vorsaison": close,
         "kaderveraenderungen": roster,
-        "hinweis_kader": "Kader laut BuLiBow-Meldung; Zugaenge koennen zum Saisonstart noch fehlen. Schuetzen werden ueber den Namen zugeordnet.",
+        "hinweis_kader": ("Ab- und Zugaenge nur aus der VORLAEUFIGEN Mannschaftsmeldung in BuLiBow abgeleitet – im Artikel "
+                          "so kennzeichnen ('laut vorlaeufiger Mannschaftsmeldung'), nie als feststehend. Kader koennen sich "
+                          "bis zum Wettkampf aendern; Schuetzen werden ueber den Namen zugeordnet."),
     }
 
 
@@ -466,8 +465,7 @@ def to_markdown(previews: list[dict]) -> str:
             out.append(f"- Termin: {t['wochentag']}, {t['datum']}, ab {t['beginn']} Uhr – Ausrichter {t['ausrichter'] or '?'} – "
                        f"{', '.join(x for x in (t['halle'], t['strasse'], f'{t['plz'] or ''} {t['ort'] or ''}'.strip()) if x)}")
         out.append(f"Mannschaften ({len(p['mannschaften'])}): {', '.join(p['mannschaften']) or p['mannschaften_hinweis']}")
-        out.append("Weitere Termine: " + ("; ".join(f"{t['wochentag']} {t['datum']} {t['beginn']} WT{t['wettkampftag']} "
-                                                  f"{t['ausrichter'] or '?'} ({t['ort']})" for t in p["weitere_termine"]) or "keine"))
+        out.append("Hinweis: Eine Vorschau nennt nur diesen Wettkampftag – keine spaeteren Termine (die folgen im Nachbericht).")
         if not wt["erster_der_saison"]:
             out.append("\n## Tabelle vor dem Wettkampftag (Mannschaftsschnitt pro Satz)")
             out.append("| Rang | Team | MP | SP | Ringe/Satz | letzter WT (MP) | Rang davor |")

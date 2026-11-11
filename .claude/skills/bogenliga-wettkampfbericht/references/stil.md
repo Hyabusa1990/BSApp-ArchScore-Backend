@@ -141,15 +141,17 @@ solche formulieren („gilt als Favorit“, „dürfte“, „will“), nie als 
 <Absatz 2: Neue Gesichter – Saisonstart: Auf- und Absteiger, nicht mehr vertretene Teams;
  laufende Saison: Formkurve vom letzten Wettkampftag, offene Rechnungen (Punktverluste der Spitze).>
 
-<Absatz 3: Schützen – Saisonstart: Abgänge von Leistungsträgern, Zugänge (mit Vorsaisonleistung);
- laufende Saison: Schützen in Form (Ringe pro Pfeil, nur Statistik).>
+<Absatz 3: Schützen – Saisonstart: Abgänge von Leistungsträgern, Zugänge (mit Vorsaisonleistung),
+ ausdrücklich „laut vorläufiger Mannschaftsmeldung“; laufende Saison: Schützen in Form
+ (Ringe pro Pfeil, nur Statistik).>
 
 <Absatz 4: Ausrichter, Termin, Beginn, Halle mit Adresse – Einladung an Zuschauer.>
-
-## Die nächsten Wettkampftage   (nur wenn weitere Termine folgen)
 ```
 
+Nur der beschriebene Wettkampftag: keine weiteren Termine, kein Abschnitt „Die nächsten
+Wettkampftage“ – das gehört in den Nachbericht.
+
 Formulierungshilfen Vorschau: „Titelverteidiger … geht als Gejagter in die Saison“, „neu in der
-Liga sind die Aufsteiger …“, „muss den Abgang von … verkraften, der in der Vorsaison 8,96 Ringe
-pro Pfeil beisteuerte“, „verpasste in der Vorsaison nur aufgrund der Satzpunkte den Titel“,
+Liga sind die Aufsteiger …“, „laut vorläufiger Mannschaftsmeldung fehlt …, der in der Vorsaison
+8,96 Ringe pro Pfeil beisteuerte“ (An- und Abgänge nie als feststehend formulieren), „verpasste in der Vorsaison nur aufgrund der Satzpunkte den Titel“,
 „hat nach dem 0:6 vom ersten Wettkampftag noch eine Rechnung offen“.
