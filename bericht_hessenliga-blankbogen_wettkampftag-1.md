@@ -2,9 +2,9 @@
 
 **Perfekter Auftakt als Gastgeber: Der PBC Bürstadt gewann am ersten Wettkampftag der Hessenliga Blankbogen alle sieben Matches und führt die Tabelle mit 14:0 Punkten an. Dahinter folgen der HSV Götzenhain und die Homburger SG mit je 10:4 Punkten.**
 
-Der Gastgeber ließ am Sonntag in der eigenen Bogenhalle keinen Zweifel aufkommen, wer an diesem Tag das Maß der Dinge war. Sechs seiner sieben Matches entschied der PBC Bürstadt in drei oder vier Sätzen für sich, viermal davon mit 6:0. Mit durchschnittlich 46,56 Ringen pro Satz – 7,76 Ringe pro Pfeil – stellte Bürstadt die beste Mannschaft des Tages. Auch das Spitzenduell in der letzten Runde gegen den HSV Götzenhain ging an die Gastgeber: Nach einem 39:47 im ersten Satz drehte Bürstadt die Partie und gewann mit 6:2, den entscheidenden vierten Satz mit nur einem Ring Vorsprung (42:41).
+Der Gastgeber ließ am Sonntag in der eigenen Bogenhalle keinen Zweifel aufkommen, wer an diesem Tag das Maß der Dinge war. Sechs seiner sieben Matches entschied der PBC Bürstadt in drei oder vier Sätzen für sich, viermal davon mit 6:0. Mit durchschnittlich 46,56 Ringen pro Satz stellte Bürstadt die beste Mannschaft des Tages. Auch das Spitzenduell in der letzten Runde gegen den HSV Götzenhain ging an die Gastgeber: Nach einem 39:47 im ersten Satz drehte Bürstadt die Partie und gewann mit 6:2, den entscheidenden vierten Satz mit nur einem Ring Vorsprung (42:41).
 
-Am nächsten an einer Niederlage war der Tabellenführer in der fünften Runde gegen den SVW Erzhausen. Bürstadt gewann zwar den ersten Satz knapp mit 52:50, doch dann schlug Erzhausen zurück: Mit 52:43 und 48:47 gingen Dirk Schmidt, Adelheit Klaus und Richard Schneider mit 4:2 in Führung. Erst im vierten Satz fand Bürstadt mit 46:39 zurück. Den Entscheidungssatz sicherten sich Olaf Kaiser, Melanie Kratz und Wolfgang Roser mit 50:43 und damit das Match mit 6:4. Für Erzhausen war das bezeichnend für den ganzen Tag: Mit 45,46 Ringen pro Satz schoss die Mannschaft den drittbesten Schnitt aller Teams, steht nach zwei Auftaktsiegen und fünf Niederlagen aber nur auf Rang sieben.
+Am nächsten an einer Niederlage war der Tabellenführer in der fünften Runde gegen den SVW Erzhausen. Bürstadt gewann zwar den ersten Satz knapp mit 52:50, doch dann schlug Erzhausen zurück: Mit 52:43 und 48:47 gingen Dirk Schmidt, Adelheit Klaus und Richard Schneider mit 4:2 in Führung. Erst im vierten Satz fand Bürstadt mit 46:39 zurück. Den Entscheidungssatz sicherten sich Olaf Kaiser, Melanie Kratz und Wolfgang Roser mit 50:43 und damit das Match mit 6:4. Im Entscheidungssatz trafen Melanie Kratz und Wolfgang Roser jeweils die Zehn. Für Erzhausen war das bezeichnend für den ganzen Tag: Mit 45,46 Ringen pro Satz schoss die Mannschaft den drittbesten Schnitt aller Teams, steht nach zwei Auftaktsiegen und fünf Niederlagen aber nur auf Rang sieben.
 
 Den stärksten Einzelschnitt des Tages erzielte Patrick Jestädt (SG Eichenzell) mit 8,38 Ringen pro Pfeil. Knapp dahinter folgten Klaus Gerlings (HSV Götzenhain) mit 8,30 und Michael Gaber (BS Frankfurt) mit 8,21. Gerlings traf zudem elfmal die Zehn – so oft wie kein anderer Schütze an diesem Tag. Den höchsten Satz des Tages schoss die Homburger SG mit 54 Ringen gegen den BSC Gießen – das Match ging dennoch mit 2:6 an Gießen.
 
@@ -44,9 +44,9 @@ Quelle: bulibow, Fixture 195 (Hessenliga Blankbogen 2026/2027, 1. Wettkampftag, 
 | Aussage | Herkunft |
 |---|---|
 | Bürstadt 7 Siege, 14:0 MP, 42:8 SP; 6 Matches in 3–4 Sätzen, 4× 6:0 (R1, R3, R4, R6) | Tagesergebnisse / Tabelle |
-| Bürstadt 46,56 Ringe/Satz, 7,76 Ringe/Pfeil (bester Teamschnitt) | 1.164 Ringe aus 25 Sätzen |
+| Bürstadt 46,56 Ringe/Satz (bester Teamschnitt) | 1.164 Ringe aus 25 Sätzen |
 | R7 Bürstadt – Götzenhain 6:2, Sätze 39:47, 47:37, 52:43, 42:41 | Runde 7, Match 1 |
-| R5 Erzhausen – Bürstadt 4:6, Sätze 50:52, 52:43, 48:47, 39:46, 43:50; Schützen laut Matchaufstellung | Runde 5, Match 3 |
+| R5 Erzhausen – Bürstadt 4:6, Sätze 50:52, 52:43, 48:47, 39:46, 43:50; Schützen laut Matchaufstellung; Satz 5 Bürstadt: Kratz 10/9, Roser 10/7, Kaiser 8/6 | Runde 5, Match 3, Satzdetails |
 | Erzhausen 45,46 Ringe/Satz (3. bester), Bilanz 2-0-5 | Tagesauswertung |
 | Jestädt 8,38 (285/34), Gerlings 8,30 (382/46, 11 Zehner), Gaber 8,21 (394/48) | Einzelstatistik bulibow (keine offizielle Wertung) |
 | Höchster Satz 54 Ringe, Homburger SG gegen BSC Gießen (R5, Satz 3); Match 2:6 | Runde 5 |

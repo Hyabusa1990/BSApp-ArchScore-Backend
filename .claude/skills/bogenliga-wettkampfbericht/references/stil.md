@@ -74,13 +74,21 @@ ohne Bogenklasse im Namen (z. B. „Westfalenliga“), „Bogen“ ergänzen (�
 | Matchpunkte (Tabellenpunkte) | 2 für Sieg, je 1 bei 5:5, 0 für Niederlage |
 | „Satz-Remis“ / „ringgleich“ | beide Mannschaften gleiche Ringzahl im Satz |
 | „Maximum“ / „perfekter Satz“ | 60 Ringe – sechs Zehner |
-| Ringschnitt | Ringe pro Pfeil (z. B. 9,25) – anschaulicher als Ringe pro Satz |
+| Ringschnitt Schütze | immer Ringe **pro Pfeil** (z. B. „9,25 Ringe pro Pfeil“) |
+| Ringschnitt Mannschaft | immer Ringe **pro Satz** = 6 Pfeile (z. B. „55,4 Ringe pro Satz“) |
 
 Ergebnisse immer als Satzpunkte schreiben („gewann 6:4“), Ringe nur ergänzend
 („… 58:58 im letzten Satz reichte zum 6:4“). Dezimalzahlen mit Komma.
 
 ## Formulierungshilfen
 
+- Entscheidende Pfeile: „Im Entscheidungssatz trafen Melanie Kratz und Wolfgang Roser jeweils
+  die Zehn“, „ein Fehlschuss kostete Erzhausen im dritten Satz den Ausgleich“, „eine Zehn mehr
+  hätte gereicht“ – nie „mit dem letzten Pfeil“ (Schussreihenfolge ist nicht erfasst)
+- Erstmaliger Einsatz: „Bei seinem ersten Saisoneinsatz traf Dieter Dehnert 9,37 Ringe pro
+  Pfeil und hatte großen Anteil am 6:2 gegen Gross-Gerau“
+- Revanche: „revanchierte sich für das 0:6 vom ersten Wettkampftag“, „wiederholte den Erfolg
+  aus der Hinrunde“
 - Comeback: „lag nach zwei Sätzen mit 0:4 zurück“, „kämpfte sich zurück“, „drehte die Partie“
 - Knapp: „mit einem einzigen Ring Vorsprung“, „ringgleich – beide Teams teilten sich den Satz“
 - Dominanz: „ließ nichts anbrennen und siegte glatt mit 6:0“
@@ -116,3 +124,32 @@ Ergebnisse immer als Satzpunkte schreiben („gewann 6:4“), Ringe nur ergänze
 - Prognosen zu Auf-/Abstieg als Tatsache, solange rechnerisch noch alles offen ist; Aussagen
   zu Titel, Aufstieg, Relegation oder Abstieg, die nicht durch die Regeldatei gedeckt sind.
 - Interne Begriffe aus BuLiBow (Fixture, Target, RoundNo, Spotter, DOS, Satz 99).
+
+## Vorschau (Vorbericht)
+
+Kürzer als ein Bericht (250–450 Wörter), Präsens/Futur, macht neugierig – Einschätzungen als
+solche formulieren („gilt als Favorit“, „dürfte“, „will“), nie als Ergebnis.
+
+```markdown
+# <„Bogenliga …“ prominent + Kernthema, z. B. „Bogenliga Hessen: Saisonstart mit drei Aufsteigern“>
+
+**<Teaser: Liga, Wettkampftag, Datum, Ausrichter/Ort, das spannendste Thema.>**
+
+<Absatz 1: Ausgangslage – Saisonstart: Titelverteidiger, Vorjahresmeister fehlt?, knappe
+ Entscheidungen der Vorsaison; laufende Saison: Spitze, Abstände, Tabellenende.>
+
+<Absatz 2: Neue Gesichter – Saisonstart: Auf- und Absteiger, nicht mehr vertretene Teams;
+ laufende Saison: Formkurve vom letzten Wettkampftag, offene Rechnungen (Punktverluste der Spitze).>
+
+<Absatz 3: Schützen – Saisonstart: Abgänge von Leistungsträgern, Zugänge (mit Vorsaisonleistung);
+ laufende Saison: Schützen in Form (Ringe pro Pfeil, nur Statistik).>
+
+<Absatz 4: Ausrichter, Termin, Beginn, Halle mit Adresse – Einladung an Zuschauer.>
+
+## Die nächsten Wettkampftage   (nur wenn weitere Termine folgen)
+```
+
+Formulierungshilfen Vorschau: „Titelverteidiger … geht als Gejagter in die Saison“, „neu in der
+Liga sind die Aufsteiger …“, „muss den Abgang von … verkraften, der in der Vorsaison 8,96 Ringe
+pro Pfeil beisteuerte“, „verpasste in der Vorsaison nur aufgrund der Satzpunkte den Titel“,
+„hat nach dem 0:6 vom ersten Wettkampftag noch eine Rechnung offen“.

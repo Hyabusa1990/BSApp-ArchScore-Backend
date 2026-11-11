@@ -4,9 +4,9 @@
 
 ## Hessenliga Blankbogen: Bürstadt mit weißer Weste
 
-Die Blankbogen-Mannschaft des Gastgebers ließ in der eigenen Bogenhalle keinen Zweifel aufkommen, wer an diesem Tag das Maß der Dinge war. Sechs seiner sieben Matches entschied der PBC Bürstadt in drei oder vier Sätzen für sich, viermal davon mit 6:0. Mit 46,56 Ringen pro Satz – 7,76 Ringe pro Pfeil – stellte Bürstadt die beste Mannschaft des Tages. Auch das Spitzenduell in der letzten Runde gegen den HSV Götzenhain ging mit 6:2 an die Gastgeber, den entscheidenden vierten Satz gewannen sie mit nur einem Ring Vorsprung (42:41).
+Die Blankbogen-Mannschaft des Gastgebers ließ in der eigenen Bogenhalle keinen Zweifel aufkommen, wer an diesem Tag das Maß der Dinge war. Sechs seiner sieben Matches entschied der PBC Bürstadt in drei oder vier Sätzen für sich, viermal davon mit 6:0. Mit 46,56 Ringen pro Satz stellte Bürstadt die beste Mannschaft des Tages. Auch das Spitzenduell in der letzten Runde gegen den HSV Götzenhain ging mit 6:2 an die Gastgeber, den entscheidenden vierten Satz gewannen sie mit nur einem Ring Vorsprung (42:41).
 
-Am nächsten an einer Niederlage war Bürstadt in der fünften Runde gegen den SVW Erzhausen. Nach dem knapp gewonnenen ersten Satz (52:50) gingen Dirk Schmidt, Adelheit Klaus und Richard Schneider mit 52:43 und 48:47 sogar mit 4:2 in Führung. Erst mit 46:39 und 50:43 in den letzten beiden Sätzen drehten Olaf Kaiser, Melanie Kratz und Wolfgang Roser das Match zum 6:4. Erzhausen erzielte mit 45,46 Ringen pro Satz den drittbesten Mannschaftsschnitt des Tages, steht nach zwei Auftaktsiegen und fünf Niederlagen aber nur auf Rang sieben.
+Am nächsten an einer Niederlage war Bürstadt in der fünften Runde gegen den SVW Erzhausen. Nach dem knapp gewonnenen ersten Satz (52:50) gingen Dirk Schmidt, Adelheit Klaus und Richard Schneider mit 52:43 und 48:47 sogar mit 4:2 in Führung. Erst mit 46:39 und 50:43 in den letzten beiden Sätzen drehten Olaf Kaiser, Melanie Kratz und Wolfgang Roser das Match zum 6:4. Im Entscheidungssatz trafen Melanie Kratz und Wolfgang Roser jeweils die Zehn. Erzhausen erzielte mit 45,46 Ringen pro Satz den drittbesten Mannschaftsschnitt des Tages, steht nach zwei Auftaktsiegen und fünf Niederlagen aber nur auf Rang sieben.
 
 Den besten Einzelschnitt erzielte Patrick Jestädt (SG Eichenzell) mit 8,38 Ringen pro Pfeil vor Klaus Gerlings (HSV Götzenhain, 8,30) und Michael Gaber (BS Frankfurt, 8,21). Gerlings traf zudem elfmal die Zehn – so oft wie kein anderer Blankbogenschütze. Für eine Überraschung sorgte die Homburger SG: Sie schlug den späteren Tageszweiten Götzenhain glatt mit 6:0 und drehte in der Schlussrunde gegen die SG Eichenzell einen 0:4-Rückstand in einen 6:4-Sieg.
 
@@ -14,7 +14,7 @@ Im Rennen um den Hessenmeistertitel führt Bürstadt mit 14:0 Punkten, vier Punk
 
 ## Hessenliga Compound: Fulda trifft zweimal die Maximalzahl
 
-Bei den Compoundern gab der BSC Fulda den Ton an. Leonie Dana Dorfner, Christian Schönfeld und Pascal Schmidt gewannen sechs ihrer sieben Matches – und zwar alle, ohne einen einzigen Satz abzugeben. Mit 57,71 Ringen pro Satz – 9,62 Ringe pro Pfeil – schoss Fulda den besten Schnitt des Tages und zweimal sogar einen perfekten Satz mit 60 Ringen: zum Auftakt der Matches gegen den TV Weidenhausen und gegen Gastgeber Bürstadt, die Fulda beide mit 6:0 gewann.
+Bei den Compoundern gab der BSC Fulda den Ton an. Leonie Dana Dorfner, Christian Schönfeld und Pascal Schmidt gewannen sechs ihrer sieben Matches – und zwar alle, ohne einen einzigen Satz abzugeben. Mit 57,71 Ringen pro Satz schoss Fulda den besten Mannschaftsschnitt des Tages und zweimal sogar einen perfekten Satz mit 60 Ringen: zum Auftakt der Matches gegen den TV Weidenhausen und gegen Gastgeber Bürstadt, die Fulda beide mit 6:0 gewann.
 
 Den einzigen Punkt gab Fulda ausgerechnet im engsten Match des Tages ab. Gegen die SpS Niederwetz endeten gleich drei von fünf Sätzen ringgleich mit 57:57. Fulda ging zwar mit 58:57 im dritten Satz 4:2 in Führung, doch Oliver Funk, Gianluca DeSilvio und Jacqueline Emler glichen mit 58:56 aus. Im letzten Satz trafen beide Teams erneut 57 Ringe – 5:5, ein Remis, bei dem Niederwetz am Ende sogar einen Ring mehr auf dem Konto hatte (286:285). Für Niederwetz war es eines von drei Unentschieden in Folge, auch gegen den BSV Moischt und Bürstadt hieß es 5:5.
 
@@ -79,9 +79,9 @@ Quellen: bulibow, Fixture 195 (Hessenliga Blankbogen, 08.11.2026, 10:30 Uhr) und
 | Aussage | Herkunft |
 |---|---|
 | Bürstadt 7 Siege, 14:0 MP, 42:8 SP; 6 Matches in 3–4 Sätzen, 4× 6:0 (R1, R3, R4, R6) | Tagesergebnisse / Tabelle |
-| Bürstadt 46,56 Ringe/Satz, 7,76 Ringe/Pfeil (bester Teamschnitt) | 1.164 Ringe aus 25 Sätzen |
+| Bürstadt 46,56 Ringe/Satz (bester Teamschnitt) | 1.164 Ringe aus 25 Sätzen |
 | R7 Bürstadt – Götzenhain 6:2, Sätze 39:47, 47:37, 52:43, 42:41 | Runde 7 |
-| R5 Erzhausen – Bürstadt 4:6, Sätze 50:52, 52:43, 48:47, 39:46, 43:50; Schützen laut Matchaufstellung | Runde 5 |
+| R5 Erzhausen – Bürstadt 4:6, Sätze 50:52, 52:43, 48:47, 39:46, 43:50; Schützen laut Matchaufstellung; Satz 5 Bürstadt: Kratz 10/9, Roser 10/7, Kaiser 8/6 | Runde 5, Satzdetails |
 | Erzhausen 45,46 Ringe/Satz (3. bester), 2-0-5, Rang 7 | Tagesauswertung / Tabelle |
 | Jestädt 8,38 (285/34), Gerlings 8,30 (382/46, 11 Zehner), Gaber 8,21 (394/48) | Einzelstatistik bulibow (keine offizielle Wertung) |
 | Homburg – Götzenhain 6:0 (R2); Homburg – Eichenzell 6:4 nach 0:4 (R7) | Runden 2 und 7 |
@@ -93,7 +93,7 @@ Quellen: bulibow, Fixture 195 (Hessenliga Blankbogen, 08.11.2026, 10:30 Uhr) und
 |---|---|
 | Fulda 6 Siege, 1 Remis, 13:1 MP, 42:6 SP; alle 6 Siege ohne verlorenen Satz (R1 7:1 mit einem ringgleichen Satz, sonst 6:0) | Tagesergebnisse / Tabelle |
 | Fulda in allen 7 Matches mit Dorfner, Schönfeld, Schmidt | Matchaufstellungen |
-| Fulda 57,71 Ringe/Satz, 9,62 Ringe/Pfeil (bester Teamschnitt) | Tagesauswertung |
+| Fulda 57,71 Ringe/Satz (bester Teamschnitt) | Tagesauswertung |
 | 60er-Sätze Fulda: R6 Satz 1 gegen Weidenhausen (60:54), R7 Satz 1 gegen Bürstadt (60:56); beide Matches 6:0 | Runden 6 und 7 |
 | R5 Niederwetz – Fulda 5:5, Sätze 57:57, 57:57, 57:58, 58:56, 57:57; Ringe 286:285 | Runde 5 |
 | Niederwetz 5:5 in R4 (Moischt), R5 (Fulda), R6 (Bürstadt) | Runden 4–6 |

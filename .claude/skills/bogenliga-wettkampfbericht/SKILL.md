@@ -1,6 +1,6 @@
 ---
 name: bogenliga-wettkampfbericht
-description: Schreibt aus den Ergebnissen eines oder mehrerer BuLiBow-Fixtures (Wettkampftage von Bogenligen im Satzsystem, z. B. Hessen und Westfalen, API api.bogenligen-hessen.org) einen Wettkampfbericht für die Webseite des zuständigen Landesverbands oder Vereins. Verwenden, wenn der Nutzer Fixture-IDs nennt und einen Artikel, Bericht, Spielbericht, Pressetext oder News-Beitrag zu einem Bogenliga-Wettkampftag, Ligatag oder Liga-Ergebnis haben möchte – auch wenn nur "schreib was zum Wettkampftag 195" gesagt wird. Kann den Bericht auch als Word-Dokument (.docx) ausgeben.
+description: Schreibt aus den Ergebnissen eines oder mehrerer BuLiBow-Fixtures (Wettkampftage von Bogenligen im Satzsystem, z. B. Hessen und Westfalen, API api.bogenligen-hessen.org) einen Wettkampfbericht – oder vor dem Wettkampf eine Vorschau – für die Webseite des zuständigen Landesverbands oder Vereins. Verwenden, wenn der Nutzer Fixture-IDs nennt und einen Artikel, Bericht, Spielbericht, Pressetext, News-Beitrag, Vorbericht oder eine Vorschau zu einem Bogenliga-Wettkampftag, Ligatag, Saisonstart oder Liga-Ergebnis haben möchte – auch wenn nur "schreib was zum Wettkampftag 195" gesagt wird. Kann den Bericht auch als Word-Dokument (.docx) ausgeben oder als Entwurf im News-Bereich von BuLiBow anlegen.
 ---
 
 # Bogenliga-Wettkampfbericht aus BuLiBow-Fixtures
@@ -10,10 +10,23 @@ description: Schreibt aus den Ergebnissen eines oder mehrerer BuLiBow-Fixtures (
 `~/.claude/skills/bogenliga-wettkampfbericht`.
 
 Ziel: ein veröffentlichungsfertiger deutscher Artikel für die Webseite des zuständigen
-Landesverbands (oder eines Vereins), der die Highlights eines Liga-Wettkampftags erzählt –
-Tagessieger, Top-Schützen, ein spannender Matchverlauf, Kampf um Titel/Aufstieg und gegen den
-Abstieg, Dank an den Ausrichter, kommende Termine mit Einladung an Zuschauer. Jede Zahl und
-jeder Name im Artikel muss aus den Daten stammen.
+Landesverbands (oder eines Vereins). Zwei Artikelarten:
+
+- **Wettkampfbericht** (Wettkampftag bereits geschossen, Abschnitte 1–5): erzählt die
+  Highlights – Tagessieger, Top-Schützen, spannende Matchverläufe bis zu einzelnen
+  entscheidenden Pfeilen, erstmalige Einsätze, Revanchen, Kampf um Titel/Aufstieg und gegen
+  den Abstieg, Dank an den Ausrichter, kommende Termine mit Einladung an Zuschauer.
+- **Vorschau** (Wettkampftag steht bevor, Abschnitt 6): macht Lust auf den Wettkampf –
+  Ausgangslage, Favoriten, Formkurve; zum Saisonstart Titelverteidiger, Auf- und Absteiger,
+  Kaderveränderungen und offene Rechnungen aus der Vorsaison.
+
+Ob Bericht oder Vorschau, ergibt sich aus der Anfrage oder dem Datum: liegt der Wettkampf in
+der Zukunft bzw. hat er noch keine Ergebnisse, ist es eine Vorschau. Jede Zahl und jeder Name
+im Artikel muss aus den Daten stammen.
+
+**Schnitte – immer so angeben:**
+- **Schützen: Ringe pro Pfeil** (z. B. „9,71 Ringe pro Pfeil“) – nie pro Satz.
+- **Mannschaften: Ringe pro Satz** (= 6 Pfeile, z. B. „57,71 Ringe pro Satz“) – nie pro Pfeil.
 
 ## 1. Eingaben klären
 
@@ -80,7 +93,16 @@ Lies `references/stil.md` für Aufbau und Tonalität. Wähle dann aus den Fakten
    (Tabellenletzter schlägt Spitzenteam, Favorit verliert glatt 0:6).
 2. **Ein spannendes Match ausführlich** – aus `spannendste_matches` das mit der besten
    Geschichte (Stechen, Comeback, Entscheidung im 5. Satz, Duell der Tabellennachbarn).
-   Erzähle den Verlauf mit `satzpunkte_verlauf` und `saetze`.
+   Erzähle den Verlauf mit `satzpunkte_verlauf` und `saetze`. **Einzelne entscheidende Pfeile
+   dürfen und sollen vorkommen**: Abschnitt „Spannendste Matches – Satz für Satz“ zeigt die
+   Pfeile jedes Satzes je Schütze, `schluesselpfeile` die knappen und den entscheidenden Satz:
+   `zehner_satzsieger` (wer im Satz die Zehn traf), `schwaechster_pfeil_satzverlierer` und
+   `besserer_pfeil_haette_gereicht_fuer` (eine Zehn statt dieses Pfeils hätte den Ausgleich
+   bzw. den Satzgewinn gebracht). Beispiele: „Im Entscheidungssatz trafen Melanie Kratz und
+   Wolfgang Roser jeweils die Zehn“, „ein Fehlschuss im letzten Satz kostete den Ausgleich“.
+   Die Pfeile sind in BuLiBow je Schütze erfasst, nicht in Schussreihenfolge – also nie
+   „der letzte Pfeil“, „zum Schluss“ o. Ä. behaupten; Fehlschüsse (0) und schwache Pfeile
+   sachlich und ohne Häme benennen, nicht als Schuldzuweisung.
 3. **Top-Schützen** – aus `top_schuetzen` (Ringschnitt pro Pfeil, nur Schützen mit
    genügend Pfeilen) und `meiste_zehner`; ein bis drei Namen mit Verein und Schnitt.
    Wichtig: Es gibt in den Bogenligen **keine offizielle Einzelwertung** – die Zahlen sind
@@ -89,7 +111,15 @@ Lies `references/stil.md` für Aufbau und Tonalität. Wähle dann aus den Fakten
    Wertung, Rangliste, Sieg oder Platzierung („gewann die Einzelwertung“, „Platz 1 der
    Einzelrangliste“). Bei Abweichungen gelten die Zahlen der BuLiBow-Statistik.
 4. **Weitere Höhepunkte** – `perfekte_saetze_60` (immer erwähnen), `hoechster_satz`,
-   beste Mannschaftsschnitte, Comebacks, glatte Siege des Underdogs.
+   beste Mannschaftsschnitte (pro Satz), Comebacks, glatte Siege des Underdogs.
+   Ab dem zweiten Wettkampftag zusätzlich:
+   - **Erstmalige Einsätze** (`erstmalige_einsaetze`, nur wenn `auswertbar`): Schützen, die in
+     dieser Saison zum ersten Mal schossen – erwähnenswert, wenn sie stark trafen oder in
+     knappen/entscheidenden Matches dabei waren (`einsaetze` mit Ergebnis). Nicht jeden nennen.
+   - **Revanchen** (`revanchen`): Begegnungen, die es an früheren Wettkampftagen schon gab.
+     `revanche_gelungen` = der frühere Verlierer gewann diesmal – vor allem bei klaren
+     Umkehrungen (0:6 → 7:1) oder Spitzenduellen erwähnen; `erneuter_sieg` nur, wenn es eine
+     Serie unterstreicht.
 5. **Tabellensituation** – je nach `ligamodus` und `bedeutung_spitzenplaetze`: Kampf um den
    Meistertitel, um Relegationsplätze oder um den Aufstiegsplatz; Abstand, Verfolger,
    Rangänderungen (`rang_vorher`). Unten nach `abstieg_regel`: Gibt es genau einen Absteiger,
@@ -147,3 +177,73 @@ Selbstkontrolle vor der Ausgabe:
 - Werden Einzelleistungen als Statistik und nicht als Einzelwertung dargestellt?
 - Passen Aussagen zu Titel, Aufstieg, Relegation, Abstieg und Eintritt zur Regeldatei – und
   fehlen sie, wo die Regeln unbekannt sind?
+- Schützenschnitte pro Pfeil, Mannschaftsschnitte pro Satz?
+- Einzelne Pfeile korrekt dem Schützen und Satz zugeordnet, ohne Behauptung zur
+  Schussreihenfolge?
+
+## 5. Als Entwurf in BuLiBow anlegen
+
+Nur wenn der Nutzer das möchte (z. B. „leg das in BuLiBow an“, „als News-Entwurf“) und erst
+nach bestandener Selbstkontrolle. Der Entwurf wird mit allen Fixture-IDs des Berichts
+verknüpft, die Faktenprüfung wird nicht übertragen:
+
+```bash
+node <SKILL_DIR>/scripts/bericht_entwurf.js bericht_<...>.md --fixture <ID> [--fixture <ID> ...]
+```
+
+- Mit `--dry-run` zuerst prüfen, ob Titel und Teaser richtig erkannt werden. Erwartet wird der
+  Aufbau aus `references/stil.md`: `# Titel`, direkt darunter der fett gesetzte Teaser.
+- Jeder Aufruf legt einen neuen Entwurf an, also nicht ohne Anlass wiederholen. Soll ein
+  Bericht überarbeitet werden, den vorhandenen Entwurf im Editor ändern oder löschen.
+- Der API-Schlüssel kommt aus der Umgebungsvariablen `BULIBOW_NEWS_API_KEY`. Fehlt sie, den
+  Nutzer darum bitten, sie zu setzen, und den Schlüssel nie ausgeben, im Bericht speichern
+  oder in Befehle schreiben. Andere BuLiBow-Instanz: `--api-url` oder `BULIBOW_API_URL`.
+- Der Schlüssel kann nur Entwürfe anlegen. Dem Nutzer den ausgegebenen Link zum Editor nennen:
+  Fotos und Bildunterschriften ergänzt er dort und veröffentlicht den Beitrag selbst.
+
+## 6. Vorschau auf einen kommenden Wettkampftag
+
+Wenn der Nutzer eine Vorschau/einen Vorbericht möchte oder die Fixtures noch nicht geschossen
+sind. Die Abschnitte 1 (Eingaben, Ligaregeln), 4 (Liefern, Word, Selbstkontrolle) und 5
+(Entwurf) gelten genauso; die Daten kommen aus dem Vorschau-Skript:
+
+```bash
+python3 <SKILL_DIR>/scripts/fixture_preview.py <ID> [<ID> ...] --dump-raw <scratchpad>/vorschau.json
+```
+
+Es nutzt zusätzlich `/api/public/seasons` und `/api/public/team/{teamId}` (Kader mit
+Einsätzen und Pfeilwerten je Schütze) und ordnet Mannschaften saisonübergreifend über den
+Namen zu (Team-IDs wechseln je Saison). Die Ausgabe unterscheidet zwei Fälle:
+
+**Laufende Saison (ab dem 2. Wettkampftag):**
+- `tabelle_vor_dem_wettkampftag` mit Mannschaftsschnitt pro Satz, Ausbeute des letzten
+  Wettkampftags (`mp_letzter_wettkampftag`) und Rang davor; `tabellensituation` wie im Bericht.
+- `top_schuetzen_saison` (Statistik, Ringe pro Pfeil) und `punktverluste_der_top3`
+  (wer hat die Spitze schon geschlagen? – offene Rechnungen für Revanchen).
+- Geschichte: Ausgangslage an der Spitze und am Tabellenende, Formkurve, wer etwas gutzumachen
+  hat, Schützen in Form; bei `letzter_der_saison` die möglichen Entscheidungen (nur was die
+  Ligaregeln hergeben – nicht ausrechnen, was rechnerisch noch geht, außer es ist eindeutig).
+
+**Saisonstart (1. Wettkampftag):**
+- `abschlusstabelle_vorsaison`, `vorjahresmeister` (und ob er als **Titelverteidiger** wieder
+  dabei ist), `mannschaften_status` je Team: `titelverteidiger`, `verbleib`, `aufsteiger`,
+  `absteiger`, `wechsel_aus_anderer_liga`, `neu_ohne_vorsaison_in_bulibow` – neue Mannschaften
+  (Auf- und Absteiger) immer erwähnen.
+- `nicht_mehr_dabei`: Teams der Vorsaison, die fehlen, mit Verbleib (abgestiegen nach …).
+  Steht dort „nicht in BuLiBow gefunden“, nur vorsichtig formulieren („ist in dieser Saison
+  nicht mehr in der Liga vertreten“) – nicht behaupten, das Team sei aufgestiegen.
+- `knappe_entscheidungen_vorsaison`: knappe Titel-, Relegations- oder Abstiegsentscheidungen –
+  Mannschaften, die deshalb besonders motiviert sein dürften (als Einschätzung formulieren:
+  „dürfte auf Wiedergutmachung brennen“).
+- `kaderveraenderungen`: `abgaenge` mit Vorsaisonleistung (Ringe pro Pfeil, Pfeile,
+  Einsatztage, `leistungstraeger` = großer Anteil an den Pfeilen oder Top 3 des Teams) – vor
+  allem Abgänge von Leistungsträgern erwähnen, ggf. mit neuem Team (`jetzt_bei`);
+  `zugaenge` (mit Vorsaisonleistung, wenn sie in derselben Liga für ein anderes Team
+  schossen). `schreibvarianten` sind dieselbe Person – weder Ab- noch Zugang.
+  `kader_weitgehend_neu` deutet eher auf Umnummerierung der Mannschaften eines Vereins hin –
+  dann nicht von einem Aderlass schreiben, sondern neutral oder gar nicht. Kader stammen aus
+  der BuLiBow-Meldung und können zum Saisonstart unvollständig sein.
+
+Aufbau und Ton einer Vorschau: siehe „Vorschau“ in `references/stil.md`. Immer mit Termin,
+Ausrichter, Halle und Adresse sowie der Einladung an Zuschauer (freier Eintritt laut
+`eintritt_frei`). Dateiname z. B. `vorschau_<liga>_<wettkampftag>.md`.

@@ -1,5 +1,6 @@
 {
-  "_hinweis": "Ligaregeln je bulibow-Region (Code aus /api/public/seasoninfo). Die erste Liga-Regel, deren 'muster' (regulaerer Ausdruck, ohne Gross-/Kleinschreibung) auf den Liganamen passt, gilt. Fehlt eine Region oder passt keine Regel, gilt modus 'unbekannt': keine Aussagen zu Meistertitel, Aufstieg oder Abstieg. Felder je Region: name, verband (fuer die Ansprache/Webseite, null = unbekannt), eintritt_frei (true/false/null = unbekannt), ligen.",
+  "_hinweis": "Ligaregeln je bulibow-Region (Code aus /api/public/seasoninfo). Die erste Liga-Regel, deren 'muster' (regulaerer Ausdruck, ohne Gross-/Kleinschreibung) auf den Liganamen passt, gilt. Fehlt eine Region oder passt keine Regel, gilt modus 'unbekannt': keine Aussagen zu Meistertitel, Aufstieg oder Abstieg. Felder je Region: name, verband (fuer die Ansprache/Webseite, null = unbekannt), eintritt_frei (true/false/null = unbekannt), ligen. Optional 'ebene' je Liga-Regel (1 = hoechste Spielklasse der Region, groessere Zahl = tiefer); damit erkennt die Vorschau Auf- und Absteiger. 'ueberregional_muster' (oberste Ebene) kennzeichnet Ligen oberhalb der Regionen (z. B. Regionalliga, Bundesliga).",
+  "_ueberregional_muster": "^(\\d\\.\\s*)?(Bundesliga|Regionalliga)\\b",
   "HS": {
     "name": "Hessen",
     "verband": "Hessischer Schützenverband (HSV)",
@@ -12,7 +13,8 @@
         "sichere_absteiger": 1,
         "weitere_moegliche_absteiger": 2,
         "bedeutung": "Höchste hessische Spielklasse: Platz 1 wird Hessenmeister; Platz 1 und 2 dürfen in der Aufstiegsrelegation zur Regionalliga antreten",
-        "abstieg": "Keine feste Anzahl an Absteigern: Der Letzte steigt sicher ab, weitere hängen von den Absteigern aus der Regionalliga ab"
+        "abstieg": "Keine feste Anzahl an Absteigern: Der Letzte steigt sicher ab, weitere hängen von den Absteigern aus der Regionalliga ab",
+        "ebene": 1
       },
       {
         "muster": "^Hessenliga\\b",
@@ -21,10 +23,31 @@
         "sichere_absteiger": 1,
         "weitere_moegliche_absteiger": 0,
         "bedeutung": "Höchste hessische Spielklasse: Platz 1 wird Hessenmeister, kein Aufstieg",
-        "abstieg": "Genau ein Absteiger: der Letzte"
+        "abstieg": "Genau ein Absteiger: der Letzte",
+        "ebene": 1
       },
       {
-        "muster": "^(Oberliga|Verbandsliga|Bezirksliga)\\b",
+        "muster": "^Oberliga\\b",
+        "modus": "aufstieg",
+        "spitzenplaetze": 1,
+        "sichere_absteiger": 1,
+        "weitere_moegliche_absteiger": 2,
+        "bedeutung": "Platz 1 steigt auf",
+        "abstieg": "Der Letzte steigt sicher ab, weitere hängen von den Absteigern aus den höheren Ligen ab",
+        "ebene": 2
+      },
+      {
+        "muster": "^Bezirksliga\\b",
+        "modus": "aufstieg",
+        "spitzenplaetze": 1,
+        "sichere_absteiger": 1,
+        "weitere_moegliche_absteiger": 2,
+        "bedeutung": "Platz 1 steigt auf",
+        "abstieg": "Der Letzte steigt sicher ab, weitere hängen von den Absteigern aus den höheren Ligen ab",
+        "ebene": 3
+      },
+      {
+        "muster": "^Verbandsliga\\b",
         "modus": "aufstieg",
         "spitzenplaetze": 1,
         "sichere_absteiger": 1,
@@ -36,8 +59,8 @@
   },
   "WF": {
     "name": "Westfalen",
-    "verband": null,
-    "eintritt_frei": null,
+    "verband": "Westfälischer Schützenbund",
+    "eintritt_frei": true,
     "ligen": []
   }
 }

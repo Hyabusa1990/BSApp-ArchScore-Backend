@@ -81,12 +81,16 @@ def fetch(api: Api, fixture_ids: list[int]) -> dict:
         sid = str(fx["info"]["seasonId"])
         if sid not in raw["seasoninfo"]:
             raw["seasoninfo"][sid] = api.get(f"/api/public/seasoninfo?seasonId={sid}")
-    # Vortabelle = Tabelle des letzten Fixtures der Liga vor dem Wettkampftag
+    # Vortabelle = Tabelle des letzten Fixtures der Liga vor dem Wettkampftag;
+    # Runden aller frueheren Fixtures der Saison fuer erstmalige Einsaetze und Revanchen
+    raw["earlier_rounds"] = {}
     for key, cal in raw["calendars"].items():
         own = [f for f in raw["fixtures"].values() if f"{f['info']['seasonId']}-{f['info']['leagueId']}" == key]
         prev = previous_fixture(cal, own)
         if prev and str(prev["fixtureId"]) not in raw["tables"]:
             raw["tables"][str(prev["fixtureId"])] = api.get(f"/api/public/fixture/{prev['fixtureId']}/table")
+        for f in earlier_fixtures(cal, own):
+            raw["earlier_rounds"][str(f["fixtureId"])] = {"fixture": f, "rounds": api.get(f"/api/public/fixture/{f['fixtureId']}/rounds")}
     return raw
 
 
@@ -95,11 +99,15 @@ def calendar_fixtures(cal) -> list[dict]:
     return sorted(fixtures or [], key=lambda f: (f["dateTime"], f.get("fixtureNo") or 0, f["fixtureId"]))
 
 
-def previous_fixture(cal, own: list[dict]):
+def earlier_fixtures(cal, own: list[dict]) -> list[dict]:
     own_ids = {f["info"]["fixtureId"] for f in own}
     first = min((f["info"]["dateTime"], f["info"].get("fixtureNo") or 0) for f in own)
-    before = [f for f in calendar_fixtures(cal)
-              if f["fixtureId"] not in own_ids and (f["dateTime"], f.get("fixtureNo") or 0) < first]
+    return [f for f in calendar_fixtures(cal)
+            if f["fixtureId"] not in own_ids and (f["dateTime"], f.get("fixtureNo") or 0) < first]
+
+
+def previous_fixture(cal, own: list[dict]):
+    before = earlier_fixtures(cal, own)
     return before[-1] if before else None
 
 
@@ -114,6 +122,51 @@ def shoot_off(t: dict):
     return so["score"] if so else None
 
 
+def shot_list(t: dict, s: dict, members: dict) -> list[dict]:
+    """Pfeile eines Satzes mit Schuetze (Reihenfolge laut Erfassung, nicht zwingend chronologisch)."""
+    out = []
+    for shot in sorted(s.get("shots") or [], key=lambda x: x["shotNo"]):
+        if shot.get("score") is None:
+            continue
+        name = members.get((t["teamId"], shot.get("teamMemberNo"))) if shot.get("teamMemberNo") is not None else None
+        out.append({"schuetze": name, "ring": shot["score"]})
+    return out
+
+
+def key_shots(set_no: int, x: int, y: int, shots_a: list, shots_b: list, names: tuple, decisive: bool, sp_before: str) -> dict:
+    """Schluesselpfeile eines knappen Satzes: Zehner des Siegers, schwaechster Pfeil des Verlierers."""
+    def weakest(shots):
+        known = [sh for sh in shots if sh["ring"] is not None]
+        return min(known, key=lambda sh: sh["ring"]) if known else None
+
+    def tens(shots):
+        cnt = defaultdict(int)
+        for sh in shots:
+            if sh["ring"] == 10:
+                cnt[sh["schuetze"] or "unbekannt"] += 1
+        return dict(cnt)
+
+    info = {"satz": set_no, "ringe": f"{x}:{y}", "satzpunkte_vorher": sp_before, "entscheidet_match": decisive}
+    if x == y:
+        info.update({"satzsieger": "ringgleich",
+                     "schwaechster_pfeil": {names[0]: weakest(shots_a), names[1]: weakest(shots_b)}})
+        return info
+    w, l = (0, 1) if x > y else (1, 0)
+    diff = abs(x - y)
+    ws, ls = (shots_a, shots_b) if w == 0 else (shots_b, shots_a)
+    weak = weakest(ls)
+    gap = (10 - weak["ring"]) if weak else 0
+    info.update({
+        "satzsieger": names[w],
+        "zehner_satzsieger": tens(ws),
+        "schwaechster_pfeil_satzverlierer": weak,
+        "differenz": diff,
+        # waere der schwaechste Pfeil des Verlierers eine Zehn gewesen ...
+        "besserer_pfeil_haette_gereicht_fuer": ("Satzgewinn" if gap > diff else ("Ausgleich" if gap == diff else None)),
+    })
+    return info
+
+
 def evaluate_match(fid: int, rnd: dict, match: dict, members: dict) -> dict | None:
     ts = sorted(match.get("targets") or [], key=lambda t: t["targetNo"])
     if len(ts) != 2 or not all(t.get("teamName") for t in ts):
@@ -121,12 +174,15 @@ def evaluate_match(fid: int, rnd: dict, match: dict, members: dict) -> dict | No
     a, b = ts
     sa_list, sb_list = target_sets(a), target_sets(b)
     sets, progression, sp = [], [], [0, 0]
+    set_shots, sp_before = [], []
     run_def = [0, 0]
     lead_changes, leader_prev = 0, None
     for s1, s2 in zip(sa_list, sb_list):
         if s1["score"] is None or s2["score"] is None:
             break
         sets.append((s1["score"], s2["score"]))
+        set_shots.append((shot_list(a, s1, members), shot_list(b, s2, members)))
+        sp_before.append(f"{sp[0]}:{sp[1]}")
         sp[0] += s1["points"] or 0
         sp[1] += s2["points"] or 0
         progression.append(f"{sp[0]}:{sp[1]}")
@@ -164,6 +220,11 @@ def evaluate_match(fid: int, rnd: dict, match: dict, members: dict) -> dict | No
                 for p in (t.get("participants") or [])]
 
     tied = sum(1 for x, y in sets if x == y)
+    satz_details = [{"satz": i + 1, "ringe": f"{x}:{y}", "pfeile_a": set_shots[i][0], "pfeile_b": set_shots[i][1]}
+                    for i, (x, y) in enumerate(sets)]
+    schluessel = [key_shots(i + 1, x, y, set_shots[i][0], set_shots[i][1], names,
+                            complete and i == len(sets) - 1, sp_before[i])
+                  for i, (x, y) in enumerate(sets) if abs(x - y) <= 2 or (complete and i == len(sets) - 1)]
     m = {
         "fixture_id": fid,
         "runde": rnd["roundNo"],
@@ -189,6 +250,8 @@ def evaluate_match(fid: int, rnd: dict, match: dict, members: dict) -> dict | No
         "fuehrungswechsel": lead_changes,
         "comeback": comeback,
         "glatter_sieg": result in (0, 1) and len(sets) == 3 and tied == 0,
+        "schluesselpfeile": schluessel,
+        "satz_details": satz_details,
         "_sets": sets,
         "_result": result,
         "_targets": (a, b),
@@ -257,7 +320,8 @@ def analyse_league(raw: dict, fixtures: list[dict], rules: dict, title_places: i
     team_day = defaultdict(lambda: {"team": "", "team_id": 0, "mp_won": 0, "mp_lost": 0, "sp_won": 0, "sp_lost": 0,
                                     "ringe": 0, "saetze": 0, "siege": 0, "unentschieden": 0, "niederlagen": 0,
                                     "matches": []})
-    shooters = defaultdict(lambda: {"name": "", "team": "", "ringe": 0, "pfeile": 0, "zehner": 0, "matches": 0})
+    shooters = defaultdict(lambda: {"name": "", "team": "", "team_id": 0, "id": None, "ringe": 0, "pfeile": 0, "zehner": 0,
+                                    "matches": 0, "einsaetze": []})
     shots_total = shots_attributed = 0
 
     for fx in fixtures:
@@ -265,10 +329,11 @@ def analyse_league(raw: dict, fixtures: list[dict], rules: dict, title_places: i
         for rnd in sorted(fx["rounds"] or [], key=lambda r: r["roundNo"]):
             for match in sorted(rnd.get("matches") or [], key=lambda m: m["matchNo"]):
                 # Namen aller Teammitglieder je Team
-                members = {}
+                members, member_ids = {}, {}
                 for t in match.get("targets") or []:
                     for p in t.get("allTeamMembers") or []:
                         members[(t["teamId"], p["no"])] = f"{p.get('firstNames') or ''} {p.get('surname') or ''}".strip()
+                        member_ids[(t["teamId"], p["no"])] = p.get("id")
                 m = evaluate_match(fid, rnd, match, members)
                 if not m:
                     continue
@@ -296,13 +361,17 @@ def analyse_league(raw: dict, fixtures: list[dict], rules: dict, title_places: i
                             k = (t["teamId"], shot["teamMemberNo"])
                             sh = shooters[k]
                             sh["name"] = members.get(k, f"Nr. {shot['teamMemberNo']}")
-                            sh["team"] = t["teamName"]
+                            sh["team"], sh["team_id"], sh["id"] = t["teamName"], t["teamId"], member_ids.get(k)
                             sh["ringe"] += shot["score"]
                             sh["pfeile"] += 1
                             sh["zehner"] += shot["score"] == 10
                             seen.add(k)
                     for k in seen:
                         shooters[k]["matches"] += 1
+                        res = ("offen" if not m["abgeschlossen"] else
+                               ("Sieg" if t["matchPoints"] > opp["matchPoints"] else
+                                ("Niederlage" if t["matchPoints"] < opp["matchPoints"] else "Unentschieden")))
+                        shooters[k]["einsaetze"].append(f"R{m['runde']} vs. {opp['teamName']} {t.get('setPoints')}:{opp.get('setPoints')} ({res})")
                     if not m["abgeschlossen"]:
                         d["matches"].append(f"R{m['runde']} vs. {opp['teamName']}: offen")
                         continue
@@ -320,7 +389,6 @@ def analyse_league(raw: dict, fixtures: list[dict], rules: dict, title_places: i
 
     for d in team_day.values():
         d["schnitt_pro_satz"] = round(d["ringe"] / d["saetze"], 2) if d["saetze"] else None
-        d["schnitt_pro_pfeil"] = round(d["ringe"] / (d["saetze"] * 6), 2) if d["saetze"] else None
     day_table = sorted(team_day.values(), key=lambda r: (-r["mp_won"], -(r["sp_won"] - r["sp_lost"]), -r["sp_won"], r["team"]))
     for i, r in enumerate(day_table, 1):
         r["platz_tag"] = i
@@ -341,6 +409,61 @@ def analyse_league(raw: dict, fixtures: list[dict], rules: dict, title_places: i
         "laut_bulibow": [((fx.get("individualranking") or {}).get("individualRankingPositions") or [])[:5]
                          for fx in fixtures],
     }
+
+    # Erstmalige Einsaetze und Revanchen gegenueber frueheren Wettkampftagen der Saison
+    earlier_ids = {f["fixtureId"] for f in earlier_fixtures(raw["calendars"].get(key, {}), fixtures)}
+    earlier = [v for k, v in (raw.get("earlier_rounds") or {}).items() if int(k) in earlier_ids]
+    earlier_shooters, earlier_meetings = set(), defaultdict(list)
+    earlier_total = earlier_attributed = 0
+    for e in sorted(earlier, key=lambda v: (v["fixture"]["dateTime"], v["fixture"].get("fixtureNo") or 0)):
+        f = e["fixture"]
+        for rnd in sorted(e["rounds"] or [], key=lambda r: r["roundNo"]):
+            for match in rnd.get("matches") or []:
+                mem = {}
+                for t in match.get("targets") or []:
+                    nos = {p["no"]: p.get("id") for p in t.get("allTeamMembers") or []}
+                    mem.update({(t["teamId"], p["no"]): f"{p.get('firstNames') or ''} {p.get('surname') or ''}".strip()
+                                for p in t.get("allTeamMembers") or []})
+                    for st in target_sets(t):
+                        for shot in st.get("shots") or []:
+                            if shot.get("score") is None:
+                                continue
+                            earlier_total += 1
+                            if shot.get("teamMemberNo") is not None:
+                                earlier_attributed += 1
+                                earlier_shooters.add((t["teamId"], nos.get(shot["teamMemberNo"])))
+                em = evaluate_match(f["fixtureId"], rnd, match, mem)
+                if em and em["abgeschlossen"]:
+                    a_t, b_t = em["_targets"]
+                    earlier_meetings[frozenset((a_t["teamId"], b_t["teamId"]))].append({
+                        "wettkampftag": f.get("fixtureNo"), "datum": f["dateTime"][:10], "runde": em["runde"],
+                        "ergebnis": f"{em['team_a']} - {em['team_b']} {em['endstand_satzpunkte']}",
+                        "sieger": em["sieger"]})
+    debuts = []
+    # nur aussagekraeftig, wenn frueher und heute die Pfeile den Schuetzen zugeordnet sind
+    debuts_reliable = (bool(earlier) and earlier_total > 0 and earlier_attributed / earlier_total >= 0.9
+                       and shots_total > 0 and shots_attributed / shots_total >= 0.9)
+    if debuts_reliable:
+        for sh in shooters.values():
+            if sh["id"] is not None and (sh["team_id"], sh["id"]) not in earlier_shooters:
+                debuts.append({k: sh[k] for k in ("name", "team", "pfeile", "schnitt", "zehner", "einsaetze")})
+        debuts.sort(key=lambda d: (d["team"], -d["pfeile"]))
+    revanchen = []
+    for m in matches:
+        if not m["abgeschlossen"]:
+            continue
+        a_t, b_t = m["_targets"]
+        prev_meet = earlier_meetings.get(frozenset((a_t["teamId"], b_t["teamId"])))
+        if not prev_meet:
+            continue
+        last_meet = prev_meet[-1]
+        revanchen.append({
+            "heute": f"R{m['runde']}: {m['team_a']} - {m['team_b']} {m['endstand_satzpunkte']}",
+            "sieger_heute": m["sieger"] or "Unentschieden",
+            "frueher": prev_meet,
+            "revanche_gelungen": bool(last_meet["sieger"] and m["sieger"] and last_meet["sieger"] != m["sieger"]),
+            "erneuter_sieg": bool(last_meet["sieger"] and last_meet["sieger"] == m["sieger"]),
+        })
 
     # Tabellen: nachher = Tabelle des letzten Fixtures des Tages, vorher = letztes Fixture davor
     last = max(infos, key=lambda i: (i["dateTime"], i.get("fixtureNo") or 0))
@@ -421,8 +544,7 @@ def analyse_league(raw: dict, fixtures: list[dict], rules: dict, title_places: i
     highlights = {
         "hoechster_satz": [s for s in set_records if s["ringe"] == best_set],
         "perfekte_saetze_60": [s for s in set_records if s["ringe"] == MAX_SET_SCORE],
-        "beste_tagesschnitte_teams": [{"team": r["team"], "schnitt_pro_satz": r["schnitt_pro_satz"],
-                                       "schnitt_pro_pfeil": r["schnitt_pro_pfeil"]}
+        "beste_tagesschnitte_teams": [{"team": r["team"], "schnitt_pro_satz": r["schnitt_pro_satz"]}
                                       for r in sorted(day_table, key=lambda r: -(r["schnitt_pro_satz"] or 0))[:3]],
         "ungeschlagen": [r["team"] for r in day_table if r["niederlagen"] == 0 and r["siege"] + r["unentschieden"] > 0],
         "ohne_sieg": [r["team"] for r in day_table if r["siege"] == 0 and r["niederlagen"] + r["unentschieden"] > 0],
@@ -453,6 +575,9 @@ def analyse_league(raw: dict, fixtures: list[dict], rules: dict, title_places: i
         "tabellen_abweichung": abweichungen,
         "highlights": highlights,
         "einzelschuetzen": individual,
+        "erstmalige_einsaetze": debuts,
+        "erstmalige_einsaetze_auswertbar": debuts_reliable,
+        "revanchen": revanchen,
         "tagestabelle": day_table,
         "tabelle_nachher": after,
         "tabellensituation": situation,
@@ -476,6 +601,14 @@ def analyse(raw: dict, rules: dict, title_places: int | None, relegation_places:
 
 def j(v) -> str:
     return json.dumps(v, ensure_ascii=False)
+
+
+def per_shooter(shots: list[dict]) -> str:
+    """'Name 10/9, Name 8/7' – Pfeile eines Satzes je Schuetze."""
+    grouped = {}
+    for p in shots:
+        grouped.setdefault(p["schuetze"] or "?", []).append(str(p["ring"]))
+    return ", ".join(f"{n} {'/'.join(v)}" for n, v in grouped.items())
 
 
 def to_markdown(reports: list[dict]) -> str:
@@ -507,9 +640,37 @@ def to_markdown(reports: list[dict]) -> str:
             out.append("\n**Achtung, nicht abgeschlossene Matches:** " + "; ".join(r["offene_matches"]))
         if r["tabellen_abweichung"]:
             out.append("\n**Achtung, Tabelle passt nicht zu den Matchergebnissen bei:** " + ", ".join(r["tabellen_abweichung"]))
-        out.append("\n## Highlights")
+        out.append("\n## Highlights (Mannschaftsschnitte immer pro Satz, Schuetzenschnitte pro Pfeil)")
         for k, v in r["highlights"].items():
+            if k == "spannendste_matches":
+                v = [f"R{m['runde']} {m['team_a']} – {m['team_b']} {m['endstand_satzpunkte']} (Spannung {m['spannung']})" for m in v]
             out.append(f"- **{k}**: {j(v)}")
+        out.append("\n## Spannendste Matches – Satz fuer Satz mit Pfeilen")
+        out.append("(Pfeilreihenfolge = Erfassung, nicht zwingend chronologisch; keine Aussage wie 'der letzte Pfeil')")
+        for m in r["highlights"]["spannendste_matches"]:
+            out.append(f"\n### R{m['runde']} {m['team_a']} – {m['team_b']} {m['endstand_satzpunkte']} ({m['ergebnis']})")
+            for sd, prog in zip(m["satz_details"], m["satzpunkte_verlauf"]):
+                fa, fb = per_shooter(sd["pfeile_a"]), per_shooter(sd["pfeile_b"])
+                out.append(f"- Satz {sd['satz']} {sd['ringe']} (danach {prog}): {m['team_a']}: {fa} | {m['team_b']}: {fb}")
+            for k in m["schluesselpfeile"]:
+                out.append(f"- Schluesselpfeile: {j(k)}")
+        out.append("\n## Erstmalige Einsaetze in dieser Saison")
+        if r["erster_wettkampftag_der_saison"]:
+            out.append("- (erster Wettkampftag – entfaellt)")
+        elif not r["erstmalige_einsaetze_auswertbar"]:
+            out.append("- nicht auswertbar (Pfeile frueher oder heute nicht ausreichend Schuetzen zugeordnet) – im Artikel nicht erwaehnen")
+        elif not r["erstmalige_einsaetze"]:
+            out.append("- keine")
+        for d in r["erstmalige_einsaetze"]:
+            out.append(f"- {d['name']} ({d['team']}): {d['schnitt']} Ringe/Pfeil aus {d['pfeile']} Pfeilen, {d['zehner']} Zehner; "
+                       f"Einsaetze: {'; '.join(d['einsaetze'])}")
+        out.append("\n## Revanchen / Wiedersehen mit frueheren Wettkampftagen")
+        if not r["revanchen"]:
+            out.append("- keine (keine frueheren Begegnungen in dieser Saison)")
+        for rv in r["revanchen"]:
+            tag = "REVANCHE GELUNGEN" if rv["revanche_gelungen"] else ("erneuter Sieg" if rv["erneuter_sieg"] else "anderer Ausgang")
+            frueher = "; ".join(f"WT{x['wettkampftag']} R{x['runde']}: {x['ergebnis']}" for x in rv["frueher"])
+            out.append(f"- {rv['heute']} – {tag} (frueher: {frueher})")
         e = r["einzelschuetzen"]
         out.append(f"\n## Einzelstatistik – keine offizielle Wertung (Pfeile mit Zuordnung: {e['pfeile_mit_schuetzenzuordnung']}/{e['pfeile_gesamt']}, "
                    f"aussagekraeftig: {e['aussagekraeftig']}, Mindestpfeile: {e['mindestpfeile_fuer_rangliste']})")
