@@ -132,7 +132,9 @@ function convert(markdown, withFactCheck) {
         continue;
       }
       if (t.startsWith("- ")) {
-        children.push(new Paragraph({ numbering: { reference: "bullets", level: 0 }, spacing: { after: 60 }, children: inlineRuns(t.slice(2)) }));
+        const level = /^\s{2,}- /.test(line) ? 1 : 0; // eingerueckte Unterpunkte
+        children.push(new Paragraph({ numbering: { reference: "bullets", level }, spacing: { after: 60 },
+          keepNext: level === 0 && i + 1 < src.length && /^\s{2,}- /.test(src[i + 1]), children: inlineRuns(t.slice(2)) }));
         continue;
       }
       if (t === "---") {
@@ -184,8 +186,11 @@ async function main() {
       ],
     },
     numbering: {
-      config: [{ reference: "bullets", levels: [{ level: 0, format: LevelFormat.BULLET, text: "•", alignment: AlignmentType.LEFT,
-        style: { paragraph: { indent: { left: 720, hanging: 360 } } } }] }],
+      config: [{ reference: "bullets", levels: [
+        { level: 0, format: LevelFormat.BULLET, text: "•", alignment: AlignmentType.LEFT,
+          style: { paragraph: { indent: { left: 720, hanging: 360 } } } },
+        { level: 1, format: LevelFormat.BULLET, text: "–", alignment: AlignmentType.LEFT,
+          style: { paragraph: { indent: { left: 1440, hanging: 360 } } } }] }],
     },
     sections: [{
       properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } } },
