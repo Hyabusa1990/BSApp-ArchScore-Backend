@@ -171,6 +171,7 @@ namespace Fawkes.Store
                 FawkesDbContext.DisplayType.None => DisplayType.None,
                 FawkesDbContext.DisplayType.Match => DisplayType.Match,
                 FawkesDbContext.DisplayType.Table => DisplayType.Table,
+                FawkesDbContext.DisplayType.Overview => DisplayType.Overview,
                 _ => throw new ArgumentOutOfRangeException(nameof(displayType), $"Not expected display type value: {displayType}"),
             };
         }
@@ -343,6 +344,7 @@ namespace Fawkes.Store
                 DisplayType.None => FawkesDbContext.DisplayType.None,
                 DisplayType.Match => FawkesDbContext.DisplayType.Match,
                 DisplayType.Table => FawkesDbContext.DisplayType.Table,
+                DisplayType.Overview => FawkesDbContext.DisplayType.Overview,
                 _ => throw new ArgumentOutOfRangeException(nameof(displayType), $"Not expected display type value: {displayType}")
             };
         }

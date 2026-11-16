@@ -86,34 +86,55 @@ namespace Fawkes.Api.Controllers
             if (displayData is MatchDisplayData matchDisplayData)
             {
                 result.DisplayType = DisplayType.Match;
-                result.Targets = matchDisplayData.Targets?.Select(t => new TargetDisplayData()
-                {
-                    TargetNo = t.TargetNo,
-                    TeamName = t.TeamName,
-                    SetScores = t.SetScores,
-                    Shots = t.Shots,
-                    CurrentSetScore = t.CurrentSetScore,
-                    CurrentSetConfirmed = t.IsConfirmed,
-                    SetPoints = t.SetPoints
-                }).ToArray();
+                result.Targets = ConvertTargets(matchDisplayData.Targets);
             }
 
             if (displayData is TableDisplayData tableDisplayData)
             {
                 result.DisplayType = DisplayType.Table;
-                result.LeagueTablePositions = tableDisplayData.Positions?.Select(p => new LeagueTablePosition()
+                result.LeagueTablePositions = ConvertPositions(tableDisplayData.Positions);
+            }
+
+            if (displayData is OverviewDisplayData overviewDisplayData)
+            {
+                result.DisplayType = DisplayType.Overview;
+                result.LeagueTablePositions = ConvertPositions(overviewDisplayData.Positions);
+                result.Matches = overviewDisplayData.Matches.Select(m => new MatchDisplayDataResponse()
                 {
-                    Rank = p.Rank,
-                    RankDifference = p.RankDifference,
-                    TeamName = p.TeamName,
-                    SetPointsWon = p.SetPointsWon,
-                    SetPointsLost = p.SetPointsLost,
-                    MatchPointsWon = p.MatchPointsWon,
-                    MatchPointsLost = p.MatchPointsLost
+                    MatchNo = m.MatchNo,
+                    Targets = ConvertTargets(m.Targets) ?? []
                 }).ToArray();
             }
 
             return result;
+        }
+
+        private static TargetDisplayData[]? ConvertTargets(IEnumerable<MatchDisplayData.MatchTargetDisplayData>? targets)
+        {
+            return targets?.Select(t => new TargetDisplayData()
+            {
+                TargetNo = t.TargetNo,
+                TeamName = t.TeamName,
+                SetScores = t.SetScores,
+                Shots = t.Shots,
+                CurrentSetScore = t.CurrentSetScore,
+                CurrentSetConfirmed = t.IsConfirmed,
+                SetPoints = t.SetPoints
+            }).ToArray();
+        }
+
+        private static LeagueTablePosition[]? ConvertPositions(IEnumerable<Core.Model.LeagueTablePosition>? positions)
+        {
+            return positions?.Select(p => new LeagueTablePosition()
+            {
+                Rank = p.Rank,
+                RankDifference = p.RankDifference,
+                TeamName = p.TeamName,
+                SetPointsWon = p.SetPointsWon,
+                SetPointsLost = p.SetPointsLost,
+                MatchPointsWon = p.MatchPointsWon,
+                MatchPointsLost = p.MatchPointsLost
+            }).ToArray();
         }
 
         private DisplayTheme ConvertToResponse(Core.Model.DisplayTheme theme)
@@ -172,6 +193,11 @@ namespace Fawkes.Api.Controllers
 
             public LeagueTablePosition[]? LeagueTablePositions { get; set; }
 
+            /// <summary>
+            /// All matches of the current round, ordered by match number. Only set for the Overview display type; empty before the first round.
+            /// </summary>
+            public MatchDisplayDataResponse[]? Matches { get; set; }
+
             public string DeviceCode { get; set; }
         }
 
@@ -216,6 +242,22 @@ namespace Fawkes.Api.Controllers
             public int? SetPoints { get; set; }
         }
 
+        /// <summary>
+        /// One match of the current round on an Overview display.
+        /// </summary>
+        public class MatchDisplayDataResponse
+        {
+            /// <summary>
+            /// Match number; match n is played on targets 2n-1 and 2n.
+            /// </summary>
+            public int MatchNo { get; set; }
+
+            /// <summary>
+            /// Both targets of the match, with the same fields as on a Match display.
+            /// </summary>
+            public TargetDisplayData[] Targets { get; set; } = [];
+        }
+
         public class LeagueTablePosition
         {
             public int Rank { get; set; }
@@ -250,7 +292,12 @@ namespace Fawkes.Api.Controllers
             /// <summary>
             /// Display device showing table/standings information.
             /// </summary>
-            Table
+            Table,
+
+            /// <summary>
+            /// Display device showing the league table together with all matches of the current round.
+            /// </summary>
+            Overview
         }
 
         public enum DisplayTheme

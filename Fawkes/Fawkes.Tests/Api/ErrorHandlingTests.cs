@@ -210,6 +210,19 @@ namespace Fawkes.Api
             await deviceService.DidNotReceiveWithAnyArgs().UpdateDeviceAsync(default, default, default!, default, default, default);
         }
 
+        [Test]
+        public async Task OverviewDisplayTypeCanBeSetAndReadBack()
+        {
+            Authenticate();
+            deviceService.UpdateDeviceAsync(1, 7, User, Core.Model.DisplayType.Overview, Core.Model.DisplayTheme.Dark, null)
+                .Returns(new Device() { Id = 7, Code = "777777", DisplayType = Core.Model.DisplayType.Overview, DisplayTheme = Core.Model.DisplayTheme.Dark });
+
+            var response = await client.PutAsJsonAsync("/fixtures/1/devices/7", new { displayType = "Overview", displayTheme = "Dark" });
+
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), await response.Content.ReadAsStringAsync());
+            Assert.That((await response.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("displayType").GetString(), Is.EqualTo("Overview"));
+        }
+
         // --- Success codes -----------------------------------------------------------------------
 
         [Test]

@@ -108,5 +108,56 @@ namespace Fawkes.Api
 
             Assert.That(data.GetProperty("displayType").GetString(), Is.EqualTo("None"));
         }
+
+        [Test]
+        public async Task OverviewShowsTableAndAllMatchesOfCurrentRound()
+        {
+            SetupDevice(DisplayType.Overview, currentRoundNo: 1);
+            dataStore.GetLeagueTableAsync(FixtureId).Returns(new LeagueTable()
+            {
+                Positions = [new LeagueTablePosition() { TeamId = 1, TeamName = "A", Rank = 1 }, new LeagueTablePosition() { TeamId = 2, TeamName = "B", Rank = 2 }]
+            });
+            // Match 2 is listed first on purpose: the overview orders matches by number.
+            dataStore.GetTargetDataAsync(FixtureId, (int?)1, null).Returns(new[]
+            {
+                new TargetData() { RoundNo = 1, TargetNo = 3, TeamName = "C", Shots = "999" },
+                new TargetData() { RoundNo = 1, TargetNo = 4, TeamName = "D", Shots = "888" },
+                new TargetData() { RoundNo = 1, TargetNo = 1, TeamName = "A", Shots = "++++++", ConfirmedSet01Score = 60 },
+                new TargetData() { RoundNo = 1, TargetNo = 2, TeamName = "B", Shots = "999999", ConfirmedSet01Score = 54 }
+            });
+
+            var data = await GetDisplayDataAsync();
+
+            Assert.That(data.GetProperty("displayType").GetString(), Is.EqualTo("Overview"));
+            Assert.That(data.GetProperty("leagueTablePositions").GetArrayLength(), Is.EqualTo(2));
+
+            var matches = data.GetProperty("matches").EnumerateArray().ToList();
+            Assert.That(matches.Select(m => m.GetProperty("matchNo").GetInt32()), Is.EqualTo(new[] { 1, 2 }));
+
+            var match1 = matches[0].GetProperty("targets").EnumerateArray().ToList();
+            Assert.That(match1.Select(t => t.GetProperty("teamName").GetString()), Is.EqualTo(new[] { "A", "B" }));
+            Assert.That(match1.Select(t => t.GetProperty("setPoints").GetInt32()), Is.EqualTo(new[] { 2, 0 }));
+
+            var match2 = matches[1].GetProperty("targets").EnumerateArray().ToList();
+            Assert.That(match2.Select(t => t.GetProperty("shots").GetString()), Is.EqualTo(new[] { "999", "888" }));
+            Assert.That(match2.Select(t => t.GetProperty("currentSetScore").GetInt32()), Is.EqualTo(new[] { 27, 24 }));
+        }
+
+        [Test]
+        public async Task OverviewWithoutCurrentRoundShowsOnlyTheTable()
+        {
+            SetupDevice(DisplayType.Overview, currentRoundNo: 0);
+            dataStore.GetLeagueTableAsync(FixtureId).Returns(new LeagueTable()
+            {
+                Positions = [new LeagueTablePosition() { TeamId = 1, TeamName = "A", Rank = 1 }]
+            });
+            dataStore.GetTargetDataAsync(FixtureId, (int?)0, null).Returns(Array.Empty<TargetData>());
+
+            var data = await GetDisplayDataAsync();
+
+            Assert.That(data.GetProperty("displayType").GetString(), Is.EqualTo("Overview"));
+            Assert.That(data.GetProperty("leagueTablePositions").GetArrayLength(), Is.EqualTo(1));
+            Assert.That(data.GetProperty("matches").GetArrayLength(), Is.EqualTo(0));
+        }
     }
 }

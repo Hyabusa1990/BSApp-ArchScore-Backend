@@ -174,7 +174,8 @@ namespace Fawkes.Store
         {
             None = 0,
             Match = 1,
-            Table = 2
+            Table = 2,
+            Overview = 3
         }
 
         public enum AccessLevel

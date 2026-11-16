@@ -60,35 +60,13 @@ namespace Fawkes.Core.Services
                     };
                 }
 
-                
-                var scoringRules = ruleSetFactory.GetScoringRuleSet(fixture.RuleSetKey);
-                var matchPlayRules = ruleSetFactory.GetMatchPlayRuleSet(fixture.RuleSetKey);
-
-
-                var match = matchPlayRules.EvaluateMatch(targets.Select(scoringRules.EvaluateScoresheet).ToArray());
-
-                var setNo = Math.Min(targets.Min(t => t.CurrentSetNo), matchPlayRules.MaxEndNo);
-
-
-
-
+                var (minNoOfSets, matchTargets) = EvaluateMatch(fixture, targets);
 
                 return new MatchDisplayData()
                 {
                     Theme = device.DisplayTheme,
-                    MinNoOfSets = match.MinExpectedNoOfSets,                    
-                    Targets = match.Scoresheets.Select(s => new MatchDisplayData.MatchTargetDisplayData()
-                    {
-                        TargetNo = s.TargetNo,
-                        CurrentSetNo = setNo,
-                        TeamName = s.TeamName,
-                        Shots = s[setNo].Shots,
-                        CurrentSetScore = s[setNo].Score,
-                        SetScores = Enumerable.Range(1, setNo).Select(i  => s[i].Score).Where(_ => _ != null).ToArray(),
-                        SetPoints = s.SetPoints,
-                        IsConfirmed = s[setNo].IsConfirmed
-                    }).ToArray()
-
+                    MinNoOfSets = minNoOfSets,
+                    Targets = matchTargets
                 };
             }
             else if (device.DisplayType == DisplayType.Table)
@@ -101,10 +79,59 @@ namespace Fawkes.Core.Services
                     Positions = table.Positions
                 };
             }
+            else if (device.DisplayType == DisplayType.Overview)
+            {
+                var table = await dataStore.GetLeagueTableAsync(fixture.Id);
+
+                // Before the first round (round 0) there are no target assignments, so only the table is shown.
+                var matches = (await dataStore.GetTargetDataAsync(fixture.Id, fixture.CurrentRoundNo))
+                    .GroupBy(t => (t.TargetNo + 1) / 2)
+                    .OrderBy(m => m.Key)
+                    .Select(m =>
+                    {
+                        var (minNoOfSets, matchTargets) = EvaluateMatch(fixture, m.ToArray());
+                        return new OverviewDisplayData.OverviewMatch()
+                        {
+                            MatchNo = m.Key,
+                            MinNoOfSets = minNoOfSets,
+                            Targets = matchTargets
+                        };
+                    })
+                    .ToArray();
+
+                return new OverviewDisplayData()
+                {
+                    Theme = device.DisplayTheme,
+                    Positions = table.Positions,
+                    Matches = matches
+                };
+            }
 
             throw new NotImplementedException($"Display type {device.DisplayType} is not implemented.");
+        }
 
+        // Both targets of a match are shown on the set that is currently being shot: the lower set
+        // number of the two, capped at the last set once the match is over.
+        private (int MinNoOfSets, MatchDisplayData.MatchTargetDisplayData[] Targets) EvaluateMatch(Fixture fixture, TargetData[] targets)
+        {
+            var scoringRules = ruleSetFactory.GetScoringRuleSet(fixture.RuleSetKey);
+            var matchPlayRules = ruleSetFactory.GetMatchPlayRuleSet(fixture.RuleSetKey);
 
+            var match = matchPlayRules.EvaluateMatch(targets.Select(scoringRules.EvaluateScoresheet).ToArray());
+
+            var setNo = Math.Min(targets.Min(t => t.CurrentSetNo), matchPlayRules.MaxEndNo);
+
+            return (match.MinExpectedNoOfSets, match.Scoresheets.Select(s => new MatchDisplayData.MatchTargetDisplayData()
+            {
+                TargetNo = s.TargetNo,
+                CurrentSetNo = setNo,
+                TeamName = s.TeamName,
+                Shots = s[setNo].Shots,
+                CurrentSetScore = s[setNo].Score,
+                SetScores = Enumerable.Range(1, setNo).Select(i => s[i].Score).Where(_ => _ != null).ToArray(),
+                SetPoints = s.SetPoints,
+                IsConfirmed = s[setNo].IsConfirmed
+            }).ToArray());
         }
     }
 

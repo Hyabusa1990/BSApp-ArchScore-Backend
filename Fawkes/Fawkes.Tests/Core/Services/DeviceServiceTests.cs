@@ -195,5 +195,18 @@ namespace Fawkes.Core.Services
 
             await dataStore.Received(1).UpdateDeviceAsync(device);
         }
+
+        [Test]
+        public async Task UpdateDeviceAllowsOverviewWithoutMatchNo()
+        {
+            var device = new Device() { Id = 7, Code = "777777", FixtureId = FixtureId };
+            dataStore.CheckWriteAccessToFixtureAsync(FixtureId, User).Returns(true);
+            dataStore.GetDeviceByIdAsync(7).Returns(device);
+
+            var result = await deviceService.UpdateDeviceAsync(FixtureId, 7, User, DisplayType.Overview, DisplayTheme.Dark, null);
+
+            Assert.That(result.DisplayType, Is.EqualTo(DisplayType.Overview));
+            await dataStore.Received(1).UpdateDeviceAsync(device);
+        }
     }
 }

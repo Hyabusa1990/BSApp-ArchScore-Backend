@@ -81,6 +81,7 @@ namespace Fawkes.Api.Controllers
                 Core.Model.DisplayType.None => DisplayType.None,
                 Core.Model.DisplayType.Match => DisplayType.Match,
                 Core.Model.DisplayType.Table => DisplayType.LeagueTable,
+                Core.Model.DisplayType.Overview => DisplayType.Overview,
                 _ => throw new ArgumentOutOfRangeException(nameof(displayType), $"Not expected display type value: {displayType}")
             };
         }
@@ -170,6 +171,8 @@ namespace Fawkes.Api.Controllers
                     return Core.Model.DisplayType.Match;
                 case DisplayType.LeagueTable:
                     return Core.Model.DisplayType.Table;
+                case DisplayType.Overview:
+                    return Core.Model.DisplayType.Overview;
                 default:
                     throw new InvalidRequestException($"Unknown display type '{displayType}'.", "INVALID_DISPLAY_TYPE");
             }   
@@ -234,7 +237,12 @@ namespace Fawkes.Api.Controllers
             /// <summary>
             /// The device should display information related to the league table. The MatchNo property of the device is not relevant when DisplayType is set to LeagueTable.
             /// </summary>
-            LeagueTable
+            LeagueTable,
+
+            /// <summary>
+            /// The device should display the league table together with all matches of the current round. The MatchNo property of the device is not relevant when DisplayType is set to Overview.
+            /// </summary>
+            Overview
         }
 
         /// <summary>
