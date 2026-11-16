@@ -36,6 +36,7 @@ namespace Fawkes.Core.Rules.Scoring
                 TeamId = target.TeamId
             };
             var shots = (target.Shots ?? string.Empty).ToArray();
+            var certainty = (target.Certainty ?? string.Empty).ToArray();
             var setScores = new[]
             {
                 target.ConfirmedSet01Score,
@@ -51,7 +52,10 @@ namespace Fawkes.Core.Rules.Scoring
                 result[setNo].Score = setScores[setNo - 1] ?? EvaluateScore(result[setNo].Shots);
                 result[setNo].NoOfShots = EvaluateNoOfShots(result[setNo].Shots);
                 result[setNo].IsConfirmed = setScores[setNo - 1].HasValue;
+                // Older rows have no certainty at all, so the markers are padded to the set's shots (blank = certain).
+                result[setNo].Certainty = new string(certainty.Take(noOfShotsPerSet).ToArray()).PadRight(result[setNo].Shots.Length, ' ')[..result[setNo].Shots.Length];
                 shots = shots.Skip(noOfShotsPerSet).ToArray();
+                certainty = certainty.Skip(noOfShotsPerSet).ToArray();
             }
             return result;
         }

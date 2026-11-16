@@ -122,6 +122,9 @@ namespace Fawkes.Store.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Certainty")
+                        .HasColumnType("text");
+
                     b.Property<int?>("ConfirmedSet01Score")
                         .HasColumnType("integer");
 

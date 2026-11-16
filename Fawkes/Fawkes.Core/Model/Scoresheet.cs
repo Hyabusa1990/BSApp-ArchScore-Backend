@@ -33,11 +33,16 @@ namespace Fawkes.Core.Model
 
         public string AllShots => string.Concat(sets.Select(s => (s.Shots ?? string.Empty).PadRight(noOfShotsPerSet,' ')).Concat(new[] { (shootOff.Shots ?? string.Empty).PadRight(noOfShootOffShotsForShootOff,' ') }));
 
+        // Same layout as AllShots, so every certainty marker stays in line with its shot.
+        public string AllCertainty => string.Concat(sets.Select(s => (s.Certainty ?? string.Empty).PadRight(noOfShotsPerSet, ' ')).Concat(new[] { (shootOff.Certainty ?? string.Empty).PadRight(noOfShootOffShotsForShootOff, ' ') }));
+
         public IEnumerable<Set> Sets => sets;
 
         public class Set(int noOfShotsExpected)
         {
             public string Shots { get; set; } = string.Empty;
+            /// <summary>One character per shot: '*' marks an uncertain shot, ' ' a certain one.</summary>
+            public string Certainty { get; set; } = string.Empty;
             public int? Score { get; set; }
             public int NoOfShots { get; set; } = 0;
             public bool IsConfirmed { get; set; }

@@ -117,6 +117,7 @@ namespace Fawkes.Api.Controllers
                 TeamName = t.TeamName,
                 SetScores = t.SetScores,
                 Shots = t.Shots,
+                Certainty = t.Certainty,
                 CurrentSetScore = t.CurrentSetScore,
                 CurrentSetConfirmed = t.IsConfirmed,
                 SetPoints = t.SetPoints
@@ -225,6 +226,11 @@ namespace Fawkes.Api.Controllers
             /// Shot values obtained by the team in the current set. 10 is encoded as "+" and "M" is encoded as "0". All other shot values are encoded as their respective integer values. For example, a shot value of 9 is encoded as "9". The shot values are concatenated into a single string. For example, if the team has shot 10, M, and 8 in the current set, the Shots property would be set to "+08".
             /// </summary>
             public string? Shots { get; set; }
+
+            /// <summary>
+            /// Certainty of each shot in Shots, one character per shot at the same position: "*" marks a shot the spotter marked as uncertain, a blank a certain one. Always as long as Shots.
+            /// </summary>
+            public string? Certainty { get; set; }
 
             /// <summary>
             /// The current set score of the team in the match. This is the total score obtained by the team in the current set.

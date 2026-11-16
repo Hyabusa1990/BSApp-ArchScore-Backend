@@ -10,12 +10,14 @@ namespace Fawkes.Core.Services
     public interface ISpotterService
     {
         Task<SpotterTargetData> GetTargetDataAsync(Guid fixtureUniqueId, int targetNo);
-        Task<SpotterTargetData> ProcessShotsAsync(Guid fixtureUniqueId, int targetNo, string shots);
+        Task<SpotterTargetData> ProcessShotsAsync(Guid fixtureUniqueId, int targetNo, string shots, string? certainty = null);
         Task<SpotterTargetData> ConfirmEndScoreAsync(Guid fixtureUniqueId, int targetNo);
     }
 
     public class SpotterService(IFawkesDataStore dataStore, IRuleSetFactory ruleSetFactory, ILogger<SpotterService> logger) : ISpotterService
     {
+        public const char UncertainMarker = '*';
+
         // Once every set is confirmed, CurrentSetNo points past the last set; stay on the last one instead.
         private static int GetCurrentSetNo(TargetData targetData, Scoresheet scoresheet)
             => Math.Min(targetData.CurrentSetNo, scoresheet.Sets.Count());
@@ -71,13 +73,14 @@ namespace Fawkes.Core.Services
                 CurrentSetNo = setNo,
                 TeamName = targetData.TeamName,
                 Shots = scoresheet[setNo].Shots,
+                Certainty = scoresheet[setNo].Certainty,
                 CurrentSetScore = scoresheet[setNo].Score,
                 IsConfirmed = scoresheet[setNo].IsConfirmed,
                 MatchComplete = await IsMatchCompleteAsync(fixture, targetNo)
             };
         }
 
-        public async Task<SpotterTargetData> ProcessShotsAsync(Guid fixtureUniqueId, int targetNo, string shots)
+        public async Task<SpotterTargetData> ProcessShotsAsync(Guid fixtureUniqueId, int targetNo, string shots, string? certainty = null)
         {
             var fixture = await dataStore.GetFixtureByUniqueIdAsync(fixtureUniqueId);
             if (fixture == null)
@@ -97,15 +100,21 @@ namespace Fawkes.Core.Services
             if (scoresheet[setNo].IsConfirmed)
                 throw new ConflictException($"All sets for TargetNo {targetNo} in Fixture {fixtureUniqueId} and round number {fixture.CurrentRoundNo} have already been confirmed.", "ALL_SETS_CONFIRMED");
 
+            certainty ??= string.Empty;
+            if (certainty.Any(c => c != ' ' && c != UncertainMarker))
+                throw new InvalidRequestException($"Certainty '{certainty}' may only contain blanks and '{UncertainMarker}'.", "INVALID_CERTAINTY");
+
             scoresheet[setNo].Shots = shots;
+            // One marker per shot: missing markers mean certain, markers beyond the last shot are dropped.
+            scoresheet[setNo].Certainty = certainty.PadRight(shots.Length, ' ')[..shots.Length];
             scoresheet[setNo].Score = ruleSet.EvaluateScore(shots);
 
 
-            await dataStore.SaveShotsAsync(fixture.Id, fixture.CurrentRoundNo, targetNo, scoresheet.AllShots);
+            await dataStore.SaveShotsAsync(fixture.Id, fixture.CurrentRoundNo, targetNo, scoresheet.AllShots, scoresheet.AllCertainty);
 
             // Called for every arrow, so only at debug level.
-            logger.LogDebug("Spotter entered shots '{Shots}' for set {SetNo} on target {TargetNo}, round {RoundNo} of fixture {FixtureId}",
-                shots, setNo, targetNo, fixture.CurrentRoundNo, fixture.Id);
+            logger.LogDebug("Spotter entered shots '{Shots}' (certainty '{Certainty}') for set {SetNo} on target {TargetNo}, round {RoundNo} of fixture {FixtureId}",
+                shots, scoresheet[setNo].Certainty, setNo, targetNo, fixture.CurrentRoundNo, fixture.Id);
 
 
             return new SpotterTargetData
@@ -114,6 +123,7 @@ namespace Fawkes.Core.Services
                 CurrentSetNo = setNo,
                 TeamName = targetData.TeamName,
                 Shots = scoresheet[setNo].Shots,
+                Certainty = scoresheet[setNo].Certainty,
                 CurrentSetScore = scoresheet[setNo].Score,
                 IsConfirmed = scoresheet[setNo].IsConfirmed,
                 // Unconfirmed shots never decide a match, so the stored state is sufficient here.
@@ -169,6 +179,7 @@ namespace Fawkes.Core.Services
                 CurrentSetNo = setNo,
                 TeamName = targetData.TeamName,
                 Shots = scoresheet[setNo].Shots,
+                Certainty = scoresheet[setNo].Certainty,
                 CurrentSetScore = scoresheet[setNo].Score,
                 IsConfirmed = scoresheet[setNo].IsConfirmed,
                 MatchComplete = matchComplete

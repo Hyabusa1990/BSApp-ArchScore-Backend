@@ -28,7 +28,7 @@ namespace Fawkes.Core.Abstractions
         Task<Team> AddTeamToFixtureAsync(int fixtureId, Team team);
         Task AssignTeamToTargetAsync(int fixtureId, int roundNo, int targetNo, int teamId);
         Task<TargetData> GetTargetDataAsync(int fixtureId, int roundNo, int targetNo);
-        Task SaveShotsAsync(int fixtureId, int currentRoundNo, int targetNo, string shots);
+        Task SaveShotsAsync(int fixtureId, int currentRoundNo, int targetNo, string shots, string certainty);
         Task SaveConfirmedSetScoreAsync(int fixtureId, int currentRoundNo, int targetNo, int currentSetNo, int? score);
         Task<IEnumerable<TargetData>> GetTargetDataAsync(int fixtureId, int? roundNo = null, int? matchNo = null);
         Task<LeagueTable> GetInitialLeagueTableAsync(int fixtureId);

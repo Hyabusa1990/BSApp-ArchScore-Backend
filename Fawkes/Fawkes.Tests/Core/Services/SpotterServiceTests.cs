@@ -140,11 +140,68 @@ namespace Fawkes.Core.Services
             Assert.That(data.CurrentSetNo, Is.EqualTo(2));
             Assert.That(data.Shots, Is.EqualTo("++8"));
             Assert.That(data.CurrentSetScore, Is.EqualTo(28));
-            await dataStore.Received(1).SaveShotsAsync(FixtureId, RoundNo, TargetNo, "999999++8".PadRight(30));
+            await dataStore.Received(1).SaveShotsAsync(FixtureId, RoundNo, TargetNo, "999999++8".PadRight(30), "".PadRight(30));
 
             // Shot entries happen for every arrow, so they stay at debug level.
             Assert.That(logger.Collector.GetSnapshot().Select(r => r.Level), Is.All.EqualTo(LogLevel.Debug));
             Assert.That(logger.Collector.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public async Task ProcessShotsStoresCertaintyAlongsideShots()
+        {
+            SetupFixture();
+            SetupTarget("999999888", confirmedSet01Score: 54);
+
+            var data = await spotterService.ProcessShotsAsync(FixtureUniqueId, TargetNo, "++8", " *");
+
+            // Padded to one marker per shot, and stored in the same layout as the shots.
+            Assert.That(data.Certainty, Is.EqualTo(" * "));
+            Assert.That(data.CurrentSetScore, Is.EqualTo(28));
+            await dataStore.Received(1).SaveShotsAsync(FixtureId, RoundNo, TargetNo, "999999++8".PadRight(30), "       *".PadRight(30));
+        }
+
+        [Test]
+        public async Task ProcessShotsDropsCertaintyBeyondTheLastShot()
+        {
+            SetupFixture();
+            SetupTarget("");
+
+            var data = await spotterService.ProcessShotsAsync(FixtureUniqueId, TargetNo, "9", "  *");
+
+            Assert.That(data.Certainty, Is.EqualTo(" "));
+        }
+
+        [TestCase("x")]
+        [TestCase(" ?")]
+        public void ProcessShotsRejectsUnknownCertaintyMarkers(string certainty)
+        {
+            SetupFixture();
+            SetupTarget("");
+
+            var ex = Assert.ThrowsAsync<InvalidRequestException>(() => spotterService.ProcessShotsAsync(FixtureUniqueId, TargetNo, "99", certainty));
+            Assert.That(ex!.Code, Is.EqualTo("INVALID_CERTAINTY"));
+            dataStore.DidNotReceiveWithAnyArgs().SaveShotsAsync(default, default, default, default!, default!);
+        }
+
+        [Test]
+        public async Task GetTargetDataReturnsCertaintyOfCurrentSet()
+        {
+            SetupFixture();
+            dataStore.GetTargetDataAsync(FixtureId, RoundNo, TargetNo).Returns(new TargetData()
+            {
+                RoundNo = RoundNo,
+                TargetNo = TargetNo,
+                TeamName = "Team A",
+                Shots = "999999888",
+                Certainty = "*      *",
+                ConfirmedSet01Score = 54
+            });
+
+            var data = await spotterService.GetTargetDataAsync(FixtureUniqueId, TargetNo);
+
+            Assert.That(data.Shots, Is.EqualTo("888"));
+            Assert.That(data.Certainty, Is.EqualTo(" * "));
         }
 
         [Test]
@@ -168,7 +225,7 @@ namespace Fawkes.Core.Services
             SetupFinishedTarget();
 
             Assert.ThrowsAsync<ConflictException>(() => spotterService.ProcessShotsAsync(FixtureUniqueId, TargetNo, "++++++"));
-            await dataStore.DidNotReceiveWithAnyArgs().SaveShotsAsync(default, default, default, default!);
+            await dataStore.DidNotReceiveWithAnyArgs().SaveShotsAsync(default, default, default, default!, default!);
         }
 
         [Test]

@@ -27,6 +27,7 @@ namespace Fawkes.Api.Controllers
                 CurrentSetNo = targetData.CurrentSetNo,
                 TeamName = targetData.TeamName,
                 Shots = targetData.Shots,
+                Certainty = targetData.Certainty,
                 CurrentSetScore = targetData.CurrentSetScore,
                 IsConfirmed = targetData.IsConfirmed,
                 MatchComplete = targetData.MatchComplete
@@ -47,7 +48,7 @@ namespace Fawkes.Api.Controllers
         [HttpPut("fixtures/{fixtureUniqueId}/targets/{targetNo}/spotter/shots")]
         public async Task<ActionResult<GetSpotterTargetInfo>> UpdateTargetAsync(Guid fixtureUniqueId, int targetNo, SubmitShotsRequest request)
         {
-            var targetInfo = await spotterService.ProcessShotsAsync(fixtureUniqueId, targetNo, request.Shots);
+            var targetInfo = await spotterService.ProcessShotsAsync(fixtureUniqueId, targetNo, request.Shots, request.Certainty);
 
 
             return Ok(new GetSpotterTargetInfo
@@ -56,6 +57,7 @@ namespace Fawkes.Api.Controllers
                 CurrentSetNo = targetInfo.CurrentSetNo,
                 TeamName = targetInfo.TeamName,
                 Shots = targetInfo.Shots,
+                Certainty = targetInfo.Certainty,
                 CurrentSetScore = targetInfo.CurrentSetScore,
                 IsConfirmed = targetInfo.IsConfirmed,
                 MatchComplete = targetInfo.MatchComplete
@@ -82,6 +84,7 @@ namespace Fawkes.Api.Controllers
                 CurrentSetNo = targetInfo.CurrentSetNo,
                 TeamName = targetInfo.TeamName,
                 Shots = targetInfo.Shots,
+                Certainty = targetInfo.Certainty,
                 CurrentSetScore = targetInfo.CurrentSetScore,
                 IsConfirmed = targetInfo.IsConfirmed,
                 MatchComplete = targetInfo.MatchComplete
@@ -143,6 +146,11 @@ namespace Fawkes.Api.Controllers
             /// Shot values obtained by the team in the current set. 10 is encoded as "+" and "M" is encoded as "0". All other shot values are encoded as their respective integer values. For example, a shot value of 9 is encoded as "9". The shot values are concatenated into a single string. For example, if the team has shot 10, M, and 8 in the current set, the Shots property would be set to "+08".
             /// </summary>
             public required string Shots { get; set; }
+
+            /// <summary>
+            /// Certainty of each shot in Shots, one character per shot at the same position: "*" marks an uncertain shot, a blank a certain one. For example, if the spotter is unsure about the second shot of "+08", Certainty would be " * ". Missing characters count as certain, so the property can be omitted when all shots are certain.
+            /// </summary>
+            public string? Certainty { get; set; }
         }
     }
 }

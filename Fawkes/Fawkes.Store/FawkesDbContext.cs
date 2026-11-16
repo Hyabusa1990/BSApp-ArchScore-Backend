@@ -123,6 +123,7 @@ namespace Fawkes.Store
             public int TargetNo { get; set; }
 
             public string Shots { get; set; } = string.Empty;
+            public string? Certainty { get; set; }
             public int? ConfirmedSet01Score { get; set; }
             public int? ConfirmedSet02Score { get; set; }
             public int? ConfirmedSet03Score { get; set; }

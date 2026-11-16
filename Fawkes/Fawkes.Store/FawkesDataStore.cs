@@ -424,6 +424,7 @@ namespace Fawkes.Store
                 TeamName = targetAssignment.Team.Name,
                 TeamId = targetAssignment.TeamId,
                 Shots = targetAssignment.Shots,
+                Certainty = targetAssignment.Certainty ?? string.Empty,
                 ConfirmedSet01Score = targetAssignment.ConfirmedSet01Score,
                 ConfirmedSet02Score = targetAssignment.ConfirmedSet02Score,
                 ConfirmedSet03Score = targetAssignment.ConfirmedSet03Score,
@@ -432,7 +433,7 @@ namespace Fawkes.Store
             };
         }
 
-        public async Task SaveShotsAsync(int fixtureId, int currentRoundNo, int targetNo, string shots)
+        public async Task SaveShotsAsync(int fixtureId, int currentRoundNo, int targetNo, string shots, string certainty)
         {
             var targetAssignment = await context.TargetAssignments
                 .FirstOrDefaultAsync(ta => ta.FixtureId == fixtureId && ta.RoundNo == currentRoundNo && ta.TargetNo == targetNo);
@@ -441,6 +442,7 @@ namespace Fawkes.Store
                 throw new NotFoundException($"TargetAssignment not found for FixtureId={fixtureId}, RoundNo={currentRoundNo}, TargetNo={targetNo}", "TARGET_NOT_FOUND");
 
             targetAssignment.Shots = shots;
+            targetAssignment.Certainty = certainty;
 
             await context.SaveChangesAsync();
         }

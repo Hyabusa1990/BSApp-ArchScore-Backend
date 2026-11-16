@@ -114,7 +114,7 @@ namespace Fawkes.Core.Services
             SetupFixture();
             dataStore.GetTargetDataAsync(3, (int?)1, (int?)1).Returns(new[]
             {
-                new TargetData() { TargetNo = 1, TeamName = "A", Shots = "999999888888", ConfirmedSet01Score = 54 },
+                new TargetData() { TargetNo = 1, TeamName = "A", Shots = "999999888888", Certainty = "      *", ConfirmedSet01Score = 54 },
                 new TargetData() { TargetNo = 2, TeamName = "B", Shots = "888888999999", ConfirmedSet01Score = 48 }
             });
 
@@ -130,11 +130,13 @@ namespace Fawkes.Core.Services
             Assert.That(targets.Select(t => t.IsConfirmed), Is.All.False);
 
             Assert.That(targets[0].Shots, Is.EqualTo("888888"));
+            Assert.That(targets[0].Certainty, Is.EqualTo("*     "));
             Assert.That(targets[0].CurrentSetScore, Is.EqualTo(48));
             Assert.That(targets[0].SetScores, Is.EqualTo(new int?[] { 54, 48 }));
             Assert.That(targets[0].SetPoints, Is.EqualTo(2));
 
             Assert.That(targets[1].Shots, Is.EqualTo("999999"));
+            Assert.That(targets[1].Certainty, Is.EqualTo("      "));
             Assert.That(targets[1].CurrentSetScore, Is.EqualTo(54));
             Assert.That(targets[1].SetPoints, Is.EqualTo(0));
 

@@ -78,6 +78,34 @@ namespace Fawkes.Core.Rules
         }
 
         [Test]
+        public void EvaluateScoresheetSplitsCertaintyLikeShots()
+        {
+            var scoresheet = scoringRules.EvaluateScoresheet(new TargetData()
+            {
+                Shots = "999999888",
+                Certainty = "  *    *"
+            });
+
+            Assert.That(scoresheet[1].Certainty, Is.EqualTo("  *   "));
+            Assert.That(scoresheet[2].Certainty, Is.EqualTo(" * "));
+            Assert.That(scoresheet[3].Certainty, Is.Empty);
+            Assert.That(scoresheet.AllCertainty, Is.EqualTo("  *    * ".PadRight(30)));
+        }
+
+        [Test]
+        public void EvaluateScoresheetTreatsMissingCertaintyAsCertain()
+        {
+            var scoresheet = scoringRules.EvaluateScoresheet(new TargetData()
+            {
+                Shots = "999999888",
+                Certainty = null!
+            });
+
+            Assert.That(scoresheet[1].Certainty, Is.EqualTo("      "));
+            Assert.That(scoresheet[2].Certainty, Is.EqualTo("   "));
+        }
+
+        [Test]
         public void EvaluateScoresheetPrefersConfirmedSetScores()
         {
             var scoresheet = scoringRules.EvaluateScoresheet(new TargetData()

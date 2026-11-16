@@ -139,6 +139,35 @@ namespace Fawkes.Api
         }
 
         [Test]
+        public async Task SubmitShotsPassesCertaintyThrough()
+        {
+            spotterService.ProcessShotsAsync(FixtureUniqueId, 3, "++8", " * ").Returns(new SpotterTargetData()
+            {
+                TargetNo = 3, CurrentSetNo = 1, TeamName = "A", Shots = "++8", Certainty = " * ", CurrentSetScore = 28
+            });
+
+            var response = await client.PutAsJsonAsync($"/fixtures/{FixtureUniqueId}/targets/3/spotter/shots", new { shots = "++8", certainty = " * " });
+
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.That(body.GetProperty("certainty").GetString(), Is.EqualTo(" * "));
+        }
+
+        [Test]
+        public async Task SubmitShotsWithoutCertaintyStillWorks()
+        {
+            spotterService.ProcessShotsAsync(FixtureUniqueId, 3, "++8", null).Returns(new SpotterTargetData()
+            {
+                TargetNo = 3, CurrentSetNo = 1, TeamName = "A", Shots = "++8", Certainty = "   ", CurrentSetScore = 28
+            });
+
+            var response = await client.PutAsJsonAsync($"/fixtures/{FixtureUniqueId}/targets/3/spotter/shots", new { shots = "++8" });
+
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            await spotterService.Received(1).ProcessShotsAsync(FixtureUniqueId, 3, "++8", null);
+        }
+
+        [Test]
         public async Task InvalidRequestIs400()
         {
             Authenticate();

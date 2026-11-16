@@ -127,6 +127,7 @@ namespace Fawkes.Core.Services
                 CurrentSetNo = setNo,
                 TeamName = s.TeamName,
                 Shots = s[setNo].Shots,
+                Certainty = s[setNo].Certainty,
                 CurrentSetScore = s[setNo].Score,
                 SetScores = Enumerable.Range(1, setNo).Select(i => s[i].Score).Where(_ => _ != null).ToArray(),
                 SetPoints = s.SetPoints,
