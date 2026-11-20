@@ -20,7 +20,7 @@ Der BSC Fulda führt mit 13:1 Punkten. Den einzigen Punktverlust brachte ihm die
 
 ## Herzlich willkommen in Idstein
 
-Ein großes Dankeschön geht schon jetzt an den BSC Oberauroff, der an diesem Wochenende gleich drei Hessenligen empfängt. Zuschauer sind herzlich willkommen, der Eintritt ist frei – erleben Sie spannenden Bogensport aus nächster Nähe und feuern Sie die Mannschaften an!
+Ein großes Dankeschön geht schon jetzt an den BSC Oberauroff, der an diesem Wochenende gleich drei Hessenligen empfängt. Die Idsteiner Halle gilt als besonders zuschauerfreundlich – die ideale Gelegenheit, spannenden Bogensport aus nächster Nähe zu erleben. Zuschauer sind herzlich willkommen, der Eintritt ist frei. Kommen Sie vorbei und feuern Sie die Mannschaften an!
 
 **BSC Oberauroff, Sporthalle am Taubenberg, Seelbacher Straße, 65510 Idstein**
 - Samstag, 5. Dezember 2026, ab 09:30 Uhr: Hessenliga Blankbogen, 2. Wettkampftag
@@ -47,5 +47,5 @@ Quellen: BuLiBow, Fixtures 196 (Blankbogen), 188 (Recurve) und 192 (Compound), j
 | Termine, Beginnzeiten, Halle und Adresse; 6.12.2026 = 2. Advent, Wochentage berechnet | Ligakalender |
 
 Offene Punkte:
-- **Nicht aus den Daten (Angabe der Redaktion):** „2. Advent in Idstein hat Tradition“, das Heimspiel des BSC Oberauroff in der 2. Bundesliga Nord am Samstagnachmittag (Uhrzeit nicht genannt) und die Winterpause nach diesem Wochenende. Bitte prüfen, ob das Bundesliga-Heimspiel ebenfalls in der Sporthalle am Taubenberg stattfindet.
+- **Nicht aus den Daten (Angabe der Redaktion):** „2. Advent in Idstein hat Tradition“, „Idsteiner Halle besonders zuschauerfreundlich“, das Heimspiel des BSC Oberauroff in der 2. Bundesliga Nord am Samstagnachmittag (Uhrzeit nicht genannt) und die Winterpause nach diesem Wochenende. Bitte prüfen, ob das Bundesliga-Heimspiel ebenfalls in der Sporthalle am Taubenberg stattfindet.
 - **Ringschnitt Görgen:** Er erreicht die Mindestzahl von 31 Pfeilen mit 52 Pfeilen. Es ist eine Statistik, keine offizielle Einzelwertung.
